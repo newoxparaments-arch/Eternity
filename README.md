@@ -1,1545 +1,3317 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ETERNITY — Investigação</title>
-<style>
-  :root {
-    --bg: #070b14;
-    --bg2: #0d1220;
-    --bg3: #111827;
-    --accent: #00d4ff;
-    --accent2: #7c3aed;
-    --accent3: #f43f5e;
-    --gold: #f59e0b;
-    --text: #e2e8f0;
-    --text2: #94a3b8;
-    --border: #1e293b;
-    --card: #0f172a;
-    --success: #10b981;
-    --danger: #ef4444;
-    --glow: 0 0 20px rgba(0,212,255,0.3);
-    --glow2: 0 0 20px rgba(124,58,237,0.3);
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eternity Legacy | Investigação & Inteligência Digital</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --red: #c0001a;
+      --red-bright: #ff0033;
+      --red-glow: #ff003366;
+      --dark: #000000;
+      --dark2: #080808;
+      --dark3: #0f0f0f;
+      --dark4: #141414;
+      --gray: #1a1a1a;
+      --gray2: #252525;
+      --text: #f0f0f0;
+      --text-dim: #999;
+      --border: #2a0008;
+    }
 
-  /* ===== PARTICLES ===== */
-  #particles {
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    pointer-events: none; z-index: 0; overflow: hidden;
-  }
-  .particle {
-    position: absolute;
-    width: 2px; height: 2px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: floatUp linear infinite;
-    opacity: 0;
-  }
-  @keyframes floatUp {
-    0%   { transform: translateY(100vh) translateX(0); opacity:0; }
-    10%  { opacity: 0.6; }
-    90%  { opacity: 0.3; }
-    100% { transform: translateY(-10vh) translateX(40px); opacity:0; }
-  }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* ===== NAVBAR ===== */
-  nav {
-    position: fixed; top:0; width:100%; z-index:1000;
-    background: rgba(7,11,20,0.92);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0,212,255,0.15);
-    padding: 0 2rem;
-    display: flex; align-items: center; justify-content: space-between;
-    height: 64px;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
-  }
-  .nav-logo {
-    font-size: 1.5rem; font-weight: 900; letter-spacing: 4px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    text-transform: uppercase; cursor: pointer;
-    filter: drop-shadow(0 0 8px rgba(0,212,255,0.4));
-  }
-  .nav-links {
-    display: flex; gap: 0.25rem; list-style: none;
-  }
-  .nav-links a {
-    padding: 0.4rem 0.9rem;
-    border-radius: 6px;
-    color: var(--text2);
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: all 0.25s;
-    border: 1px solid transparent;
-  }
-  .nav-links a:hover, .nav-links a.active {
-    color: var(--accent);
-    border-color: rgba(0,212,255,0.3);
-    background: rgba(0,212,255,0.07);
-    box-shadow: var(--glow);
-  }
-  .nav-admin-btn {
-    background: linear-gradient(135deg, var(--accent2), #4c1d95);
-    color: #fff !important;
-    border-color: transparent !important;
-    padding: 0.4rem 1rem !important;
-  }
-  .nav-admin-btn:hover {
-    box-shadow: var(--glow2) !important;
-    transform: translateY(-1px);
-  }
-  .hamburger {
-    display: none; flex-direction: column; gap: 5px;
-    background: none; border: none; cursor: pointer; padding: 4px;
-  }
-  .hamburger span {
-    display: block; width: 24px; height: 2px;
-    background: var(--accent); border-radius: 2px;
-    transition: all 0.3s;
-  }
-  .mobile-menu {
-    display: none; position: fixed; top: 64px; left: 0; right: 0;
-    background: rgba(7,11,20,0.98); backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0,212,255,0.15);
-    padding: 1rem; z-index: 999; flex-direction: column; gap: 0.5rem;
-  }
-  .mobile-menu.open { display: flex; }
-  .mobile-menu a {
-    padding: 0.75rem 1rem; border-radius: 8px; color: var(--text2);
-    text-decoration: none; font-size: 0.9rem; font-weight: 600;
-    letter-spacing: 1px; text-transform: uppercase;
-    border: 1px solid transparent; transition: all 0.2s;
-  }
-  .mobile-menu a:hover, .mobile-menu a.active {
-    color: var(--accent); border-color: rgba(0,212,255,0.3);
-    background: rgba(0,212,255,0.07);
-  }
-  .mobile-menu .nav-admin-btn {
-    background: linear-gradient(135deg, var(--accent2), #4c1d95) !important;
-    color: #fff !important; border-color: transparent !important;
-  }
-  @media(max-width: 860px) {
-    .nav-links { display: none; }
-    .hamburger { display: flex; }
-  }
+    html { scroll-behavior: smooth; }
 
-  /* ===== SECTIONS ===== */
-  section { display: none; padding-top: 64px; min-height: 100vh; position: relative; z-index:1; }
-  section.active { display: block; }
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+    }
 
-  /* ===== HERO ===== */
-  #home {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; text-align: center;
-    padding: 64px 2rem 4rem;
-    background: radial-gradient(ellipse at 50% 0%, rgba(0,212,255,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 80%, rgba(124,58,237,0.07) 0%, transparent 50%);
-  }
-  #home.active { display: flex; }
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    padding: 0.35rem 1rem;
-    border: 1px solid rgba(0,212,255,0.3);
-    border-radius: 999px;
-    background: rgba(0,212,255,0.05);
-    color: var(--accent); font-size: 0.75rem; font-weight: 600;
-    letter-spacing: 3px; text-transform: uppercase;
-    margin-bottom: 2rem;
-    animation: pulse-border 3s ease infinite;
-  }
-  @keyframes pulse-border {
-    0%,100% { box-shadow: 0 0 0 0 rgba(0,212,255,0.2); }
-    50%      { box-shadow: 0 0 0 8px rgba(0,212,255,0); }
-  }
-  .hero-title {
-    font-size: clamp(3rem, 8vw, 6rem);
-    font-weight: 900;
-    letter-spacing: 8px;
-    line-height: 1;
-    margin-bottom: 1.5rem;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent2) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 30px rgba(0,212,255,0.3));
-    animation: titleReveal 1s ease forwards;
-  }
-  @keyframes titleReveal {
-    from { opacity:0; transform: translateY(30px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
-  .hero-sub {
-    font-size: 1.1rem; color: var(--text2); max-width: 550px;
-    line-height: 1.8; margin-bottom: 3rem; animation: titleReveal 1s 0.3s ease both;
-  }
-  .hero-stats {
-    display: flex; gap: 3rem; animation: titleReveal 1s 0.5s ease both;
-  }
-  .stat { text-align: center; }
-  .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent); }
-  .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text2); }
-  .hero-scan-line {
-    position: absolute; top:0; left:0; width:100%; height:2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    animation: scanLine 4s linear infinite; opacity: 0.5;
-  }
-  @keyframes scanLine {
-    from { transform: translateY(0); }
-    to   { transform: translateY(100vh); }
-  }
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 3px; }
 
-  /* ===== CONTAINER ===== */
-  .container { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
-  .section-header {
-    text-align: center; margin-bottom: 3rem;
-  }
-  .section-tag {
-    display: inline-block; font-size: 0.7rem; letter-spacing: 4px;
-    text-transform: uppercase; color: var(--accent); font-weight: 700;
-    margin-bottom: 0.75rem;
-  }
-  .section-title {
-    font-size: 2.5rem; font-weight: 800;
-    background: linear-gradient(135deg, #fff, var(--accent));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 1rem;
-  }
-  .section-desc { color: var(--text2); max-width: 500px; margin: 0 auto; line-height: 1.7; }
+    /* CURSOR */
+    #cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: var(--red);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, background 0.2s;
+      mix-blend-mode: difference;
+      box-shadow: 0 0 10px var(--red), 0 0 20px rgba(192,0,26,0.4);
+    }
 
-  /* ===== CARDS ===== */
-  .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-  .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 1.5rem; }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.75rem;
-    transition: all 0.3s;
-    position: relative; overflow: hidden;
-  }
-  .card::before {
-    content: '';
-    position: absolute; top:-1px; left:20px; right:20px; height:1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0; transition: opacity 0.3s;
-  }
-  .card:hover { transform: translateY(-4px); border-color: rgba(0,212,255,0.2); box-shadow: var(--glow); }
-  .card:hover::before { opacity: 1; }
+    #cursor-trail {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(192,0,26,0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: all 0.15s ease;
+    }
 
-  /* ===== MEMBERS ===== */
-  .member-avatar {
-    width: 72px; height: 72px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent2), var(--accent));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem; font-weight: 800; color: #fff;
-    margin-bottom: 1rem;
-    box-shadow: 0 0 20px rgba(124,58,237,0.4);
-  }
-  .member-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
-  .member-role {
-    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
-    color: var(--accent); font-weight: 600; margin-bottom: 0.75rem;
-  }
-  .member-bio { font-size: 0.9rem; color: var(--text2); line-height: 1.6; }
-  .badge {
-    display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px;
-    font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-    margin-top: 0.75rem;
-  }
-  .badge-cyan { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
-  .badge-purple { background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); }
-  .badge-gold { background: rgba(245,158,11,0.1); color: var(--gold); border: 1px solid rgba(245,158,11,0.2); }
-  .badge-red { background: rgba(244,63,94,0.1); color: var(--accent3); border: 1px solid rgba(244,63,94,0.2); }
-  .badge-green { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    body:hover #cursor { opacity: 1; }
 
-  /* ===== INVESTIGATION ===== */
-  .inv-card { border-left: 3px solid var(--accent2); }
-  .inv-status {
-    display: flex; align-items: center; gap: 0.5rem;
-    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
-    margin-bottom: 0.75rem;
-  }
-  .status-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    animation: blink 2s ease infinite;
-  }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .status-active .status-dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
-  .status-closed .status-dot { background: var(--text2); animation: none; }
-  .status-pending .status-dot { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
-  .inv-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
-  .inv-desc { font-size: 0.9rem; color: var(--text2); line-height: 1.6; margin-bottom: 1rem; }
-  .inv-meta { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .inv-meta span { font-size: 0.75rem; color: var(--text2); }
-  .inv-meta span b { color: var(--text); }
+    /* PARTICLE CANVAS */
+    #particleCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
 
-  /* ===== ABOUT ===== */
-  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
-  @media(max-width:768px){ .about-grid{grid-template-columns:1fr;} }
-  .about-text h2 { font-size: 2rem; font-weight: 800; margin-bottom: 1rem;
-    background: linear-gradient(135deg, #fff, var(--accent));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .about-text p { color: var(--text2); line-height: 1.8; margin-bottom: 1.25rem; }
-  .about-visual {
-    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
-    padding: 2rem; text-align: center;
-    background: radial-gradient(ellipse at center, rgba(0,212,255,0.05), transparent);
-  }
-  .about-logo-big {
-    font-size: 5rem; font-weight: 900; letter-spacing: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 20px rgba(0,212,255,0.4));
-    animation: float 4s ease-in-out infinite;
-  }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-  .values-list { list-style: none; margin-top: 1.5rem; }
-  .values-list li {
-    display: flex; align-items: center; gap: 0.75rem;
-    padding: 0.75rem 0; border-bottom: 1px solid var(--border);
-    font-size: 0.9rem;
-  }
-  .values-list li span.ico { color: var(--accent); font-size: 1.1rem; }
+    /* LOADER */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 99990;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
 
-  /* ===== COMPLAINT ===== */
-  .complaint-form {
-    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-    padding: 2.5rem; max-width: 700px; margin: 0 auto;
-    position: relative; overflow: hidden;
-  }
-  .complaint-form::before {
-    content: '';
-    position: absolute; top:-1px; left:10%; right:10%; height:1px;
-    background: linear-gradient(90deg, transparent, var(--accent3), transparent);
-  }
-  .form-group { margin-bottom: 1.5rem; }
-  .form-group label {
-    display: block; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 2px; color: var(--accent); margin-bottom: 0.6rem;
-  }
-  .form-group input, .form-group textarea, .form-group select {
-    width: 100%; background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 10px; padding: 0.85rem 1rem; color: var(--text);
-    font-size: 0.95rem; transition: all 0.25s; outline: none;
-    font-family: inherit;
-  }
-  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-    border-color: var(--accent3); box-shadow: 0 0 0 3px rgba(244,63,94,0.1);
-  }
-  .form-group textarea { resize: vertical; min-height: 140px; }
-  .form-group select option { background: var(--bg3); }
-  .btn {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    padding: 0.85rem 2rem; border-radius: 10px; border: none;
-    font-size: 0.9rem; font-weight: 700; letter-spacing: 1px;
-    text-transform: uppercase; cursor: pointer; transition: all 0.25s;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent3), #be123c);
-    color: #fff; box-shadow: 0 4px 20px rgba(244,63,94,0.3);
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(244,63,94,0.5); }
-  .btn-cyan {
-    background: linear-gradient(135deg, var(--accent), #0284c7);
-    color: #000; box-shadow: 0 4px 20px rgba(0,212,255,0.3);
-  }
-  .btn-cyan:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(0,212,255,0.5); }
-  .btn-purple {
-    background: linear-gradient(135deg, var(--accent2), #4c1d95);
-    color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,0.3);
-  }
-  .btn-purple:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(124,58,237,0.5); }
-  .btn-danger {
-    background: linear-gradient(135deg, var(--danger), #991b1b);
-    color: #fff;
-  }
-  .btn-danger:hover { transform: translateY(-2px); }
-  .btn-sm { padding: 0.45rem 0.9rem; font-size: 0.75rem; }
-  .btn-outline {
-    background: transparent; color: var(--text2);
-    border: 1px solid var(--border);
-  }
-  .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.05); }
+    #loader.done { opacity: 0; visibility: hidden; }
 
-  .alert {
-    padding: 1rem 1.25rem; border-radius: 10px; margin-top: 1rem;
-    font-size: 0.9rem; display: none;
-    animation: slideIn 0.3s ease;
-  }
-  @keyframes slideIn { from{transform:translateY(-10px);opacity:0} to{transform:translateY(0);opacity:1} }
-  .alert-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: var(--success); }
-  .alert-error   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.3);  color: var(--danger); }
+    .loader-inner { text-align: center; }
 
-  /* ===== ADMIN LOGIN ===== */
-  #admin { background: radial-gradient(ellipse at center, rgba(124,58,237,0.06), transparent 60%); }
-  #admin.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .login-box {
-    width: 100%; max-width: 420px;
-    background: var(--card); border: 1px solid rgba(124,58,237,0.3);
-    border-radius: 20px; padding: 2.5rem;
-    box-shadow: 0 0 60px rgba(124,58,237,0.15);
-    animation: titleReveal 0.5s ease;
-  }
-  .login-icon {
-    width: 64px; height: 64px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent2), #4c1d95);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem; margin: 0 auto 1.5rem;
-    box-shadow: 0 0 30px rgba(124,58,237,0.4);
-  }
-  .login-title { text-align: center; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
-  .login-sub   { text-align: center; font-size: 0.85rem; color: var(--text2); margin-bottom: 2rem; }
-  .login-box .form-group input:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+    .loader-hex {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
 
-  /* ===== ADMIN PANEL ===== */
-  #adminPanel { display: none; }
-  #adminPanel.active { display: block; }
-  .admin-header {
-    background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(0,212,255,0.07));
-    border-bottom: 1px solid rgba(124,58,237,0.2);
-    padding: 1.5rem 2rem;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
-    margin-top: 64px;
-  }
-  .admin-title { font-size: 1.4rem; font-weight: 800; }
-  .admin-user {
-    display: flex; align-items: center; gap: 0.75rem;
-    font-size: 0.85rem; color: var(--text2);
-  }
-  .admin-user .dot {
-    width: 8px; height: 8px; border-radius: 50%; background: var(--success);
-    box-shadow: 0 0 8px var(--success);
-    animation: blink 2s infinite;
-  }
-  .admin-tabs {
-    display: flex; gap: 0.5rem; padding: 1rem 2rem;
-    border-bottom: 1px solid var(--border); flex-wrap: wrap;
-  }
-  .admin-tab {
-    padding: 0.5rem 1.25rem; border-radius: 8px; border: 1px solid transparent;
-    background: transparent; color: var(--text2); cursor: pointer;
-    font-size: 0.85rem; font-weight: 600; transition: all 0.2s;
-  }
-  .admin-tab.active, .admin-tab:hover {
-    background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.3); color: #a78bfa;
-  }
-  .admin-content { padding: 2rem; }
-  .admin-section { display: none; }
-  .admin-section.active { display: block; }
+    .hex-stroke {
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+      animation: drawHex 1.5s ease forwards;
+    }
 
-  /* ===== TABLE ===== */
-  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; }
-  th {
-    background: var(--bg3); padding: 0.85rem 1rem; text-align: left;
-    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text2);
-    border-bottom: 1px solid var(--border);
-  }
-  td {
-    padding: 0.85rem 1rem; font-size: 0.9rem;
-    border-bottom: 1px solid rgba(30,41,59,0.5);
-  }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,0.02); }
-  .ip-badge {
-    font-family: monospace; font-size: 0.8rem;
-    background: rgba(0,212,255,0.1); color: var(--accent);
-    padding: 0.2rem 0.6rem; border-radius: 4px;
-  }
+    @keyframes drawHex {
+      to { stroke-dashoffset: 0; }
+    }
 
-  /* ===== STATS GRID ===== */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-  .stat-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 1.25rem; transition: all 0.3s;
-  }
-  .stat-card:hover { border-color: rgba(0,212,255,0.2); box-shadow: var(--glow); }
-  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
-  .stat-card .lbl { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text2); }
+    .loader-logo {
+      position: absolute;
+      font-family: 'Orbitron', monospace;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--red);
+      text-shadow: 0 0 20px rgba(192,0,26,0.8);
+      animation: pulse-logo 1s infinite;
+    }
 
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    display: none; position: fixed; inset:0; z-index: 9999;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-    align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--bg2); border: 1px solid rgba(124,58,237,0.3);
-    border-radius: 20px; padding: 2rem; width: 100%; max-width: 480px;
-    animation: modalIn 0.3s ease;
-  }
-  @keyframes modalIn { from{transform:scale(0.9);opacity:0} to{transform:scale(1);opacity:1} }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-  .modal-title { font-size: 1.2rem; font-weight: 700; }
-  .modal-close { background: none; border: none; color: var(--text2); font-size: 1.5rem; cursor: pointer; }
-  .modal-close:hover { color: var(--danger); }
+    .loader-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 4px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
 
-  /* ===== GLITCH ===== */
-  .glitch {
-    position: relative;
-  }
-  .glitch::after {
-    content: attr(data-text);
-    position: absolute; left: 2px; top: 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-    animation: glitch 6s infinite;
-    opacity: 0.5;
-  }
-  @keyframes glitch {
-    0%,94%,100% { transform: translate(0); }
-    95% { transform: translate(-3px, 1px); }
-    97% { transform: translate(3px, -1px); }
-    99% { transform: translate(-1px, 2px); }
-  }
+    .loader-dots::after {
+      content: '';
+      animation: dots 1.2s infinite;
+    }
 
-  /* ===== SCROLLBAR ===== */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(0,212,255,0.3); }
+    @keyframes dots {
+      0%   { content: ''; }
+      33%  { content: '.'; }
+      66%  { content: '..'; }
+      100% { content: '...'; }
+    }
 
-  /* ===== FOOTER ===== */
-  footer {
-    text-align: center; padding: 2rem;
-    border-top: 1px solid var(--border);
-    color: var(--text2); font-size: 0.8rem;
-    position: relative; z-index:1;
-  }
+    .loader-bar {
+      width: 280px;
+      height: 2px;
+      background: rgba(192,0,26,0.15);
+      margin: 0 auto 10px;
+      overflow: hidden;
+    }
 
-  /* ===== RESPONSIVE ===== */
-  @media(max-width:640px){
-    .nav-links a { padding: 0.35rem 0.5rem; font-size: 0.75rem; letter-spacing: 0; }
-    .hero-stats { gap: 1.5rem; }
-    .admin-header { padding: 1rem; }
-    .admin-content { padding: 1rem; }
-  }
+    .loader-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--red-bright));
+      width: 0%;
+      box-shadow: 0 0 10px var(--red);
+      transition: width 0.05s;
+    }
 
-  /* ===== TYPING ===== */
-  .typing::after { content: '|'; animation: cursor 1s step-end infinite; color: var(--accent); }
-  @keyframes cursor { 0%,100%{opacity:1} 50%{opacity:0} }
+    .loader-pct {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      color: var(--red);
+      letter-spacing: 3px;
+    }
 
-  /* ===== TIMELINE ===== */
-  .timeline { position: relative; padding-left: 2rem; }
-  .timeline::before {
-    content:''; position: absolute; left: 0; top:0; bottom:0;
-    width:2px; background: linear-gradient(to bottom, var(--accent), var(--accent2), transparent);
-  }
-  .tl-item {
-    position: relative; padding: 0 0 2rem 1.5rem;
-  }
-  .tl-item::before {
-    content:''; position: absolute; left:-2rem; top:4px;
-    width:12px; height:12px; border-radius:50%;
-    background: var(--accent); border: 2px solid var(--bg);
-    box-shadow: 0 0 10px var(--accent);
-  }
-  .tl-date { font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.4rem; }
-  .tl-title { font-weight: 700; margin-bottom: 0.4rem; }
-  .tl-desc { font-size: 0.9rem; color: var(--text2); }
-</style>
+    /* NOISE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* GRID BG */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(192,0,26,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(192,0,26,0.04) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+      animation: grid-move 20s linear infinite;
+    }
+
+    @keyframes grid-move {
+      0%   { background-position: 0 0; }
+      100% { background-position: 50px 50px; }
+    }
+
+    /* REVEAL ANIMATION */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* RED LIGHTNING */
+    .lightning-line {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.07;
+    }
+
+    /* FLOATING PARTICLES (CSS) */
+    .float-particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--red);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float-up linear infinite;
+      box-shadow: 0 0 4px var(--red);
+    }
+
+    @keyframes float-up {
+      0%   { transform: translateY(0) translateX(0); opacity: 1; }
+      100% { transform: translateY(-120px) translateX(var(--dx, 20px)); opacity: 0; }
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(0,0,0,0.95);
+      border-bottom: 1px solid var(--red);
+      backdrop-filter: blur(20px);
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 70px;
+      box-shadow: 0 0 30px rgba(192,0,26,0.3);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--red);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 20px var(--red-glow);
+      animation: pulse-logo 2s infinite;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+      transform: translateX(-100%);
+      animation: logo-shine 3s ease infinite;
+    }
+
+    @keyframes logo-shine {
+      0%,70% { transform: translateX(-100%); }
+      100%    { transform: translateX(200%); }
+    }
+
+    @keyframes pulse-logo {
+      0%, 100% { box-shadow: 0 0 20px var(--red-glow); }
+      50% { box-shadow: 0 0 40px rgba(255,0,51,0.6), 0 0 80px rgba(255,0,51,0.2); }
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+    }
+
+    .logo-main {
+      font-family: 'Orbitron', monospace;
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .logo-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--red);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 5px;
+    }
+
+    .nav-links a {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid transparent;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-links a::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--red);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--red-bright);
+      border-color: rgba(192,0,26,0.3);
+      text-shadow: 0 0 10px var(--red-glow);
+    }
+
+    .nav-links a:hover::before { width: 100%; }
+
+    .nav-btn {
+      background: var(--red) !important;
+      color: #fff !important;
+      border: 1px solid var(--red) !important;
+      padding: 8px 20px !important;
+      font-weight: 700 !important;
+      box-shadow: 0 0 15px rgba(192,0,26,0.4);
+      transition: all 0.3s !important;
+    }
+
+    .nav-btn:hover {
+      background: var(--red-bright) !important;
+      box-shadow: 0 0 30px rgba(255,0,51,0.6) !important;
+    }
+
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #00ff88;
+      border-radius: 50%;
+      animation: blink 1.5s infinite;
+      box-shadow: 0 0 8px #00ff88;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* NAV ENTRY ANIMATION */
+    nav { animation: nav-drop 0.6s ease 2s both; }
+
+    @keyframes nav-drop {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* HERO */
+    #home {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 70px;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 50%, rgba(192,0,26,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(192,0,26,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 80% 20%, rgba(192,0,26,0.05) 0%, transparent 60%);
+    }
+
+    .hero-lines {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .hero-lines::before,
+    .hero-lines::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      border: 1px solid rgba(192,0,26,0.1);
+    }
+
+    .hero-lines::before {
+      width: 700px;
+      height: 700px;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      animation: rotate-slow 30s linear infinite;
+    }
+
+    .hero-lines::after {
+      width: 500px;
+      height: 500px;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      animation: rotate-slow 20s linear infinite reverse;
+    }
+
+    @keyframes rotate-slow {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 900px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(192,0,26,0.1);
+      border: 1px solid rgba(192,0,26,0.4);
+      color: var(--red-bright);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      padding: 6px 18px;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      animation: badge-in 0.6s ease 2.2s both;
+    }
+
+    @keyframes badge-in {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(42px, 8vw, 90px);
+      font-weight: 900;
+      line-height: 1;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      animation: hero-title-in 1s ease 2.4s both;
+    }
+
+    @keyframes hero-title-in {
+      from { opacity:0; transform: scale(1.08) translateY(20px); }
+      to   { opacity:1; transform: scale(1)    translateY(0); }
+    }
+
+    .hero-title .line1 { color: #fff; display: block; }
+    .hero-title .line2 {
+      color: var(--red);
+      display: block;
+      text-shadow: 0 0 40px rgba(192,0,26,0.5);
+    }
+
+    .hero-subtitle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 6px;
+      color: var(--text-dim);
+      margin-bottom: 40px;
+      text-transform: uppercase;
+    }
+
+    .hero-desc {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #aaa;
+      max-width: 650px;
+      margin: 0 auto 50px;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: #fff;
+      border: none;
+      padding: 14px 36px;
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 0 20px rgba(192,0,26,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before { left: 100%; }
+
+    .btn-primary:hover {
+      background: var(--red-bright);
+      box-shadow: 0 0 50px rgba(255,0,51,0.7), 0 0 100px rgba(255,0,51,0.2);
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--red);
+      border: 1px solid var(--red);
+      padding: 14px 36px;
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(192,0,26,0.1);
+      box-shadow: 0 0 20px rgba(192,0,26,0.3);
+    }
+
+    /* STATS */
+    .stats-bar {
+      position: relative;
+      z-index: 2;
+      background: rgba(192,0,26,0.05);
+      border-top: 1px solid rgba(192,0,26,0.2);
+      border-bottom: 1px solid rgba(192,0,26,0.2);
+      padding: 30px 60px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .stat-item {
+      text-align: center;
+      position: relative;
+      padding: 0 20px;
+    }
+
+    .stat-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 40px;
+      width: 1px;
+      background: rgba(192,0,26,0.3);
+    }
+
+    .stat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--red);
+      text-shadow: 0 0 20px rgba(192,0,26,0.5), 0 0 40px rgba(192,0,26,0.2);
+      line-height: 1;
+      transition: text-shadow 0.3s;
+    }
+
+    .stat-item:hover .stat-num {
+      text-shadow: 0 0 30px rgba(255,0,51,0.8), 0 0 60px rgba(255,0,51,0.4);
+    }
+
+    .stats-bar {
+      transition: background 0.3s;
+    }
+
+    .stat-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    /* SECTIONS */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 100px 60px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 70px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      position: relative;
+      padding: 0 20px;
+    }
+
+    .section-tag::before,
+    .section-tag::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 40px;
+      height: 1px;
+      background: var(--red);
+    }
+
+    .section-tag::before { right: calc(100% - 10px); }
+    .section-tag::after { left: calc(100% - 10px); }
+
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .section-title span { color: var(--red); }
+
+    .section-line {
+      width: 80px;
+      height: 2px;
+      background: var(--red);
+      margin: 20px auto 0;
+      box-shadow: 0 0 10px var(--red-glow);
+    }
+
+    /* SOBRE */
+    #sobre {
+      background: var(--dark2);
+    }
+
+    .sobre-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .sobre-text h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 22px;
+      color: var(--red);
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+
+    .sobre-text p {
+      font-size: 16px;
+      line-height: 1.9;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+
+    .sobre-features {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 20px;
+      background: rgba(192,0,26,0.05);
+      border: 1px solid rgba(192,0,26,0.15);
+      border-left: 3px solid var(--red);
+      transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(192,0,26,0.08) 0%, transparent 100%);
+      transform: translateX(-100%);
+      transition: transform 0.4s ease;
+    }
+
+    .feature-item:hover::after { transform: translateX(0); }
+
+    .feature-item:hover {
+      background: rgba(192,0,26,0.1);
+      border-color: rgba(192,0,26,0.5);
+      transform: translateX(8px);
+      box-shadow: -4px 0 20px rgba(192,0,26,0.15);
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(192,0,26,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--red);
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .feature-info h4 {
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      color: #fff;
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+    }
+
+    .feature-info p {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* MEMBERS */
+    #membros {
+      background: var(--dark3);
+    }
+
+    .members-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .member-card {
+      background: var(--dark4);
+      border: 1px solid rgba(192,0,26,0.15);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      cursor: pointer;
+    }
+
+    .member-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--red);
+      transform: scaleX(0);
+      transition: transform 0.4s;
+    }
+
+    .member-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(192,0,26,0.07) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .member-card:hover {
+      border-color: rgba(192,0,26,0.6);
+      transform: translateY(-8px) scale(1.01);
+      box-shadow: 0 25px 60px rgba(192,0,26,0.2), 0 0 0 1px rgba(192,0,26,0.1);
+    }
+
+    /* CARD GLARE EFFECT */
+    .member-card .card-glare {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.04) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 10;
+      transition: background 0.1s;
+    }
+
+    .member-card:hover::before { transform: scaleX(1); }
+    .member-card:hover::after { opacity: 1; }
+
+    .member-header {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid rgba(192,0,26,0.1);
+      position: relative;
+      z-index: 1;
+    }
+
+    .member-avatar {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, rgba(192,0,26,0.3), rgba(192,0,26,0.1));
+      border: 2px solid rgba(192,0,26,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--red);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      flex-shrink: 0;
+    }
+
+    .member-meta { flex: 1; }
+
+    .member-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .member-role {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--red);
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .member-rank {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      background: rgba(192,0,26,0.1);
+      border: 1px solid rgba(192,0,26,0.2);
+      padding: 2px 8px;
+    }
+
+    .member-body {
+      padding: 20px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .member-bio {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #888;
+      margin-bottom: 16px;
+    }
+
+    .member-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--red);
+      background: rgba(192,0,26,0.08);
+      border: 1px solid rgba(192,0,26,0.2);
+      padding: 3px 10px;
+      text-transform: uppercase;
+    }
+
+    .member-footer {
+      padding: 14px 24px;
+      border-top: 1px solid rgba(192,0,26,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .member-id {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .member-status-active {
+      width: 8px;
+      height: 8px;
+      background: #00ff88;
+      border-radius: 50%;
+      animation: blink 2s infinite;
+      box-shadow: 0 0 6px #00ff88;
+    }
+
+    .member-status-away {
+      width: 8px;
+      height: 8px;
+      background: #ffaa00;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #ffaa00;
+    }
+
+    /* CASOS */
+    #casos { background: var(--dark2); }
+
+    .casos-tabs {
+      display: flex;
+      gap: 0;
+      max-width: 1200px;
+      margin: 0 auto 40px;
+      border-bottom: 2px solid rgba(192,0,26,0.2);
+    }
+
+    .tab-btn {
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--text-dim);
+      border: none;
+      padding: 14px 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--red);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+
+    .tab-btn.active {
+      color: var(--red);
+    }
+
+    .tab-btn.active::after { transform: scaleX(1); }
+    .tab-btn:hover { color: #fff; }
+
+    .tab-content { display: none; max-width: 1200px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+
+    .casos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .caso-card {
+      background: var(--dark4);
+      border: 1px solid rgba(192,0,26,0.1);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .caso-card:hover {
+      border-color: rgba(192,0,26,0.4);
+      box-shadow: 0 10px 30px rgba(192,0,26,0.1);
+    }
+
+    .caso-status {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 4px 14px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .status-resolved {
+      background: rgba(0,255,100,0.1);
+      color: #00ff88;
+      border-bottom: 1px solid #00ff8840;
+      border-left: 1px solid #00ff8840;
+    }
+
+    .status-ongoing {
+      background: rgba(255,170,0,0.1);
+      color: #ffaa00;
+      border-bottom: 1px solid #ffaa0040;
+      border-left: 1px solid #ffaa0040;
+    }
+
+    .caso-id {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--red);
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .caso-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+      line-height: 1.4;
+    }
+
+    .caso-desc {
+      font-size: 14px;
+      color: #777;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .caso-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .caso-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .caso-meta-item i { color: var(--red); font-size: 10px; }
+
+    /* DENUNCIA */
+    #denuncia { background: var(--dark3); }
+
+    .denuncia-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .denuncia-warning {
+      background: rgba(192,0,26,0.08);
+      border: 1px solid rgba(192,0,26,0.3);
+      border-left: 4px solid var(--red);
+      padding: 20px 24px;
+      margin-bottom: 40px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .denuncia-warning i {
+      color: var(--red);
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .denuncia-warning p {
+      font-size: 14px;
+      color: #aaa;
+      line-height: 1.7;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(192,0,26,0.2);
+      border-radius: 0;
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      padding: 14px 18px;
+      outline: none;
+      transition: all 0.3s;
+      appearance: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--red);
+      background: rgba(192,0,26,0.05);
+      box-shadow: 0 0 15px rgba(192,0,26,0.15);
+    }
+
+    .form-select option { background: #111; }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-submit {
+      width: 100%;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      padding: 16px;
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+      box-shadow: 0 0 20px rgba(192,0,26,0.3);
+    }
+
+    .form-submit:hover {
+      background: var(--red-bright);
+      box-shadow: 0 0 40px rgba(255,0,51,0.5);
+    }
+
+    .form-note {
+      text-align: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 16px;
+      letter-spacing: 1px;
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      background: #000;
+      border-top: 1px solid rgba(192,0,26,0.3);
+      padding: 60px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 60px;
+      max-width: 1200px;
+      margin: 0 auto 40px;
+    }
+
+    .footer-brand .logo-main {
+      font-size: 22px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .footer-brand .logo-sub {
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    .footer-brand p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.8;
+      max-width: 300px;
+    }
+
+    .footer-col h4 {
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      font-size: 14px;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-links a::before {
+      content: '›';
+      color: var(--red);
+    }
+
+    .footer-links a:hover { color: var(--red); }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 30px;
+      border-top: 1px solid rgba(192,0,26,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+    }
+
+    .footer-copy span { color: var(--red); }
+
+    .footer-secure {
+      display: flex;
+      gap: 16px;
+    }
+
+    .secure-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      background: rgba(192,0,26,0.05);
+      border: 1px solid rgba(192,0,26,0.15);
+      padding: 4px 10px;
+      text-transform: uppercase;
+    }
+
+    /* PERFIL LIST */
+    .perfil-list { display: flex; flex-direction: column; gap: 2px; }
+
+    .perfil-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 18px 24px;
+      background: var(--dark4);
+      border: 1px solid rgba(192,0,26,0.08);
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .perfil-row::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      background: rgba(192,0,26,0.06);
+      transition: width 0.4s;
+    }
+
+    .perfil-row:hover {
+      border-color: rgba(192,0,26,0.4);
+      box-shadow: 0 0 20px rgba(192,0,26,0.08);
+    }
+
+    .perfil-row:hover::before { width: 100%; }
+
+    .perfil-avatar-sm {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, rgba(192,0,26,0.3), rgba(192,0,26,0.1));
+      border: 2px solid rgba(192,0,26,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--red);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .perfil-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
+
+    .perfil-name-sm {
+      font-family: 'Orbitron', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .perfil-id-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--red);
+      background: rgba(192,0,26,0.1);
+      border: 1px solid rgba(192,0,26,0.3);
+      padding: 1px 8px;
+      letter-spacing: 1px;
+    }
+
+    .perfil-role-sm {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .perfil-tags { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+    .perfil-status-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+      min-width: 80px;
+    }
+
+    .perfil-arrow {
+      color: rgba(192,0,26,0.4);
+      font-size: 14px;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s;
+    }
+
+    .perfil-row:hover .perfil-arrow { color: var(--red); transform: translateX(5px); }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+      background: var(--dark3);
+      border: 1px solid rgba(192,0,26,0.4);
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 0 80px rgba(192,0,26,0.2);
+      animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+      from { transform: scale(0.95) translateY(20px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(192,0,26,0.15);
+      border: 1px solid rgba(192,0,26,0.3);
+      color: var(--red);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+      z-index: 10;
+    }
+
+    .modal-close:hover { background: var(--red); color: #fff; }
+
+    .modal-top {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 32px 36px 24px;
+      border-bottom: 1px solid rgba(192,0,26,0.15);
+      background: linear-gradient(135deg, rgba(192,0,26,0.06) 0%, transparent 60%);
+    }
+
+    .modal-avatar {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, rgba(192,0,26,0.4), rgba(192,0,26,0.1));
+      border: 2px solid var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--red);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      flex-shrink: 0;
+      box-shadow: 0 0 30px rgba(192,0,26,0.3);
+    }
+
+    .modal-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 26px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+
+    .modal-role {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--red);
+      letter-spacing: 3px;
+      margin-top: 6px;
+    }
+
+    .modal-id {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .modal-status-badge {
+      margin-left: auto;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      padding: 6px 16px;
+      letter-spacing: 2px;
+      flex-shrink: 0;
+    }
+
+    .modal-status-online {
+      background: rgba(0,255,136,0.1);
+      border: 1px solid rgba(0,255,136,0.3);
+      color: #00ff88;
+    }
+
+    .modal-status-offline {
+      background: rgba(255,170,0,0.1);
+      border: 1px solid rgba(255,170,0,0.3);
+      color: #ffaa00;
+    }
+
+    .modal-divider {
+      height: 1px;
+      background: rgba(192,0,26,0.1);
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 0;
+    }
+
+    .modal-left {
+      padding: 30px 36px;
+      border-right: 1px solid rgba(192,0,26,0.1);
+    }
+
+    .modal-right {
+      padding: 30px 36px;
+    }
+
+    .modal-section-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .modal-bio {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #aaa;
+    }
+
+    .modal-skills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .modal-quote {
+      border-left: 3px solid var(--red);
+      padding: 12px 16px;
+      background: rgba(192,0,26,0.05);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 15px;
+      font-style: italic;
+      color: #bbb;
+      line-height: 1.6;
+    }
+
+    .modal-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .mstat-box {
+      background: rgba(192,0,26,0.05);
+      border: 1px solid rgba(192,0,26,0.15);
+      padding: 14px;
+      text-align: center;
+    }
+
+    .mstat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--red);
+      text-shadow: 0 0 10px rgba(192,0,26,0.4);
+    }
+
+    .mstat-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .modal-bars { display: flex; flex-direction: column; gap: 12px; }
+
+    .mbar-item { .botao {
+    background-color: blue;
+    color: white;
+}}
+
+    .mbar-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: #aaa;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+
+    .mbar-track {
+      height: 4px;
+      background: rgba(192,0,26,0.1);
+      overflow: hidden;
+    }
+
+    .mbar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--red-bright));
+      box-shadow: 0 0 8px rgba(192,0,26,0.5);
+      transition: width 1s ease;
+    }
+
+    .modal-ops { display: flex; flex-direction: column; gap: 8px; }
+
+    .mop-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      padding: 8px 12px;
+      background: rgba(192,0,26,0.04);
+      border: 1px solid rgba(192,0,26,0.1);
+    }
+
+    .mop-item i { color: var(--red); font-size: 10px; }
+
+    .modal-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .minfo-box {
+      background: rgba(192,0,26,0.04);
+      border: 1px solid rgba(192,0,26,0.12);
+      padding: 12px 14px;
+    }
+
+    .minfo-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .minfo-value {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ddd;
+    }
+
+    /* HISTORICO */
+    .modal-historico { display: flex; flex-direction: column; gap: 0; }
+
+    .hist-item {
+      display: flex;
+      gap: 16px;
+      position: relative;
+      padding-bottom: 18px;
+    }
+
+    .hist-item:last-child { padding-bottom: 0; }
+
+    .hist-item:last-child .hist-line { display: none; }
+
+    .hist-timeline {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      width: 18px;
+    }
+
+    .hist-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--red);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(192,0,26,0.6);
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .hist-dot.resolved { background: #00ff88; box-shadow: 0 0 8px rgba(0,255,136,0.5); }
+    .hist-dot.ongoing  { background: #ffaa00; box-shadow: 0 0 8px rgba(255,170,0,0.5); }
+
+    .hist-line {
+      flex: 1;
+      width: 1px;
+      background: rgba(192,0,26,0.2);
+      margin-top: 4px;
+    }
+
+    .hist-body { flex: 1; }
+
+    .hist-date {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+    }
+
+    .hist-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+
+    .hist-desc {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.5;
+    }
+
+    .hist-badge {
+      display: inline-block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 1px 7px;
+      margin-top: 5px;
+    }
+
+    .hist-badge.resolved { background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.25); color: #00ff88; }
+    .hist-badge.ongoing  { background: rgba(255,170,0,0.08); border: 1px solid rgba(255,170,0,0.25); color: #ffaa00; }
+
+    @media (max-width: 700px) {
+      .modal-grid { grid-template-columns: 1fr; }
+      .modal-left { border-right: none; border-bottom: 1px solid rgba(192,0,26,0.1); }
+      .perfil-tags { display: none; }
+      .perfil-status-wrap { display: none; }
+      .modal-info-grid { grid-template-columns: 1fr; }
+    }
+
+    /* RIPPLE */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple-anim 0.6s linear;
+      background: rgba(192,0,26,0.3);
+      pointer-events: none;
+    }
+
+    @keyframes ripple-anim {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* TIPO TERMINAL — SECTION TAGS */
+    .section-tag {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* NEON FLICKER */
+    @keyframes neon-flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        text-shadow: 0 0 10px var(--red), 0 0 20px var(--red), 0 0 40px var(--red);
+      }
+      20%, 24%, 55% {
+        text-shadow: none;
+      }
+    }
+
+    .hero-title .line2 {
+      animation: neon-flicker 5s infinite 3s !important;
+    }
+
+    /* CASO CARD HOVER */
+    .caso-card {
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .caso-card:hover {
+      transform: translateY(-4px) scale(1.01);
+    }
+
+    /* FORM INPUT FOCUS ANIM */
+    .form-input, .form-select, .form-textarea {
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      animation: input-glow 2s ease infinite;
+    }
+
+    @keyframes input-glow {
+      0%, 100% { box-shadow: 0 0 10px rgba(192,0,26,0.2); }
+      50%       { box-shadow: 0 0 20px rgba(192,0,26,0.4), 0 0 40px rgba(192,0,26,0.1); }
+    }
+
+    /* SCROLL PROGRESS */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--red), var(--red-bright));
+      z-index: 10001;
+      width: 0%;
+      transition: width 0.1s;
+      box-shadow: 0 0 8px var(--red);
+    }
+
+    /* GLITCH ANIMATION */
+    .glitch {
+      position: relative;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .glitch::before {
+      color: var(--red);
+      animation: glitch1 3s infinite;
+      clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+    }
+
+    .glitch::after {
+      color: #0ff;
+      animation: glitch2 3s infinite;
+      clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+    }
+
+    @keyframes glitch1 {
+      0%, 90%, 100% { transform: none; opacity: 0; }
+      92% { transform: translateX(-4px); opacity: 0.6; }
+      94% { transform: translateX(4px); opacity: 0.6; }
+      96% { transform: none; opacity: 0; }
+    }
+
+    @keyframes glitch2 {
+      0%, 88%, 100% { transform: none; opacity: 0; }
+      90% { transform: translateX(4px); opacity: 0.4; }
+      92% { transform: translateX(-4px); opacity: 0.4; }
+      94% { transform: none; opacity: 0; }
+    }
+
+    /* SECTION DIVIDER */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(192,0,26,0.4), transparent);
+      position: relative;
+      overflow: visible;
+    }
+
+    .section-divider::after {
+      content: '◆';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      color: var(--red);
+      font-size: 10px;
+      background: var(--dark2);
+      padding: 0 10px;
+    }
+
+    /* GLOW PULSE ON HOVER — SKILL TAGS */
+    .skill-tag {
+      transition: all 0.25s ease;
+    }
+
+    .skill-tag:hover {
+      background: rgba(192,0,26,0.2);
+      border-color: var(--red);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(192,0,26,0.3);
+      transform: scale(1.05);
+    }
+
+    /* TYPING CURSOR */
+    .typing::after {
+      content: '|';
+      color: var(--red);
+      animation: cursor 0.8s infinite;
+    }
+
+    @keyframes cursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* HEXAGON DECOR */
+    .hex-decor {
+      position: absolute;
+      opacity: 0.03;
+      font-size: 300px;
+      color: var(--red);
+      pointer-events: none;
+    }
+
+    /* SCAN LINE */
+    .scanline {
+      position: fixed;
+      top: -100%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(192,0,26,0.5), transparent);
+      animation: scan 4s linear infinite;
+      pointer-events: none;
+      z-index: 9998;
+      filter: blur(0.5px);
+    }
+
+    @keyframes scan {
+      from { top: -2px; }
+      to { top: 100%; }
+    }
+
+    /* ALERT BANNER */
+    .alert-banner {
+      background: rgba(192,0,26,0.1);
+      border-bottom: 1px solid rgba(192,0,26,0.3);
+      padding: 8px 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+      position: relative;
+      z-index: 999;
+      margin-top: 70px;
+    }
+
+    .alert-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--red);
+      text-transform: uppercase;
+      white-space: nowrap;
+      background: rgba(192,0,26,0.2);
+      padding: 2px 10px;
+      flex-shrink: 0;
+    }
+
+    .alert-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      animation: marquee 25s linear infinite;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(100vw); }
+      to { transform: translateX(-100%); }
+    }
+
+    /* SUCCESS TOAST */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(0,0,0,0.95);
+      border: 1px solid var(--red);
+      border-left: 4px solid var(--red);
+      padding: 16px 24px;
+      z-index: 9999;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: #fff;
+      transform: translateX(200px);
+      opacity: 0;
+      transition: all 0.4s;
+      box-shadow: 0 0 30px rgba(192,0,26,0.3);
+    }
+
+    .toast.show { transform: translateX(0); opacity: 1; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      section { padding: 70px 24px; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 24px; }
+      .stat-item::after { display: none; }
+      .sobre-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+      .alert-banner { padding: 8px 20px; }
+    }
+
+    /* COUNTER ANIMATION */
+    .counter { display: inline-block; }
+  </style>
 </head>
 <body>
 
-<!-- PARTICLES -->
-<div id="particles"></div>
+<!-- CANVAS PARTICLES -->
+<canvas id="particleCanvas"></canvas>
 
-<!-- NAVBAR -->
+<!-- CURSOR PERSONALIZADO -->
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-inner">
+    <div class="loader-hex">
+      <svg viewBox="0 0 100 115" width="80">
+        <polygon points="50,5 95,27.5 95,87.5 50,110 5,87.5 5,27.5" fill="none" stroke="#c0001a" stroke-width="2" class="hex-stroke"/>
+        <polygon points="50,20 80,36 80,79 50,95 20,79 20,36" fill="none" stroke="rgba(192,0,26,0.3)" stroke-width="1"/>
+      </svg>
+      <div class="loader-logo">EL</div>
+    </div>
+    <div class="loader-text">INICIALIZANDO SISTEMA<span class="loader-dots"></span></div>
+    <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+    <div class="loader-pct" id="loaderPct">0%</div>
+  </div>
+</div>
+
+<div class="grid-bg"></div>
+<div class="scanline"></div>
+
+<!-- NAV -->
 <nav>
-  <div class="nav-logo glitch" data-text="ETERNITY" onclick="showSection('home')">ETERNITY</div>
+  <a href="#home" class="nav-logo">
+    <div class="logo-icon">⬡</div>
+    <div class="logo-text">
+      <span class="logo-main">ETERNITY</span>
+      <span class="logo-sub">// LEGACY · INVESTIGATION</span>
+    </div>
+  </a>
+
   <ul class="nav-links">
-    <li><a href="#" onclick="showSection('home')" id="nav-home" class="active">Início</a></li>
-    <li><a href="#" onclick="showSection('members')" id="nav-members">Membros</a></li>
-    <li><a href="#" onclick="showSection('investigation')" id="nav-investigation">Investigações</a></li>
-    <li><a href="#" onclick="showSection('about')" id="nav-about">Sobre Nós</a></li>
-    <li><a href="#" onclick="showSection('complaint')" id="nav-complaint">Denúncias</a></li>
-    <li><a href="#" onclick="showSection('admin')" id="nav-admin" class="nav-admin-btn">🛡️ Admin</a></li>
+    <li><a href="#home">Início</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#membros">Membros</a></li>
+    <li><a href="#casos">Casos</a></li>
+    <li><a href="#perfis">Perfis</a></li>
+    <li><a href="#denuncia" class="nav-btn">⚠ Denunciar</a></li>
   </ul>
-  <button class="hamburger" onclick="toggleMenu()" id="hamburgerBtn">
-    <span></span><span></span><span></span>
-  </button>
+
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    SISTEMA ATIVO
+  </div>
 </nav>
 
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
-  <a href="#" onclick="showSectionMobile('home')">🏠 Início</a>
-  <a href="#" onclick="showSectionMobile('members')">👥 Membros</a>
-  <a href="#" onclick="showSectionMobile('investigation')">🔍 Investigações</a>
-  <a href="#" onclick="showSectionMobile('about')">ℹ️ Sobre Nós</a>
-  <a href="#" onclick="showSectionMobile('complaint')">📋 Denúncias</a>
-  <a href="#" onclick="showSectionMobile('admin')" class="nav-admin-btn">🛡️ Painel Admin</a>
-</div>
+<!-- SCROLL PROGRESS -->
+<div id="scroll-progress"></div>
 
-<!-- ============================================================ HOME ============================================================ -->
-<section id="home" class="active">
-  <div class="hero-scan-line"></div>
-  <div class="hero-badge">⬡ Organização de Investigação</div>
-  <h1 class="hero-title typing" id="heroTitle">ETERNITY</h1>
-  <p class="hero-sub">A verdade não se esconde para sempre. Somos a sombra que expõe o que outros preferem manter no escuro.</p>
-  <div class="hero-stats">
-    <div class="stat">
-      <div class="stat-num" id="statCases">--</div>
-      <div class="stat-label">Casos</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" id="statMembers">--</div>
-      <div class="stat-label">Membros</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num" id="statReports">--</div>
-      <div class="stat-label">Denúncias</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">100%</div>
-      <div class="stat-label">Sigiloso</div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ MEMBERS ============================================================ -->
-<section id="members">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-tag">⬡ Nossa Equipe</div>
-      <h2 class="section-title">Membros da Eternity</h2>
-      <p class="section-desc">Profissionais dedicados à investigação, análise e exposição da verdade.</p>
-    </div>
-    <div class="grid-3" id="membersGrid">
-      <!-- Gerado por JS -->
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ INVESTIGATION ============================================================ -->
-<section id="investigation">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-tag">⬡ Casos</div>
-      <h2 class="section-title">Investigações</h2>
-      <p class="section-desc">Acompanhe os casos ativos, encerrados e em análise pela equipe Eternity.</p>
-    </div>
-    <div class="grid-2" id="investigationsGrid">
-      <!-- Gerado por JS -->
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ ABOUT ============================================================ -->
-<section id="about">
-  <div class="container">
-    <div class="about-grid">
-      <div class="about-text">
-        <h2>Quem Somos</h2>
-        <p>A <strong>Eternity</strong> é uma organização independente de investigação digital criada para descobrir a verdade por trás de eventos, denúncias e ocorrências que o sistema prefere ignorar.</p>
-        <p>Operamos com total sigilo e profissionalismo. Cada caso é tratado com máxima seriedade, e cada denúncia recebida passa pelo nosso rigoroso processo de análise.</p>
-        <p>Nossos operadores são experientes e atuam de forma coordenada para garantir que nenhuma informação se perca e nenhuma verdade fique escondida.</p>
-        <ul class="values-list">
-          <li><span class="ico">◈</span> Sigilo absoluto das fontes</li>
-          <li><span class="ico">◈</span> Investigação baseada em evidências</li>
-          <li><span class="ico">◈</span> Transparência interna</li>
-          <li><span class="ico">◈</span> Justiça sem fronteiras</li>
-          <li><span class="ico">◈</span> Proteção das vítimas</li>
-        </ul>
-      </div>
-      <div class="about-visual">
-        <div class="about-logo-big">ETY</div>
-        <p style="color:var(--text2);margin-top:1.5rem;font-size:0.9rem;line-height:1.8">
-          "A verdade é a arma mais poderosa.<br>E nós somos seus portadores."
-        </p>
-        <div style="margin-top:1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center">
-          <span class="badge badge-cyan">Investigação</span>
-          <span class="badge badge-purple">Análise</span>
-          <span class="badge badge-gold">Exposição</span>
-          <span class="badge badge-red">Vigilância</span>
-        </div>
-        <div style="margin-top:2rem">
-          <div class="timeline">
-            <div class="tl-item">
-              <div class="tl-date">Fundação</div>
-              <div class="tl-title">Eternity é criada</div>
-              <div class="tl-desc">Início das operações de investigação digital.</div>
-            </div>
-            <div class="tl-item">
-              <div class="tl-date">Expansão</div>
-              <div class="tl-title">Equipe ampliada</div>
-              <div class="tl-desc">Novos operadores e analistas se juntam à causa.</div>
-            </div>
-            <div class="tl-item">
-              <div class="tl-date">Hoje</div>
-              <div class="tl-title">Operação contínua</div>
-              <div class="tl-desc">Casos ativos e denúncias em análise diariamente.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ COMPLAINT ============================================================ -->
-<section id="complaint">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-tag">⬡ Fale Conosco</div>
-      <h2 class="section-title">Enviar Denúncia</h2>
-      <p class="section-desc">Todas as denúncias são tratadas com absoluto sigilo. Sua identidade está protegida.</p>
-    </div>
-    <div class="complaint-form">
-      <div class="form-group">
-        <label>Seu Nome (opcional)</label>
-        <input type="text" id="cName" placeholder="Anônimo">
-      </div>
-      <div class="form-group">
-        <label>Categoria da Denúncia</label>
-        <select id="cCategory">
-          <option value="">Selecione uma categoria...</option>
-          <option value="Fraude">Fraude</option>
-          <option value="Corrupção">Corrupção</option>
-          <option value="Ameaça">Ameaça</option>
-          <option value="Abuso de Poder">Abuso de Poder</option>
-          <option value="Crime Digital">Crime Digital</option>
-          <option value="Outros">Outros</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Assunto</label>
-        <input type="text" id="cSubject" placeholder="Descreva brevemente o assunto...">
-      </div>
-      <div class="form-group">
-        <label>Descrição Completa</label>
-        <textarea id="cMessage" placeholder="Descreva detalhadamente o ocorrido. Inclua datas, locais e envolvidos se possível..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Evidências (link, se houver)</label>
-        <input type="text" id="cEvidence" placeholder="https://...">
-      </div>
-      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem">
-        <input type="checkbox" id="cAnon" style="width:auto;accent-color:var(--accent3)">
-        <label for="cAnon" style="font-size:0.85rem;color:var(--text2);text-transform:none;letter-spacing:0;margin:0">Quero permanecer totalmente anônimo</label>
-      </div>
-      <button class="btn btn-primary" onclick="submitComplaint()">🔒 Enviar Denúncia com Segurança</button>
-      <div class="alert alert-success" id="complaintSuccess">
-        ✅ Denúncia recebida com sucesso! Nossa equipe irá analisar em breve. ID: <strong id="complaintId"></strong>
-      </div>
-      <div class="alert alert-error" id="complaintError">
-        ❌ Preencha os campos obrigatórios (Categoria, Assunto e Descrição).
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ ADMIN LOGIN ============================================================ -->
-<section id="admin">
-  <div class="login-box">
-    <div class="login-icon">🛡️</div>
-    <h2 class="login-title">Painel Administrativo</h2>
-    <p class="login-sub">Acesso restrito — Eternity Intelligence</p>
-    <div class="form-group">
-      <label>Usuário</label>
-      <input type="text" id="adminUser" placeholder="Digite seu usuário...">
-    </div>
-    <div class="form-group">
-      <label>Senha</label>
-      <input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <button class="btn btn-purple" style="width:100%" onclick="doLogin()">🔐 Entrar no Painel</button>
-    <div class="alert alert-error" id="loginError">❌ Credenciais inválidas. Acesso negado.</div>
-  </div>
-</section>
-
-<!-- ============================================================ ADMIN PANEL ============================================================ -->
-<div id="adminPanel">
-  <div class="admin-header">
-    <div>
-      <div class="admin-title">🛡️ Painel de Controle — ETERNITY</div>
-      <div style="font-size:0.8rem;color:var(--text2);margin-top:0.25rem">Sistema de Gerenciamento Interno</div>
-    </div>
-    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
-      <div class="admin-user">
-        <div class="dot"></div>
-        <span>Logado como: <strong id="loggedUserName" style="color:var(--accent)"></strong></span>
-        <span class="badge badge-purple" id="loggedUserRole" style="margin-left:0.5rem"></span>
-      </div>
-      <button class="btn btn-outline btn-sm" onclick="doLogout()">Sair</button>
-    </div>
-  </div>
-
-  <div class="admin-tabs">
-    <button class="admin-tab active" onclick="switchAdminTab('dashboard')">📊 Dashboard</button>
-    <button class="admin-tab" onclick="switchAdminTab('complaints')">📋 Denúncias</button>
-    <button class="admin-tab" id="tabUsers" onclick="switchAdminTab('users')" style="display:none">👥 Gerenciar Usuários</button>
-    <button class="admin-tab" onclick="switchAdminTab('members')">🧑‍💼 Membros</button>
-    <button class="admin-tab" onclick="switchAdminTab('investigations')">🔍 Investigações</button>
-    <button class="admin-tab" onclick="switchAdminTab('database')">🗄️ Banco de Dados</button>
-  </div>
-
-  <div class="admin-content">
-
-    <!-- DASHBOARD -->
-    <div class="admin-section active" id="adminDashboard">
-      <h3 style="margin-bottom:1.5rem;font-size:1.2rem">Visão Geral</h3>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="num" id="dashReports">0</div>
-          <div class="lbl">Total Denúncias</div>
-        </div>
-        <div class="stat-card" style="border-color:rgba(16,185,129,0.2)">
-          <div class="num" style="color:var(--success)" id="dashNew">0</div>
-          <div class="lbl">Novas Hoje</div>
-        </div>
-        <div class="stat-card" style="border-color:rgba(124,58,237,0.2)">
-          <div class="num" style="color:#a78bfa" id="dashMembers">0</div>
-          <div class="lbl">Membros Ativos</div>
-        </div>
-        <div class="stat-card" style="border-color:rgba(245,158,11,0.2)">
-          <div class="num" style="color:var(--gold)" id="dashInv">0</div>
-          <div class="lbl">Investigações</div>
-        </div>
-        <div class="stat-card" style="border-color:rgba(239,68,68,0.2)">
-          <div class="num" style="color:var(--danger)" id="dashUsers">0</div>
-          <div class="lbl">Admins/Operadores</div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:1rem">
-        <div style="font-size:0.85rem;font-weight:700;margin-bottom:1rem;color:var(--accent)">📌 ÚLTIMAS DENÚNCIAS RECEBIDAS</div>
-        <div id="recentComplaints" style="font-size:0.9rem;color:var(--text2)">Nenhuma denúncia ainda.</div>
-      </div>
-    </div>
-
-    <!-- COMPLAINTS -->
-    <div class="admin-section" id="adminComplaints">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
-        <h3 style="font-size:1.2rem">📋 Denúncias Recebidas</h3>
-        <button class="btn btn-danger btn-sm" onclick="clearComplaints()">🗑️ Limpar Todas</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Data/Hora</th>
-              <th>Nome</th>
-              <th>Categoria</th>
-              <th>Assunto</th>
-              <th>Endereço IP</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="complaintsTable">
-            <tr><td colspan="8" style="color:var(--text2);text-align:center;padding:2rem">Nenhuma denúncia registrada.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- USERS (só SuperAdmin) -->
-    <div class="admin-section" id="adminUsers">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
-        <h3 style="font-size:1.2rem">👥 Usuários do Sistema</h3>
-        <button class="btn btn-purple btn-sm" onclick="openAddUserModal()">➕ Novo Usuário</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Usuário</th><th>Cargo</th><th>Criado em</th><th>Criado por</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="usersTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- MEMBERS ADMIN -->
-    <div class="admin-section" id="adminMembers">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
-        <h3 style="font-size:1.2rem">🧑‍💼 Gerenciar Membros</h3>
-        <button class="btn btn-cyan btn-sm" onclick="openAddMemberModal()">➕ Novo Membro</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Nome</th><th>Cargo</th><th>Especialidade</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="adminMembersTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- INVESTIGATIONS ADMIN -->
-    <div class="admin-section" id="adminInvestigations">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
-        <h3 style="font-size:1.2rem">🔍 Gerenciar Investigações</h3>
-        <button class="btn btn-cyan btn-sm" onclick="openAddInvModal()">➕ Nova Investigação</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Código</th><th>Título</th><th>Status</th><th>Prioridade</th><th>Ações</th></tr>
-          </thead>
-          <tbody id="adminInvTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- DATABASE -->
-    <div class="admin-section" id="adminDatabase">
-      <h3 style="margin-bottom:1.5rem;font-size:1.2rem">🗄️ Banco de Dados — Visão Completa</h3>
-      <div class="grid-2" style="margin-bottom:2rem">
-        <div class="card">
-          <div style="font-size:0.8rem;color:var(--accent);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem">TABELA: DENÚNCIAS</div>
-          <div id="dbComplaints" style="font-size:0.8rem;font-family:monospace;color:var(--text2);max-height:300px;overflow-y:auto"></div>
-        </div>
-        <div class="card">
-          <div style="font-size:0.8rem;color:var(--accent2);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;color:#a78bfa">TABELA: USUÁRIOS</div>
-          <div id="dbUsers" style="font-size:0.8rem;font-family:monospace;color:var(--text2);max-height:300px;overflow-y:auto"></div>
-        </div>
-        <div class="card">
-          <div style="font-size:0.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;color:var(--gold)">TABELA: MEMBROS</div>
-          <div id="dbMembers" style="font-size:0.8rem;font-family:monospace;color:var(--text2);max-height:300px;overflow-y:auto"></div>
-        </div>
-        <div class="card">
-          <div style="font-size:0.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;color:var(--success)">TABELA: INVESTIGAÇÕES</div>
-          <div id="dbInvestigations" style="font-size:0.8rem;font-family:monospace;color:var(--text2);max-height:300px;overflow-y:auto"></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
-        <button class="btn btn-danger btn-sm" onclick="exportDB()">⬇️ Exportar JSON</button>
-        <button class="btn btn-outline btn-sm" onclick="refreshDB()">🔄 Atualizar</button>
-      </div>
-    </div>
-
-  </div><!-- end admin-content -->
-</div><!-- end adminPanel -->
-
-<!-- ============================================================ MODALS ============================================================ -->
-
-<!-- Add User Modal -->
-<div class="modal-overlay" id="modalAddUser">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">➕ Criar Novo Usuário</div>
-      <button class="modal-close" onclick="closeModal('modalAddUser')">×</button>
-    </div>
-    <div class="form-group">
-      <label>Nome de Usuário</label>
-      <input type="text" id="newUserName" placeholder="usuario123">
-    </div>
-    <div class="form-group">
-      <label>Senha</label>
-      <input type="password" id="newUserPass" placeholder="••••••••">
-    </div>
-    <div class="form-group">
-      <label>Cargo</label>
-      <select id="newUserRole">
-        <option value="Operador">Operador</option>
-        <option value="Admin">Admin</option>
-      </select>
-    </div>
-    <button class="btn btn-purple" style="width:100%" onclick="createUser()">Criar Usuário</button>
-    <div class="alert alert-error" id="userCreateError"></div>
-    <div class="alert alert-success" id="userCreateSuccess"></div>
+<!-- ALERT BANNER -->
+<div class="alert-banner">
+  <div class="alert-label">LIVE</div>
+  <div class="alert-text">
+    [ ALERTA ] Operação RedEye em andamento &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
+    Novo caso registrado: #EL-2026-089 &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
+    Sistema de denúncias ativo 24/7 &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
+    Colaboração com autoridades em 3 casos ativos &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
+    [ ETERNITY LEGACY — JUSTIÇA NÃO TEM PRAZO DE VALIDADE ]
   </div>
 </div>
 
-<!-- Add Member Modal -->
-<div class="modal-overlay" id="modalAddMember">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">➕ Novo Membro</div>
-      <button class="modal-close" onclick="closeModal('modalAddMember')">×</button>
+<!-- HERO -->
+<section id="home" style="padding-top:0; padding-bottom:0;">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="status-dot"></div>
+      Sistema Operacional · Investigação Cibernética
     </div>
-    <div class="form-group">
-      <label>Nome</label>
-      <input type="text" id="newMemberName" placeholder="Nome completo">
+
+    <h1 class="hero-title">
+      <span class="line1 glitch" data-text="ETERNITY">ETERNITY</span>
+      <span class="line2">LEGACY</span>
+    </h1>
+
+    <p class="hero-subtitle">// Inteligência · OSINT · Investigação Digital</p>
+
+    <p class="hero-desc">
+      Somos uma organização de investigação cibernética de elite. Rastreamos, identificamos e colaboramos na apreensão de criminosos digitais — porque a justiça não tem prazo de validade.
+    </p>
+
+    <div class="hero-btns">
+      <a href="#denuncia" class="btn-primary">
+        <i class="fas fa-exclamation-triangle"></i>
+        Fazer Denúncia
+      </a>
+      <a href="#casos" class="btn-secondary">
+        <i class="fas fa-folder-open"></i>
+        Ver Casos
+      </a>
     </div>
-    <div class="form-group">
-      <label>Cargo</label>
-      <input type="text" id="newMemberRole" placeholder="ex: Analista Senior">
-    </div>
-    <div class="form-group">
-      <label>Especialidade</label>
-      <input type="text" id="newMemberSpec" placeholder="ex: OSINT, Forense Digital">
-    </div>
-    <div class="form-group">
-      <label>Bio</label>
-      <textarea id="newMemberBio" placeholder="Descrição breve..." style="min-height:80px"></textarea>
-    </div>
-    <button class="btn btn-cyan" style="width:100%" onclick="createMember()">Adicionar Membro</button>
-    <div class="alert alert-success" id="memberCreateSuccess"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num"><span class="counter" data-target="89">0</span>+</div>
+    <div class="stat-label">Casos Resolvidos</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num"><span class="counter" data-target="12">0</span></div>
+    <div class="stat-label">Em Investigação</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num"><span class="counter" data-target="34">0</span>+</div>
+    <div class="stat-label">Prisões Colaborativas</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num"><span class="counter" data-target="7">0</span></div>
+    <div class="stat-label">Membros Ativos</div>
   </div>
 </div>
 
-<!-- Add Investigation Modal -->
-<div class="modal-overlay" id="modalAddInv">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">🔍 Nova Investigação</div>
-      <button class="modal-close" onclick="closeModal('modalAddInv')">×</button>
+<!-- SOBRE -->
+<section id="sobre">
+  <div class="section-header">
+    <div class="section-tag">Quem Somos</div>
+    <h2 class="section-title">SOBRE A <span>ETERNITY LEGACY</span></h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="sobre-grid">
+    <div class="sobre-text">
+      <h3>NOSSA MISSÃO</h3>
+      <p>A <strong style="color:#fff;">Eternity Legacy</strong> é um grupo de investigação cibernética formado por especialistas em OSINT, engenharia social, segurança da informação e análise de inteligência digital.</p>
+      <p>Atuamos no combate a crimes virtuais de alta gravidade — incluindo pedofilia, indução ao suicídio, apologia ao nazismo e cibercrimes organizados — colaborando diretamente com autoridades competentes.</p>
+      <p>Nossa filosofia é simples: <strong style="color:var(--red);">criminosos não se escondem para sempre.</strong></p>
     </div>
-    <div class="form-group">
-      <label>Título</label>
-      <input type="text" id="newInvTitle" placeholder="Título da investigação">
+
+    <div class="sobre-features">
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-crosshairs"></i></div>
+        <div class="feature-info">
+          <h4>OSINT & Rastreamento</h4>
+          <p>Coleta de inteligência de fontes abertas para identificação e localização de alvos.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="feature-info">
+          <h4>Proteção Digital</h4>
+          <p>Combate ativo a grupos criminosos e proteção de vítimas vulneráveis.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-code"></i></div>
+        <div class="feature-info">
+          <h4>Análise Forense</h4>
+          <p>Ferramentas próprias de análise forense digital e investigação em redes sociais.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-handcuffs"></i></div>
+        <div class="feature-info">
+          <h4>Colaboração com Autoridades</h4>
+          <p>Parceria direta com delegacias especializadas em crimes cibernéticos.</p>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Descrição</label>
-      <textarea id="newInvDesc" placeholder="Detalhes..." style="min-height:80px"></textarea>
+  </div>
+</section>
+
+<!-- MEMBROS -->
+<section id="membros">
+  <div class="section-header">
+    <div class="section-tag">Nossa Equipe</div>
+    <h2 class="section-title">OPERADORES <span>DE ELITE</span></h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="members-grid">
+
+    <!-- Membro 1 -->
+    <div class="member-card">
+      <div class="member-header">
+        <div class="member-avatar">PH</div>
+        <div class="member-meta">
+          <div class="member-name">Phantom</div>
+          <div class="member-role">// COMMANDER · OSINT LEAD</div>
+        </div>
+        <div class="member-rank">RANK-01</div>
+      </div>
+      <div class="member-body">
+        <p class="member-bio">Fundador e líder operacional da Eternity Legacy. Especialista em investigação cibernética com mais de 6 anos de experiência. Coordena operações críticas e mantém contato direto com autoridades.</p>
+        <div class="member-skills">
+          <span class="skill-tag">OSINT</span>
+          <span class="skill-tag">HUMINT</span>
+          <span class="skill-tag">Ops</span>
+          <span class="skill-tag">Darkweb</span>
+        </div>
+      </div>
+      <div class="member-footer">
+        <span class="member-id">ID: EL-OPS-001</span>
+        <div class="member-status-active"></div>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Status</label>
-      <select id="newInvStatus">
-        <option value="active">Ativo</option>
-        <option value="pending">Em Análise</option>
-        <option value="closed">Encerrado</option>
-      </select>
+
+    <!-- Membro 2 -->
+    <div class="member-card">
+      <div class="member-header">
+        <div class="member-avatar">VX</div>
+        <div class="member-meta">
+          <div class="member-name">Vortex</div>
+          <div class="member-role">// SENIOR ANALYST · DEV</div>
+        </div>
+        <div class="member-rank">RANK-02</div>
+      </div>
+      <div class="member-body">
+        <p class="member-bio">Desenvolvedor fullstack e analista de segurança. Criou ferramentas internas de rastreamento e análise de metadados. Especialista em engenharia reversa de perfis sociais.</p>
+        <div class="member-skills">
+          <span class="skill-tag">Dev</span>
+          <span class="skill-tag">Infosec</span>
+          <span class="skill-tag">GEOINT</span>
+          <span class="skill-tag">Python</span>
+        </div>
+      </div>
+      <div class="member-footer">
+        <span class="member-id">ID: EL-OPS-002</span>
+        <div class="member-status-active"></div>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Prioridade</label>
-      <select id="newInvPriority">
-        <option value="Alta">Alta</option>
-        <option value="Média">Média</option>
-        <option value="Baixa">Baixa</option>
-      </select>
+
+    <!-- Membro 3 -->
+    <div class="member-card">
+      <div class="member-header">
+        <div class="member-avatar">EC</div>
+        <div class="member-meta">
+          <div class="member-name">Eclipse</div>
+          <div class="member-role">// INTELLIGENCE · IMINT</div>
+        </div>
+        <div class="member-rank">RANK-03</div>
+      </div>
+      <div class="member-body">
+        <p class="member-bio">Especialista em análise de imagens e vídeos para coleta de inteligência. Conduz operações encobertas em redes sociais. Experiência em infiltração e mapeamento de grupos criminosos.</p>
+        <div class="member-skills">
+          <span class="skill-tag">IMINT</span>
+          <span class="skill-tag">Infiltração</span>
+          <span class="skill-tag">Social Eng.</span>
+        </div>
+      </div>
+      <div class="member-footer">
+        <span class="member-id">ID: EL-OPS-003</span>
+        <div class="member-status-active"></div>
+      </div>
     </div>
-    <button class="btn btn-cyan" style="width:100%" onclick="createInvestigation()">Criar Investigação</button>
-    <div class="alert alert-success" id="invCreateSuccess"></div>
+
+    <!-- Membro 4 -->
+    <div class="member-card">
+      <div class="member-header">
+        <div class="member-avatar">RV</div>
+        <div class="member-meta">
+          <div class="member-name">Raven</div>
+          <div class="member-role">// FORENSICS · DATA INTEL</div>
+        </div>
+        <div class="member-rank">RANK-04</div>
+      </div>
+      <div class="member-body">
+        <p class="member-bio">Analista forense digital e especialista em extração de dados. Responsável pelo processamento e organização de provas digitais para encaminhamento às autoridades.</p>
+        <div class="member-skills">
+          <span class="skill-tag">Forense</span>
+          <span class="skill-tag">Data Intel</span>
+          <span class="skill-tag">OSINT</span>
+          <span class="skill-tag">Análise</span>
+        </div>
+      </div>
+      <div class="member-footer">
+        <span class="member-id">ID: EL-OPS-004</span>
+        <div class="member-status-away"></div>
+      </div>
+    </div>
+
+    <!-- Membro 5 -->
+    <div class="member-card">
+      <div class="member-header">
+        <div class="member-avatar">CR</div>
+        <div class="member-meta">
+          <div class="member-name">Cipher</div>
+          <div class="member-role">// CRYPTOGRAPHY · NETWORK</div>
+        </div>
+        <div class="member-rank">RANK-05</div>
+      </div>
+      <div class="member-body">
+        <p class="member-bio">Especialista em criptografia e análise de redes. Rastreia comunicações de grupos criminosos e decifra mensagens codificadas. Operador de ferramentas de inteligência de rede.</p>
+        <div class="member-skills">
+          <span class="skill-tag">Crypto</span>
+          <span class="skill-tag">Network</span>
+          <span class="skill-tag">Tracking</span>
+        </div>
+      </div>
+      <div class="member-footer">
+        <span class="member-id">ID: EL-OPS-005</span>
+        <div class="member-status-active"></div>
+      </div>
+    </div>
+
+    <!-- Membro 6 -->
+    <div class="member-card">
+      <div class="member-header">
+        <div class="member-avatar">NX</div>
+        <div class="member-meta">
+          <div class="member-name">Nova_X</div>
+          <div class="member-role">// HUMINT · FIELD INTEL</div>
+        </div>
+        <div class="member-rank">RANK-06</div>
+      </div>
+      <div class="member-body">
+        <p class="member-bio">Operador de inteligência humana e analista de comportamento. Especialista em reconhecimento de padrões e identificação de ameaças emergentes em ambientes digitais.</p>
+        <div class="member-skills">
+          <span class="skill-tag">HUMINT</span>
+          <span class="skill-tag">Comportamento</span>
+          <span class="skill-tag">Padrões</span>
+        </div>
+      </div>
+      <div class="member-footer">
+        <span class="member-id">ID: EL-OPS-006</span>
+        <div class="member-status-active"></div>
+      </div>
+    </div>
+
+    <!-- Membro 7 -->
+    <div class="member-card">
+      <div class="member-header">
+        <div class="member-avatar">SR</div>
+        <div class="member-meta">
+          <div class="member-name">Specter</div>
+          <div class="member-role">// DARKWEB · RECON</div>
+        </div>
+        <div class="member-rank">RANK-07</div>
+      </div>
+      <div class="member-body">
+        <p class="member-bio">Especialista em operações na darkweb e reconhecimento avançado. Monitora fóruns e mercados clandestinos para identificação precoce de ameaças. Hacker ético certificado.</p>
+        <div class="member-skills">
+          <span class="skill-tag">Darkweb</span>
+          <span class="skill-tag">Recon</span>
+          <span class="skill-tag">Hacking ético</span>
+        </div>
+      </div>
+      <div class="member-footer">
+        <span class="member-id">ID: EL-OPS-007</span>
+        <div class="member-status-away"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CASOS -->
+<section id="casos">
+  <div class="section-header">
+    <div class="section-tag">Arquivo de Operações</div>
+    <h2 class="section-title">CASOS <span>REGISTRADOS</span></h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="casos-tabs">
+    <button class="tab-btn active" onclick="switchTab('resolvidos', this)">
+      ✓ Casos Resolvidos
+    </button>
+    <button class="tab-btn" onclick="switchTab('andamento', this)">
+      ◉ Em Andamento
+    </button>
+  </div>
+
+  <!-- RESOLVIDOS -->
+  <div id="tab-resolvidos" class="tab-content active">
+    <div class="casos-grid">
+
+      <div class="caso-card">
+        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
+        <div class="caso-id">// CASO #EL-2025-041</div>
+        <div class="caso-title">Grupo de Pedofilia em Plataforma de Jogos Online</div>
+        <div class="caso-desc">Identificação e mapeamento de rede de pedofilia operando em plataforma de jogos. 3 indivíduos apreendidos pela Delegacia de Crimes Cibernéticos.</div>
+        <div class="caso-meta">
+          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Mar 2025</span>
+          <span class="caso-meta-item"><i class="fas fa-users"></i> 3 Apreendidos</span>
+          <span class="caso-meta-item"><i class="fas fa-clock"></i> 18 dias</span>
+        </div>
+      </div>
+
+      <div class="caso-card">
+        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
+        <div class="caso-id">// CASO #EL-2025-038</div>
+        <div class="caso-title">Campanha de Indução ao Suicídio via Discord</div>
+        <div class="caso-desc">Servidor do Discord com mais de 800 membros promovendo conteúdo de indução ao suicídio. Servidor derrubado, moderadores identificados e denunciados.</div>
+        <div class="caso-meta">
+          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Fev 2025</span>
+          <span class="caso-meta-item"><i class="fas fa-server"></i> 1 Servidor</span>
+          <span class="caso-meta-item"><i class="fas fa-clock"></i> 9 dias</span>
+        </div>
+      </div>
+
+      <div class="caso-card">
+        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
+        <div class="caso-id">// CASO #EL-2025-031</div>
+        <div class="caso-title">Ameaça de Atentado em Escola Pública — SP</div>
+        <div class="caso-desc">Indivíduo planejava ataque a escola pública em São Paulo. Identificado via OSINT, informações repassadas à polícia antes do incidente.</div>
+        <div class="caso-meta">
+          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Jan 2025</span>
+          <span class="caso-meta-item"><i class="fas fa-shield-alt"></i> Prevenido</span>
+          <span class="caso-meta-item"><i class="fas fa-clock"></i> 4 dias</span>
+        </div>
+      </div>
+
+      <div class="caso-card">
+        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
+        <div class="caso-id">// CASO #EL-2024-077</div>
+        <div class="caso-title">Grupo Neonazista Recrutando Menores Online</div>
+        <div class="caso-desc">Rede de recrutamento nazista voltada para adolescentes identificada e desmontada. 7 líderes identificados, dados encaminhados ao Ministério Público.</div>
+        <div class="caso-meta">
+          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Out 2024</span>
+          <span class="caso-meta-item"><i class="fas fa-users"></i> 7 Identificados</span>
+          <span class="caso-meta-item"><i class="fas fa-clock"></i> 31 dias</span>
+        </div>
+      </div>
+
+      <div class="caso-card">
+        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
+        <div class="caso-id">// CASO #EL-2024-065</div>
+        <div class="caso-title">Scam de Criptomoedas Vitimando Idosos</div>
+        <div class="caso-desc">Esquema de golpe em criptomoedas identificado. Prejuízo estimado de R$ 2.4M. Quadrilha de 5 pessoas exposta e denunciada às autoridades financeiras.</div>
+        <div class="caso-meta">
+          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Ago 2024</span>
+          <span class="caso-meta-item"><i class="fas fa-dollar-sign"></i> R$ 2.4M</span>
+          <span class="caso-meta-item"><i class="fas fa-clock"></i> 45 dias</span>
+        </div>
+      </div>
+
+      <div class="caso-card">
+        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
+        <div class="caso-id">// CASO #EL-2024-052</div>
+        <div class="caso-title">Extorsão e Revenge Porn — Caso Múltiplas Vítimas</div>
+        <div class="caso-desc">Operador de esquema de extorsão e divulgação de imagens íntimas sem consentimento identificado. Vítimas orientadas, agressor denunciado.</div>
+        <div class="caso-meta">
+          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Jun 2024</span>
+          <span class="caso-meta-item"><i class="fas fa-user-shield"></i> 12 Vítimas</span>
+          <span class="caso-meta-item"><i class="fas fa-clock"></i> 22 dias</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EM ANDAMENTO -->
+  <div id="tab-andamento" class="tab-content">
+    <div class="casos-grid">
+
+      <div class="caso-card">
+        <span class="caso-status status-ongoing">◉ EM ANDAMENTO</span>
+        <div class="caso-id">// CASO #EL-2026-089</div>
+        <div class="caso-title">Operação RedEye — Rede de Grooming Internacional</div>
+        <div class="caso-desc">Investigação em andamento sobre rede de grooming que opera em múltiplos países. Fase 2 de coleta de inteligência em progresso. Dados parciais já encaminhados.</div>
+        <div class="caso-meta">
+          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Jun 2026</span>
+          <span class="caso-meta-item"><i class="fas fa-globe"></i> Internacional</span>
+          <span class="caso-meta-item"><i class="fas fa-hourglass-half"></i> Fase 2/4</span>
+        </div>
+      </div>
+
+      <div class="caso-card">
+        <span class="caso-status status-ongoing">◉ EM ANDAMENTO</span>
+        <div class="caso-id">// CASO #EL-2026-083</div>
+        <div class="caso-title">Mapeamento de Célula Extremista — Telegram</div>
+        <div class="caso-desc">Grupo extremista com atividade crescente no Telegram sendo monitorado. Identificação de líderes em andamento. Colaboração com autoridades federais iniciada.</div>
+        <div class="caso-meta">
+          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Mai 2026</span>
+          <span class="caso-meta-item"><i class="fas fa-users"></i> +200 membros</span>
+          <span class="caso-meta-item"><i class="fas fa-hourglass-half"></i> Fase 1/3</span>
+        </div>
+      </div>
+
+      <div class="caso-card">
+        <span class="caso-status status-ongoing">◉ EM ANDAMENTO</span>
+        <div class="caso-id">// CASO #EL-2026-079</div>
+        <div class="caso-title">Stalker Serial — Múltiplas Vítimas Identificadas</div>
+        <div class="caso-desc">Indivíduo praticando assédio e stalking sistemático contra múltiplas vítimas. Localização sendo rastreada via OSINT. Relatório em elaboração para entrega à DEAM.</div>
+        <div class="caso-meta">
+          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Abr 2026</span>
+          <span class="caso-meta-item"><i class="fas fa-user-shield"></i> 6 Vítimas</span>
+          <span class="caso-meta-item"><i class="fas fa-hourglass-half"></i> Fase 3/4</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PERFIS -->
+<section id="perfis" style="background:var(--dark2);">
+  <div class="section-header">
+    <div class="section-tag">Identidades</div>
+    <h2 class="section-title">PERFIS <span>DOS OPERADORES</span></h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div style="max-width:1200px;margin:0 auto;">
+
+    <!-- PERFIL GRID -->
+    <div class="perfil-list">
+
+      <!-- PHANTOM -->
+      <div class="perfil-row" onclick="openPerfil('phantom')">
+        <div class="perfil-avatar-sm">PH</div>
+        <div class="perfil-info">
+          <div class="perfil-name-sm">Phantom <span class="perfil-id-badge">EL-OPS-001</span></div>
+          <div class="perfil-role-sm">Commander · OSINT Lead</div>
+        </div>
+        <div class="perfil-tags">
+          <span class="skill-tag">OSINT</span><span class="skill-tag">HUMINT</span><span class="skill-tag">Darkweb</span>
+        </div>
+        <div class="perfil-status-wrap">
+          <div class="member-status-active"></div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
+        </div>
+        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- VORTEX -->
+      <div class="perfil-row" onclick="openPerfil('vortex')">
+        <div class="perfil-avatar-sm">VX</div>
+        <div class="perfil-info">
+          <div class="perfil-name-sm">Vortex <span class="perfil-id-badge">EL-OPS-002</span></div>
+          <div class="perfil-role-sm">Senior Analyst · Dev</div>
+        </div>
+        <div class="perfil-tags">
+          <span class="skill-tag">Dev</span><span class="skill-tag">Infosec</span><span class="skill-tag">GEOINT</span>
+        </div>
+        <div class="perfil-status-wrap">
+          <div class="member-status-active"></div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
+        </div>
+        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- ECLIPSE -->
+      <div class="perfil-row" onclick="openPerfil('eclipse')">
+        <div class="perfil-avatar-sm">EC</div>
+        <div class="perfil-info">
+          <div class="perfil-name-sm">Eclipse <span class="perfil-id-badge">EL-OPS-003</span></div>
+          <div class="perfil-role-sm">Intelligence · IMINT</div>
+        </div>
+        <div class="perfil-tags">
+          <span class="skill-tag">IMINT</span><span class="skill-tag">Infiltração</span><span class="skill-tag">Social Eng.</span>
+        </div>
+        <div class="perfil-status-wrap">
+          <div class="member-status-active"></div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
+        </div>
+        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- RAVEN -->
+      <div class="perfil-row" onclick="openPerfil('raven')">
+        <div class="perfil-avatar-sm">RV</div>
+        <div class="perfil-info">
+          <div class="perfil-name-sm">Raven <span class="perfil-id-badge">EL-OPS-004</span></div>
+          <div class="perfil-role-sm">Forensics · Data Intel</div>
+        </div>
+        <div class="perfil-tags">
+          <span class="skill-tag">Forense</span><span class="skill-tag">Data Intel</span><span class="skill-tag">OSINT</span>
+        </div>
+        <div class="perfil-status-wrap">
+          <div class="member-status-away"></div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#ffaa00;">AUSENTE</span>
+        </div>
+        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- CIPHER -->
+      <div class="perfil-row" onclick="openPerfil('cipher')">
+        <div class="perfil-avatar-sm">CR</div>
+        <div class="perfil-info">
+          <div class="perfil-name-sm">Cipher <span class="perfil-id-badge">EL-OPS-005</span></div>
+          <div class="perfil-role-sm">Cryptography · Network</div>
+        </div>
+        <div class="perfil-tags">
+          <span class="skill-tag">Crypto</span><span class="skill-tag">Network</span><span class="skill-tag">Tracking</span>
+        </div>
+        <div class="perfil-status-wrap">
+          <div class="member-status-active"></div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
+        </div>
+        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- NOVA_X -->
+      <div class="perfil-row" onclick="openPerfil('novax')">
+        <div class="perfil-avatar-sm">NX</div>
+        <div class="perfil-info">
+          <div class="perfil-name-sm">Nova_X <span class="perfil-id-badge">EL-OPS-006</span></div>
+          <div class="perfil-role-sm">HUMINT · Field Intel</div>
+        </div>
+        <div class="perfil-tags">
+          <span class="skill-tag">HUMINT</span><span class="skill-tag">Comportamento</span><span class="skill-tag">Padrões</span>
+        </div>
+        <div class="perfil-status-wrap">
+          <div class="member-status-active"></div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
+        </div>
+        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- SPECTER -->
+      <div class="perfil-row" onclick="openPerfil('specter')">
+        <div class="perfil-avatar-sm">SR</div>
+        <div class="perfil-info">
+          <div class="perfil-name-sm">Specter <span class="perfil-id-badge">EL-OPS-007</span></div>
+          <div class="perfil-role-sm">Darkweb · Recon</div>
+        </div>
+        <div class="perfil-tags">
+          <span class="skill-tag">Darkweb</span><span class="skill-tag">Recon</span><span class="skill-tag">Hacking ético</span>
+        </div>
+        <div class="perfil-status-wrap">
+          <div class="member-status-away"></div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#ffaa00;">AUSENTE</span>
+        </div>
+        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- MODAL PERFIL -->
+<div id="perfilModal" class="modal-overlay" onclick="closePerfil(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('perfilModal').classList.remove('open')"><i class="fas fa-times"></i></button>
+
+    <div class="modal-top">
+      <div class="modal-avatar" id="mAvatar"></div>
+      <div>
+        <div class="modal-name" id="mName"></div>
+        <div class="modal-role" id="mRole"></div>
+        <div class="modal-id" id="mId"></div>
+      </div>
+      <div class="modal-status-badge" id="mStatus"></div>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="modal-grid">
+      <div class="modal-left">
+        <div class="modal-section-title">// BIO</div>
+        <p class="modal-bio" id="mBio"></p>
+
+        <div class="modal-section-title" style="margin-top:24px;">// ESPECIALIDADES</div>
+        <div class="modal-skills" id="mSkills"></div>
+
+        <div class="modal-section-title" style="margin-top:24px;">// CITAÇÃO</div>
+        <blockquote class="modal-quote" id="mQuote"></blockquote>
+      </div>
+
+      <div class="modal-right">
+        <div class="modal-section-title">// ESTATÍSTICAS</div>
+        <div class="modal-stats" id="mStats"></div>
+
+        <div class="modal-section-title" style="margin-top:24px;">// INTEL LEVEL</div>
+        <div class="modal-bars" id="mBars"></div>
+
+        <div class="modal-section-title" style="margin-top:24px;">// HISTÓRICO DE OPERAÇÕES</div>
+        <div class="modal-ops modal-historico" id="mOps"></div>
+
+        <div class="modal-section-title" style="margin-top:24px;">// INFORMAÇÕES</div>
+        <div class="modal-info-grid" id="mInfo"></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- View Complaint Modal -->
-<div class="modal-overlay" id="modalViewComplaint">
-  <div class="modal" style="max-width:600px">
-    <div class="modal-header">
-      <div class="modal-title">📋 Detalhes da Denúncia</div>
-      <button class="modal-close" onclick="closeModal('modalViewComplaint')">×</button>
-    </div>
-    <div id="complaintDetail" style="font-size:0.9rem;line-height:2"></div>
+<!-- DENUNCIA -->
+<section id="denuncia">
+  <div class="section-header">
+    <div class="section-tag">Canal Seguro</div>
+    <h2 class="section-title">FAZER <span>DENÚNCIA</span></h2>
+    <div class="section-line"></div>
   </div>
-</div>
 
+  <div class="denuncia-container">
+
+    <div class="denuncia-warning">
+      <i class="fas fa-shield-alt"></i>
+      <p>
+        <strong style="color:#fff;">Sua segurança é prioridade.</strong> Todas as denúncias são tratadas com total sigilo. Não compartilhamos dados de denunciantes em hipótese alguma. Em caso de perigo imediato, contate o <strong style="color:var(--red);">190</strong> (Polícia) ou <strong style="color:var(--red);">197</strong> (Polícia Civil — Crimes Cibernéticos).
+      </p>
+    </div>
+
+    <form id="formDenuncia" onsubmit="submitForm(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tipo de Crime *</label>
+          <select class="form-select" required>
+            <option value="">Selecione...</option>
+            <option>Pedofilia / Grooming</option>
+            <option>Ameaça de Massacre</option>
+            <option>Indução ao Suicídio</option>
+            <option>Apologia ao Nazismo</option>
+            <option>Extorsão / Revenge Porn</option>
+            <option>Stalking / Assédio</option>
+            <option>Golpe / Fraude Digital</option>
+            <option>Maus Tratos a Animais</option>
+            <option>Tráfico / Venda Ilegal</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Plataforma do Crime *</label>
+          <select class="form-select" required>
+            <option value="">Selecione...</option>
+            <option>Discord</option>
+            <option>Telegram</option>
+            <option>Instagram</option>
+            <option>WhatsApp</option>
+            <option>Twitter / X</option>
+            <option>TikTok</option>
+            <option>Roblox / Jogos</option>
+            <option>Darkweb</option>
+            <option>Outro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Link / Perfil do Suspeito *</label>
+        <input type="text" class="form-input" placeholder="URL, @ ou identificador do suspeito" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descrição Detalhada *</label>
+        <textarea class="form-textarea" rows="5" placeholder="Descreva o que aconteceu com o máximo de detalhes possível. Inclua datas, horários, e qualquer informação relevante..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Evidências (Links ou Descrição)</label>
+        <textarea class="form-textarea" rows="3" placeholder="Cole links de prints, vídeos, ou descreva as evidências que você possui..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Seu Apelido (Opcional)</label>
+          <input type="text" class="form-input" placeholder="Como podemos te chamar?" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contato Seguro (Opcional)</label>
+          <input type="text" class="form-input" placeholder="Discord, Telegram ou e-mail" />
+        </div>
+      </div>
+
+      <button type="submit" class="form-submit">
+        <i class="fas fa-paper-plane"></i> &nbsp; ENVIAR DENÚNCIA COM SEGURANÇA
+      </button>
+      <p class="form-note">🔒 CRIPTOGRAFADO · ANÔNIMO · PROTEGIDO</p>
+    </form>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
-  <p style="letter-spacing:4px;font-weight:700;color:var(--accent);margin-bottom:0.5rem">ETERNITY</p>
-  <p>© 2025 Eternity Intelligence — Todos os direitos reservados.</p>
-  <p style="margin-top:0.5rem;font-size:0.75rem;color:rgba(148,163,184,0.4)">Operação sigilosa. Acesso monitorado.</p>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="logo-main">ETERNITY LEGACY</span>
+      <span class="logo-sub">// INVESTIGAÇÃO & INTELIGÊNCIA DIGITAL</span>
+      <p>Organização de investigação cibernética dedicada à exposição de criminosos digitais e à proteção das vítimas. Operamos com ética, sigilo e eficiência.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navegação</h4>
+      <ul class="footer-links">
+        <li><a href="#home">Início</a></li>
+        <li><a href="#sobre">Sobre Nós</a></li>
+        <li><a href="#membros">Membros</a></li>
+        <li><a href="#casos">Casos</a></li>
+        <li><a href="#denuncia">Fazer Denúncia</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Emergências</h4>
+      <ul class="footer-links">
+        <li><a href="#">190 — Polícia Militar</a></li>
+        <li><a href="#">197 — Polícia Civil</a></li>
+        <li><a href="#">CVV — 188</a></li>
+        <li><a href="#">Disque Denúncia 181</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-copy">
+      © 2026 <span>ETERNITY LEGACY</span> · Todos os direitos reservados · Operando no Brasil
+    </div>
+    <div class="footer-secure">
+      <span class="secure-badge">🔒 SSL</span>
+      <span class="secure-badge">⚡ LIVE</span>
+      <span class="secure-badge">🛡 SEGURO</span>
+    </div>
+  </div>
 </footer>
 
+<!-- TOAST -->
+<div id="toast" class="toast">
+  ✓ Denúncia enviada com sucesso! Nossa equipe analisará em breve.
+</div>
+
 <script>
-// ================================================================
-//   DATABASE (localStorage)
-// ================================================================
-const DB = {
-  get: (key, def=[]) => { try { return JSON.parse(localStorage.getItem('ety_'+key)) || def; } catch{ return def; } },
-  set: (key, val) => localStorage.setItem('ety_'+key, JSON.stringify(val)),
-  push: (key, item, def=[]) => {
-    const arr = DB.get(key, def); arr.push(item); DB.set(key, arr); return arr;
+  // ─── LOADER ───
+  const loaderFill = document.getElementById('loaderFill');
+  const loaderPct  = document.getElementById('loaderPct');
+  const loader     = document.getElementById('loader');
+  let pct = 0;
+  const loaderTimer = setInterval(() => {
+    pct += Math.random() * 18;
+    if (pct >= 100) { pct = 100; clearInterval(loaderTimer); setTimeout(() => loader.classList.add('done'), 300); }
+    loaderFill.style.width = pct + '%';
+    loaderPct.textContent  = Math.floor(pct) + '%';
+  }, 120);
+
+  // ─── CURSOR ───
+  const cur = document.getElementById('cursor');
+  const trail = document.getElementById('cursor-trail');
+  let mx = 0, my = 0, tx = 0, ty = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+  });
+
+  (function animTrail() {
+    tx += (mx - tx) * 0.12; ty += (my - ty) * 0.12;
+    trail.style.left = tx + 'px'; trail.style.top = ty + 'px';
+    requestAnimationFrame(animTrail);
+  })();
+
+  document.querySelectorAll('a,button,.member-card,.perfil-row,.caso-card,.feature-item').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cur.style.transform = 'translate(-50%,-50%) scale(1.8)';
+      trail.style.transform = 'translate(-50%,-50%) scale(1.4)';
+      trail.style.borderColor = 'rgba(192,0,26,0.8)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cur.style.transform = 'translate(-50%,-50%) scale(1)';
+      trail.style.transform = 'translate(-50%,-50%) scale(1)';
+      trail.style.borderColor = 'rgba(192,0,26,0.5)';
+    });
+  });
+
+  // ─── PARTICLES CANVAS ───
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resizeCanvas() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
   }
-};
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
 
-// ================================================================
-//   INIT DATA
-// ================================================================
-function initDB(){
-  // Super admin
-  if(!DB.get('users',[]).length){
-    DB.set('users',[{
-      id:'u1', username:'newox', password:'adm', role:'SuperAdmin',
-      createdAt: new Date().toISOString(), createdBy:'Sistema'
-    }]);
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.4;
+      this.vy = -Math.random() * 0.6 - 0.2;
+      this.alpha = Math.random() * 0.5 + 0.1;
+      this.r = Math.random() * 1.5 + 0.3;
+      this.life = 0;
+      this.maxLife = Math.random() * 200 + 100;
+    }
+    update() {
+      this.x += this.vx; this.y += this.vy;
+      this.life++;
+      if (this.life > this.maxLife || this.y < 0) this.reset();
+    }
+    draw() {
+      const a = this.alpha * (1 - this.life / this.maxLife);
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(192,0,26,${a})`;
+      ctx.shadowBlur = 6;
+      ctx.shadowColor = 'rgba(192,0,26,0.6)';
+      ctx.fill();
+    }
   }
-  // Default members
-  if(!DB.get('members',[]).length){
-    DB.set('members',[
-      {id:'m1',name:'Newox',role:'Diretor Geral',spec:'Estratégia & Comando',bio:'Fundador e líder máximo da organização Eternity. Supervisiona todas as operações.',color:'cyan'},
-      {id:'m2',name:'Shadow',role:'Analista Sênior',spec:'OSINT & Inteligência',bio:'Especialista em coleta de informações abertas e análise de dados digitais.',color:'purple'},
-      {id:'m3',name:'Cipher',role:'Investigador de Campo',spec:'Forense Digital',bio:'Especializado em análise forense e rastreamento de atividades suspeitas.',color:'gold'},
-      {id:'m4',name:'Phantom',role:'Operador Técnico',spec:'Segurança Cibernética',bio:'Responsável pela infraestrutura e segurança dos sistemas internos.',color:'red'},
-    ]);
+
+  for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+  function drawConnections() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < 100) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(192,0,26,${0.06 * (1 - d / 100)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
   }
-  // Default investigations
-  if(!DB.get('investigations',[]).length){
-    DB.set('investigations',[
-      {id:'inv001',title:'Operação Eclipse',desc:'Investigação sobre rede de fraudes financeiras em plataformas digitais.',status:'active',priority:'Alta',date:'2025-01-10',agent:'Shadow'},
-      {id:'inv002',title:'Caso Phantom Net',desc:'Análise de grupo especializado em ataques a infraestruturas críticas.',status:'active',priority:'Alta',date:'2025-02-03',agent:'Cipher'},
-      {id:'inv003',title:'Projeto Silêncio',desc:'Monitoramento de operações de desinformação coordenada em redes sociais.',status:'pending',priority:'Média',date:'2025-03-15',agent:'Phantom'},
-      {id:'inv004',title:'Dossiê Fantasma',desc:'Rastreamento de identidades falsas utilizadas em esquemas de golpes.',status:'closed',priority:'Baixa',date:'2024-11-22',agent:'Shadow'},
-    ]);
+
+  function animParticles() {
+    ctx.clearRect(0, 0, W, H);
+    drawConnections();
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animParticles);
   }
-}
+  animParticles();
 
-// ================================================================
-//   NAVIGATION
-// ================================================================
-let currentSection = 'home';
-function showSection(id){
-  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
-  document.getElementById('adminPanel').classList.remove('active');
+  // ─── SCROLL PROGRESS ───
+  window.addEventListener('scroll', () => {
+    const max = document.body.scrollHeight - window.innerHeight;
+    const pct = (window.scrollY / max) * 100;
+    document.getElementById('scroll-progress').style.width = pct + '%';
+  });
 
-  const el = document.getElementById(id);
-  if(el){ el.classList.add('active'); }
-  const nav = document.getElementById('nav-'+id);
-  if(nav){ nav.classList.add('active'); }
-  currentSection = id;
+  // ─── REVEAL ON SCROLL ───
+  const revealEls = document.querySelectorAll('.member-card,.feature-item,.caso-card,.perfil-row,.stat-item,.sobre-text,.sobre-features,.section-header');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        revealObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => { el.classList.add('reveal'); revealObs.observe(el); });
 
-  if(id==='members') renderMembers();
-  if(id==='investigation') renderInvestigations();
-  updateStats();
-}
+  // ─── CARD GLARE ───
+  document.querySelectorAll('.member-card').forEach(card => {
+    const glare = document.createElement('div');
+    glare.className = 'card-glare';
+    card.appendChild(glare);
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const mx = ((e.clientX - rect.left) / rect.width)  * 100;
+      const my = ((e.clientY - rect.top)  / rect.height) * 100;
+      glare.style.background = `radial-gradient(circle at ${mx}% ${my}%, rgba(255,255,255,0.05) 0%, transparent 60%)`;
+    });
+  });
 
-// ================================================================
-//   PARTICLES
-// ================================================================
-function initParticles(){
-  const c = document.getElementById('particles');
-  for(let i=0;i<60;i++){
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random()*100+'%';
-    p.style.animationDuration = (8+Math.random()*15)+'s';
-    p.style.animationDelay = (Math.random()*15)+'s';
-    p.style.width = p.style.height = (Math.random()<0.3?3:2)+'px';
-    if(Math.random()>0.7) p.style.background = '#7c3aed';
-    c.appendChild(p);
+  // ─── RIPPLE ON BUTTONS ───
+  document.querySelectorAll('.btn-primary,.btn-secondary,.form-submit,.tab-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const rect = btn.getBoundingClientRect();
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      const size = Math.max(rect.width, rect.height);
+      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+      btn.appendChild(r);
+      setTimeout(() => r.remove(), 600);
+    });
+  });
+
+  // ─── TYPING EFFECT HERO SUBTITLE ───
+  const subtitle = document.querySelector('.hero-subtitle');
+  if (subtitle) {
+    const text = subtitle.textContent;
+    subtitle.textContent = '';
+    subtitle.style.opacity = '1';
+    let i = 0;
+    setTimeout(() => {
+      const t = setInterval(() => {
+        subtitle.textContent = text.slice(0, ++i);
+        if (i >= text.length) clearInterval(t);
+      }, 40);
+    }, 2800);
   }
-}
 
-// ================================================================
-//   STATS
-// ================================================================
-function updateStats(){
-  const complaints = DB.get('complaints',[]);
-  const members    = DB.get('members',[]);
-  const invs       = DB.get('investigations',[]);
+  // ─── SECTION TAG TYPING ───
+  document.querySelectorAll('.section-tag').forEach(tag => {
+    const txt = tag.textContent;
+    tag.dataset.original = txt;
+    const tagObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !tag.dataset.typed) {
+          tag.dataset.typed = '1';
+          tag.textContent = '';
+          let j = 0;
+          const t = setInterval(() => {
+            tag.textContent = txt.slice(0, ++j);
+            if (j >= txt.length) clearInterval(t);
+          }, 50);
+        }
+      });
+    }, { threshold: 0.8 });
+    tagObs.observe(tag);
+  });
 
-  animateNum('statCases',   invs.length);
-  animateNum('statMembers', members.length);
-  animateNum('statReports', complaints.length);
-}
-function animateNum(id, target){
-  const el = document.getElementById(id);
-  if(!el) return;
-  let cur=0; const step=Math.max(1,Math.floor(target/30));
-  const t=setInterval(()=>{ cur=Math.min(cur+step,target); el.textContent=cur; if(cur>=target)clearInterval(t); },50);
-}
+  // TAB SWITCH
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+  }
 
-// ================================================================
-//   RENDER MEMBERS
-// ================================================================
-function renderMembers(){
-  const grid = document.getElementById('membersGrid');
-  const members = DB.get('members',[]);
-  grid.innerHTML = members.map(m=>`
-    <div class="card" style="animation:titleReveal 0.5s ease">
-      <div class="member-avatar" style="background:linear-gradient(135deg,${m.color==='purple'?'#7c3aed,#4c1d95':m.color==='gold'?'#f59e0b,#b45309':m.color==='red'?'#f43f5e,#be123c':'#00d4ff,#0284c7'})">
-        ${m.name[0]}
+  // COUNTER ANIMATION
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.target);
+    const duration = 2000;
+    const step = target / (duration / 16);
+    let current = 0;
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        el.textContent = target;
+        clearInterval(timer);
+      } else {
+        el.textContent = Math.floor(current);
+      }
+    }, 16);
+  }
+
+  const counters = document.querySelectorAll('.counter');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  counters.forEach(c => observer.observe(c));
+
+  // HISTORICO HELPER
+  function renderHistorico(hist) {
+    return hist.map(h => `
+      <div class="hist-item">
+        <div class="hist-timeline">
+          <div class="hist-dot ${h.status}"></div>
+          <div class="hist-line"></div>
+        </div>
+        <div class="hist-body">
+          <div class="hist-date">${h.date}</div>
+          <div class="hist-title">${h.op}</div>
+          <div class="hist-desc">${h.desc}</div>
+          <span class="hist-badge ${h.status}">${h.status === 'resolved' ? '✓ CONCLUÍDA' : '◉ EM ANDAMENTO'}</span>
+        </div>
       </div>
-      <div class="member-name">${m.name}</div>
-      <div class="member-role">${m.role}</div>
-      <div class="member-bio">${m.bio}</div>
-      <span class="badge badge-${m.color||'cyan'}">${m.spec}</span>
-    </div>
-  `).join('') || '<p style="color:var(--text2)">Nenhum membro cadastrado.</p>';
-}
-
-// ================================================================
-//   RENDER INVESTIGATIONS
-// ================================================================
-function renderInvestigations(){
-  const grid = document.getElementById('investigationsGrid');
-  const invs = DB.get('investigations',[]);
-  grid.innerHTML = invs.map(inv=>`
-    <div class="card inv-card" style="animation:titleReveal 0.5s ease">
-      <div class="inv-status status-${inv.status}">
-        <div class="status-dot"></div>
-        <span style="color:var(--text2)">${inv.status==='active'?'ATIVO':inv.status==='pending'?'EM ANÁLISE':'ENCERRADO'}</span>
-      </div>
-      <div class="inv-title">${inv.title}</div>
-      <div class="inv-desc">${inv.desc}</div>
-      <div class="inv-meta">
-        <span>Código: <b>${inv.id.toUpperCase()}</b></span>
-        <span>Prioridade: <b style="color:${inv.priority==='Alta'?'var(--accent3)':inv.priority==='Média'?'var(--gold)':'var(--success)'}">${inv.priority}</b></span>
-        <span>Agente: <b>${inv.agent||'—'}</b></span>
-        <span>Data: <b>${inv.date||'—'}</b></span>
-      </div>
-    </div>
-  `).join('') || '<p style="color:var(--text2)">Nenhuma investigação cadastrada.</p>';
-}
-
-// ================================================================
-//   COMPLAINT SUBMISSION
-// ================================================================
-async function submitComplaint(){
-  const cat   = document.getElementById('cCategory').value;
-  const subj  = document.getElementById('cSubject').value.trim();
-  const msg   = document.getElementById('cMessage').value.trim();
-  const name  = document.getElementById('cName').value.trim() || 'Anônimo';
-  const ev    = document.getElementById('cEvidence').value.trim();
-
-  document.getElementById('complaintSuccess').style.display='none';
-  document.getElementById('complaintError').style.display='none';
-
-  if(!cat||!subj||!msg){
-    document.getElementById('complaintError').style.display='block'; return;
+    `).join('');
   }
 
-  // Capturar IP do denunciante
-  let ip = 'Coletando...';
-  try {
-    const r = await fetch('https://api.ipify.org?format=json');
-    const d = await r.json();
-    ip = d.ip;
-  } catch(e){ ip = 'Não disponível'; }
-
-  const id = 'DEN-'+Date.now();
-  const complaint = {
-    id, name, category:cat, subject:subj, message:msg,
-    evidence:ev, ip,
-    timestamp: new Date().toLocaleString('pt-BR'),
-    status: 'Novo',
-    anon: document.getElementById('cAnon').checked
+  // PERFIL DATA
+  const perfilData = {
+    phantom: {
+      avatar: 'PH', name: 'Phantom', role: '// COMMANDER · OSINT LEAD', id: 'ID: EL-OPS-001 · RANK-01',
+      status: 'ONLINE', statusClass: 'modal-status-online',
+      bio: 'Fundador e líder operacional da Eternity Legacy. Com mais de 6 anos de experiência em investigação cibernética, coordena operações críticas, mantém contato direto com autoridades e define as diretrizes éticas do grupo.',
+      skills: ['OSINT', 'HUMINT', 'Ops & Comando', 'Darkweb', 'Threat Intel', 'Investigação Criminal'],
+      quote: '"Criminosos acreditam que a internet é anônima. Nós provamos todos os dias que não é."',
+      stats: [{ n: '89+', l: 'Casos Liderados' }, { n: '34', l: 'Prisões' }, { n: '6', l: 'Anos Ativos' }, { n: '100%', l: 'Ética' }],
+      bars: [{ l: 'OSINT', v: 98 }, { l: 'Investigação', v: 96 }, { l: 'Liderança', v: 92 }, { l: 'Darkweb', v: 85 }],
+      info: { entrada: '14/03/2020', local: 'São Paulo, BR', contato: '@phantom_el · Discord' },
+      historico: [
+        { date: 'Jun 2026', op: 'Operação RedEye', desc: 'Liderança da operação contra rede de grooming internacional. Fase 2 em andamento.', status: 'ongoing' },
+        { date: 'Jan 2025', op: 'Operação Phoenix', desc: 'Coordenou investigação de grupo pedofílico em plataforma de jogos. 3 apreendidos.', status: 'resolved' },
+        { date: 'Set 2024', op: 'Operação Venom', desc: 'Desmantelou rede neonazista de recrutamento de menores. 7 identificados.', status: 'resolved' },
+        { date: 'Mar 2024', op: 'Operação Nightfall', desc: 'Prevenção de atentado escolar em SP. Alvo identificado e entregue à polícia em 4 dias.', status: 'resolved' }
+      ]
+    },
+    vortex: {
+      avatar: 'VX', name: 'Vortex', role: '// SENIOR ANALYST · DEV', id: 'ID: EL-OPS-002 · RANK-02',
+      status: 'ONLINE', statusClass: 'modal-status-online',
+      bio: 'Desenvolvedor fullstack e analista de segurança sênior. Criou ferramentas internas de rastreamento e análise de metadados. Especialista em engenharia reversa de perfis sociais e automação de coleta de dados em escala.',
+      skills: ['Dev Fullstack', 'Infosec', 'GEOINT', 'Python', 'Automação', 'API Hacking'],
+      quote: '"Código bem escrito abre portas. Código malicioso deixa rastros que eu sei encontrar."',
+      stats: [{ n: '12', l: 'Ferramentas Criadas' }, { n: '5', l: 'Linguagens' }, { n: '4', l: 'Anos Ativos' }, { n: '97%', l: 'Precisão' }],
+      bars: [{ l: 'Programação', v: 97 }, { l: 'GEOINT', v: 88 }, { l: 'Análise', v: 91 }, { l: 'Automação', v: 95 }],
+      info: { entrada: '02/07/2022', local: 'Rio de Janeiro, BR', contato: '@vortex_el · Discord' },
+      historico: [
+        { date: 'Jun 2026', op: 'Operação RedEye — Dev', desc: 'Desenvolvimento de ferramentas de rastreamento para op. em andamento.', status: 'ongoing' },
+        { date: 'Nov 2024', op: 'ElTracker v3', desc: 'Lançamento da ferramenta interna de rastreamento de perfis v3.0.', status: 'resolved' },
+        { date: 'Mai 2024', op: 'Integração OSINT API', desc: 'Integrou módulo de coleta automática com 14 fontes abertas.', status: 'resolved' },
+        { date: 'Jan 2023', op: 'Sistema de Alertas', desc: 'Criou sistema de monitoramento automático de alvos de alta prioridade.', status: 'resolved' }
+      ]
+    },
+    eclipse: {
+      avatar: 'EC', name: 'Eclipse', role: '// INTELLIGENCE · IMINT', id: 'ID: EL-OPS-003 · RANK-03',
+      status: 'ONLINE', statusClass: 'modal-status-online',
+      bio: 'Especialista em análise de imagens e vídeos para coleta de inteligência. Conduz operações encobertas em redes sociais há 3 anos. Expert em geolocalização por imagem e reconstrução de cronologias a partir de mídias digitais.',
+      skills: ['IMINT', 'Infiltração', 'Social Eng.', 'Geolocalização', 'Análise de Vídeo', 'Perfilamento'],
+      quote: '"Uma imagem vale mil palavras. Para mim, vale a identidade completa de um suspeito."',
+      stats: [{ n: '47', l: 'Infiltrações' }, { n: '3', l: 'Anos Ativos' }, { n: '23', l: 'Grupos Mapeados' }, { n: '89%', l: 'Sucesso' }],
+      bars: [{ l: 'IMINT', v: 96 }, { l: 'Infiltração', v: 93 }, { l: 'Eng. Social', v: 88 }, { l: 'Análise Visual', v: 90 }],
+      info: { entrada: '19/11/2023', local: 'Belo Horizonte, BR', contato: '@eclipse_el · Telegram' },
+      historico: [
+        { date: 'Mai 2026', op: 'Célula Extremista — Telegram', desc: 'Infiltração encoberta em grupo extremista com +200 membros. Fase 1 em andamento.', status: 'ongoing' },
+        { date: 'Fev 2025', op: 'Campanha Discord — IMINT', desc: 'Análise de mídia do servidor que induzia ao suicídio. Servidor derrubado.', status: 'resolved' },
+        { date: 'Out 2024', op: 'Rede Grooming — Mapeamento', desc: 'Mapeou rede de grooming internacional via análise de imagens e vídeos.', status: 'resolved' },
+        { date: 'Mar 2024', op: 'Operação Venom — IMINT Lead', desc: 'Liderou coleta de inteligência visual no caso neonazista.', status: 'resolved' }
+      ]
+    },
+    raven: {
+      avatar: 'RV', name: 'Raven', role: '// FORENSICS · DATA INTEL', id: 'ID: EL-OPS-004 · RANK-04',
+      status: 'AUSENTE', statusClass: 'modal-status-offline',
+      bio: 'Analista forense digital e especialista em extração e preservação de dados probatórios. Responsável por laudos e cadeia de custódia digital para encaminhamento às autoridades competentes.',
+      skills: ['Forense Digital', 'Data Intel', 'OSINT', 'Cadeia Custódia', 'Análise Artefatos', 'Relatórios'],
+      quote: '"A prova digital não mente. Meu trabalho é garantir que ela seja ouvida."',
+      stats: [{ n: '89', l: 'Laudos Emitidos' }, { n: '100%', l: 'Aceitação' }, { n: '5', l: 'Anos Ativos' }, { n: '0', l: 'Falhas' }],
+      bars: [{ l: 'Forense', v: 99 }, { l: 'Análise de Dados', v: 95 }, { l: 'OSINT', v: 82 }, { l: 'Documentação', v: 97 }],
+      info: { entrada: '05/01/2021', local: 'Curitiba, BR', contato: '@raven_el · Discord' },
+      historico: [
+        { date: 'Ago 2024', op: 'Laudo Scam Criptomoedas', desc: 'Emitiu laudo forense do esquema de R$ 2.4M. Aceito pelo MP Federal.', status: 'resolved' },
+        { date: 'Jan 2025', op: 'Laudo Pedofilia — SP', desc: 'Documentação forense das provas do caso de plataforma de jogos.', status: 'resolved' },
+        { date: 'Set 2024', op: 'Documentação Op. Phoenix', desc: 'Cadeia de custódia completa para entrega à Delegacia de Crimes Cibernéticos.', status: 'resolved' },
+        { date: 'Abr 2024', op: 'Análise Op. Venom', desc: 'Laudo de artefatos digitais do caso neonazista. Aceito pelo TRF.', status: 'resolved' }
+      ]
+    },
+    cipher: {
+      avatar: 'CR', name: 'Cipher', role: '// CRYPTOGRAPHY · NETWORK', id: 'ID: EL-OPS-005 · RANK-05',
+      status: 'ONLINE', statusClass: 'modal-status-online',
+      bio: 'Especialista em criptografia e análise de redes. Rastreia comunicações de grupos criminosos e decifra mensagens codificadas. Opera ferramentas de inteligência de rede e identifica infraestruturas criminosas.',
+      skills: ['Criptografia', 'Network Anal.', 'Tracking', 'SIGINT', 'Packet Analysis', 'Infra Mapping'],
+      quote: '"Não existe criptografia perfeita quando o operador comete erros. E eles sempre cometem."',
+      stats: [{ n: '31', l: 'Redes Rastreadas' }, { n: '4', l: 'Anos Ativos' }, { n: '8', l: 'Infras Mapeadas' }, { n: '94%', l: 'Eficiência' }],
+      bars: [{ l: 'Criptografia', v: 95 }, { l: 'Network', v: 93 }, { l: 'SIGINT', v: 87 }, { l: 'Infra', v: 89 }],
+      info: { entrada: '30/06/2022', local: 'Porto Alegre, BR', contato: '@cipher_el · Telegram' },
+      historico: [
+        { date: 'Jun 2026', op: 'Op. RedEye — Network Intel', desc: 'Mapeando infraestrutura de rede da organização criminosa internacional.', status: 'ongoing' },
+        { date: 'Fev 2025', op: 'Decifração Grupo Telegram', desc: 'Decodificou mensagens cifradas de grupo extremista. 12 membros identificados.', status: 'resolved' },
+        { date: 'Ago 2024', op: 'Infra Scam Criptomoedas', desc: 'Mapeou infraestrutura de servidores usados pelo grupo de fraude.', status: 'resolved' },
+        { date: 'Nov 2023', op: 'Rastreio Rede Darknet', desc: 'Identificação de nós de comunicação de rede criminosa na darknet.', status: 'resolved' }
+      ]
+    },
+    novax: {
+      avatar: 'NX', name: 'Nova_X', role: '// HUMINT · FIELD INTEL', id: 'ID: EL-OPS-006 · RANK-06',
+      status: 'ONLINE', statusClass: 'modal-status-online',
+      bio: 'Operador de inteligência humana e analista de comportamento. Especialista em reconhecimento de padrões psicológicos e identificação de ameaças emergentes. Expert em detecção de discurso extremista e perfilamento criminal.',
+      skills: ['HUMINT', 'Comportamento', 'Padrões', 'Psicologia', 'Análise Discurso', 'Detecção de Ameaças'],
+      quote: '"Comportamento nunca mente. Palavras podem iludir, mas padrões revelam tudo."',
+      stats: [{ n: '156', l: 'Perfis Analisados' }, { n: '3', l: 'Anos Ativos' }, { n: '12', l: 'Ameaças Previstas' }, { n: '91%', l: 'Precisão' }],
+      bars: [{ l: 'HUMINT', v: 94 }, { l: 'Análise Comportamental', v: 96 }, { l: 'Detecção', v: 90 }, { l: 'Relatórios', v: 88 }],
+      info: { entrada: '12/04/2023', local: 'Salvador, BR', contato: '@novax_el · Discord' },
+      historico: [
+        { date: 'Abr 2026', op: 'Stalker Serial — Comportamento', desc: 'Análise comportamental do suspeito. Perfil psicológico entregue à DEAM.', status: 'ongoing' },
+        { date: 'Out 2024', op: 'Grupo Neonazista — Perfilamento', desc: 'Perfilou líderes do grupo extremista. 7 perfis detalhados entregues ao MP.', status: 'resolved' },
+        { date: 'Jan 2025', op: 'Ameaça Massacre — Perfilamento', desc: 'Análise psicológica do suspeito de atentado escolar em SP.', status: 'resolved' },
+        { date: 'Jul 2024', op: 'Op. Phoenix — HUMINT', desc: 'Apoio HUMINT no caso de pedofilia em plataforma de jogos.', status: 'resolved' }
+      ]
+    },
+    specter: {
+      avatar: 'SR', name: 'Specter', role: '// DARKWEB · RECON', id: 'ID: EL-OPS-007 · RANK-07',
+      status: 'AUSENTE', statusClass: 'modal-status-offline',
+      bio: 'Especialista em operações na darkweb e reconhecimento avançado. Monitora fóruns e mercados clandestinos para identificação precoce de ameaças. Hacker ético certificado.',
+      skills: ['Darkweb', 'Recon', 'Hacking Ético', 'Threat Hunt', 'OPSEC', 'Tor/I2P'],
+      quote: '"A darkweb não é o fim da investigação. É o começo. Eu conheço cada esquina."',
+      stats: [{ n: '200+', l: 'Fóruns Monitorados' }, { n: '5', l: 'Anos Ativos' }, { n: '15', l: 'Mercados Mapeados' }, { n: '88%', l: 'Infiltrações' }],
+      bars: [{ l: 'Darkweb', v: 99 }, { l: 'Recon', v: 95 }, { l: 'OPSEC', v: 92 }, { l: 'Threat Hunt', v: 90 }],
+      info: { entrada: '08/09/2021', local: 'Recífe, BR', contato: '@specter_el · Telegram' },
+      historico: [
+        { date: 'Fev 2025', op: 'Rede Pedofilia — Darkweb', desc: 'Mapeou rede de distribuição de material ilegal em fórum clandestino.', status: 'resolved' },
+        { date: 'Jun 2024', op: 'Mercado Ilegal — Recon', desc: 'Identificação e documentação de marketplace ilegal com +1.200 produtos.', status: 'resolved' },
+        { date: 'Mar 2024', op: 'Op. Nightfall — Recon Lead', desc: 'Liderou reconhecimento da infraestrutura criminosa no caso de atentado.', status: 'resolved' },
+        { date: 'Dez 2022', op: 'Fórum Extremista — Monitoramento', desc: 'Monitoramento contínuo de fórum com conteúdo extremista. 3 alertas emitidos.', status: 'resolved' }
+      ]
+    }
   };
 
-  DB.push('complaints', complaint);
-  document.getElementById('complaintId').textContent = id;
-  document.getElementById('complaintSuccess').style.display='block';
-
-  // Reset
-  ['cName','cSubject','cMessage','cEvidence'].forEach(f=>document.getElementById(f).value='');
-  document.getElementById('cCategory').value='';
-  document.getElementById('cAnon').checked=false;
-  updateStats();
-}
-
-// ================================================================
-//   ADMIN LOGIN
-// ================================================================
-let currentUser = null;
-function doLogin(){
-  const u = document.getElementById('adminUser').value.trim();
-  const p = document.getElementById('adminPass').value;
-  document.getElementById('loginError').style.display='none';
-
-  const users = DB.get('users',[]);
-  const found = users.find(x=>x.username===u && x.password===p);
-  if(!found){ document.getElementById('loginError').style.display='block'; return; }
-
-  currentUser = found;
-  document.getElementById('admin').classList.remove('active');
-  document.getElementById('adminPanel').classList.add('active');
-  document.getElementById('loggedUserName').textContent = found.username;
-  document.getElementById('loggedUserRole').textContent = found.role;
-
-  // Mostrar aba de usuários apenas para SuperAdmin
-  document.getElementById('tabUsers').style.display = (found.role==='SuperAdmin'?'block':'none');
-
-  switchAdminTab('dashboard');
-  refreshDashboard();
-}
-function doLogout(){
-  currentUser = null;
-  document.getElementById('adminPanel').classList.remove('active');
-  showSection('admin');
-  document.getElementById('adminUser').value='';
-  document.getElementById('adminPass').value='';
-}
-
-// ================================================================
-//   ADMIN TABS
-// ================================================================
-function switchAdminTab(tab){
-  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  event && event.target && event.target.classList.add('active');
-  document.getElementById('admin'+tab[0].toUpperCase()+tab.slice(1)).classList.add('active');
-  if(tab==='complaints')    renderAdminComplaints();
-  if(tab==='users')         renderAdminUsers();
-  if(tab==='members')       renderAdminMembers();
-  if(tab==='investigations')renderAdminInv();
-  if(tab==='database')      refreshDB();
-  if(tab==='dashboard')     refreshDashboard();
-}
-
-// ================================================================
-//   DASHBOARD
-// ================================================================
-function refreshDashboard(){
-  const complaints = DB.get('complaints',[]);
-  const members    = DB.get('members',[]);
-  const invs       = DB.get('investigations',[]);
-  const users      = DB.get('users',[]);
-  const today = new Date().toLocaleDateString('pt-BR');
-  const todayNew = complaints.filter(c=>c.timestamp&&c.timestamp.startsWith(today));
-
-  document.getElementById('dashReports').textContent  = complaints.length;
-  document.getElementById('dashNew').textContent      = todayNew.length;
-  document.getElementById('dashMembers').textContent  = members.length;
-  document.getElementById('dashInv').textContent      = invs.length;
-  document.getElementById('dashUsers').textContent    = users.length;
-
-  const recent = complaints.slice(-5).reverse();
-  document.getElementById('recentComplaints').innerHTML = recent.length
-    ? recent.map(c=>`
-      <div style="padding:0.75rem 0;border-bottom:1px solid var(--border);display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
-        <span class="badge badge-red">${c.id}</span>
-        <span style="flex:1"><b>${c.subject}</b> — ${c.category}</span>
-        <span class="ip-badge">${c.ip}</span>
-        <span style="font-size:0.75rem;color:var(--text2)">${c.timestamp}</span>
-      </div>`).join('')
-    : '<p>Nenhuma denúncia registrada ainda.</p>';
-}
-
-// ================================================================
-//   ADMIN COMPLAINTS
-// ================================================================
-function renderAdminComplaints(){
-  const complaints = DB.get('complaints',[]);
-  const tbody = document.getElementById('complaintsTable');
-  if(!complaints.length){
-    tbody.innerHTML='<tr><td colspan="8" style="color:var(--text2);text-align:center;padding:2rem">Nenhuma denúncia registrada.</td></tr>';
-    return;
+  function openPerfil(id) {
+    const p = perfilData[id];
+    if (!p) return;
+    document.getElementById('mAvatar').textContent = p.avatar;
+    document.getElementById('mName').textContent = p.name;
+    document.getElementById('mRole').textContent = p.role;
+    document.getElementById('mId').textContent = p.id;
+    const sb = document.getElementById('mStatus');
+    sb.textContent = '● ' + p.status;
+    sb.className = 'modal-status-badge ' + p.statusClass;
+    document.getElementById('mBio').textContent = p.bio;
+    document.getElementById('mSkills').innerHTML = p.skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
+    document.getElementById('mQuote').textContent = p.quote;
+    document.getElementById('mStats').innerHTML = p.stats.map(s => `<div class="mstat-box"><div class="mstat-num">${s.n}</div><div class="mstat-label">${s.l}</div></div>`).join('');
+    document.getElementById('mBars').innerHTML = p.bars.map(b => `<div class="mbar-item"><div class="mbar-label"><span>${b.l}</span><span>${b.v}%</span></div><div class="mbar-track"><div class="mbar-fill" style="width:0%" data-w="${b.v}%"></div></div></div>`).join('');
+    document.getElementById('mOps').innerHTML = renderHistorico(p.historico);
+    document.getElementById('mInfo').innerHTML = [
+      { l: 'Data de Entrada', v: p.info.entrada, i: 'fa-calendar-plus' },
+      { l: 'Localização', v: p.info.local, i: 'fa-map-marker-alt' },
+      { l: 'Contato', v: p.info.contato, i: 'fa-shield-alt' }
+    ].map(x => `<div class="minfo-box"><div class="minfo-label"><i class="fas ${x.i}" style="color:var(--red);margin-right:5px;"></i>${x.l}</div><div class="minfo-value">${x.v}</div></div>`).join('');
+    document.getElementById('perfilModal').classList.add('open');
+    setTimeout(() => {
+      document.querySelectorAll('.mbar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.w;
+      });
+    }, 100);
   }
-  tbody.innerHTML = complaints.map((c,i)=>`
-    <tr>
-      <td><span class="badge badge-red">${c.id}</span></td>
-      <td style="font-size:0.8rem;color:var(--text2)">${c.timestamp}</td>
-      <td>${c.anon?'<i style="color:var(--text2)">Anônimo</i>':c.name}</td>
-      <td><span class="badge badge-cyan">${c.category}</span></td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.subject}</td>
-      <td><span class="ip-badge">🌐 ${c.ip}</span></td>
-      <td><span class="badge ${c.status==='Resolvido'?'badge-green':c.status==='Em Análise'?'badge-gold':'badge-red'}">${c.status}</span></td>
-      <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="viewComplaint(${i})">👁️</button>
-        <button class="btn btn-outline btn-sm" onclick="changeStatus(${i})" style="color:var(--gold)">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteComplaint(${i})">🗑️</button>
-      </td>
-    </tr>
-  `).join('');
-}
-function viewComplaint(i){
-  const c = DB.get('complaints',[])[i];
-  if(!c) return;
-  document.getElementById('complaintDetail').innerHTML = `
-    <div style="display:grid;gap:0.75rem">
-      <div><b style="color:var(--accent)">ID:</b> ${c.id}</div>
-      <div><b style="color:var(--accent)">Data/Hora:</b> ${c.timestamp}</div>
-      <div><b style="color:var(--accent)">Denunciante:</b> ${c.anon?'Anônimo':c.name}</div>
-      <div><b style="color:var(--accent)">Categoria:</b> ${c.category}</div>
-      <div><b style="color:var(--accent)">Assunto:</b> ${c.subject}</div>
-      <div><b style="color:var(--accent)">Endereço IP:</b> <span class="ip-badge">🌐 ${c.ip}</span></div>
-      <div><b style="color:var(--accent)">Status:</b> ${c.status}</div>
-      <div><b style="color:var(--accent)">Descrição:</b><br><span style="color:var(--text2);line-height:1.7">${c.message}</span></div>
-      ${c.evidence?`<div><b style="color:var(--accent)">Evidências:</b> <a href="${c.evidence}" target="_blank" style="color:var(--accent)">${c.evidence}</a></div>`:''}
-    </div>
-  `;
-  openModal('modalViewComplaint');
-}
-function changeStatus(i){
-  const complaints = DB.get('complaints',[]);
-  const statuses = ['Novo','Em Análise','Resolvido','Arquivado'];
-  const cur = complaints[i].status;
-  const next = statuses[(statuses.indexOf(cur)+1)%statuses.length];
-  complaints[i].status = next;
-  DB.set('complaints', complaints);
-  renderAdminComplaints();
-}
-function deleteComplaint(i){
-  if(!confirm('Excluir esta denúncia?')) return;
-  const complaints = DB.get('complaints',[]);
-  complaints.splice(i,1);
-  DB.set('complaints', complaints);
-  renderAdminComplaints();
-}
-function clearComplaints(){
-  if(!confirm('Limpar TODAS as denúncias? Esta ação não pode ser desfeita.')) return;
-  DB.set('complaints',[]);
-  renderAdminComplaints();
-}
 
-// ================================================================
-//   ADMIN USERS
-// ================================================================
-function renderAdminUsers(){
-  const users = DB.get('users',[]);
-  const tbody = document.getElementById('usersTable');
-  tbody.innerHTML = users.map((u,i)=>`
-    <tr>
-      <td><b>${u.username}</b></td>
-      <td><span class="badge ${u.role==='SuperAdmin'?'badge-gold':u.role==='Admin'?'badge-purple':'badge-cyan'}">${u.role}</span></td>
-      <td style="font-size:0.8rem;color:var(--text2)">${new Date(u.createdAt).toLocaleDateString('pt-BR')}</td>
-      <td style="font-size:0.8rem;color:var(--text2)">${u.createdBy}</td>
-      <td>
-        ${u.role==='SuperAdmin'?'<span style="color:var(--text2);font-size:0.8rem">Protegido</span>':`<button class="btn btn-danger btn-sm" onclick="deleteUser(${i})">🗑️ Remover</button>`}
-      </td>
-    </tr>
-  `).join('');
-}
-function openAddUserModal(){ openModal('modalAddUser'); }
-function createUser(){
-  const name = document.getElementById('newUserName').value.trim();
-  const pass = document.getElementById('newUserPass').value;
-  const role = document.getElementById('newUserRole').value;
-  const err  = document.getElementById('userCreateError');
-  const ok   = document.getElementById('userCreateSuccess');
-  err.style.display='none'; ok.style.display='none';
-
-  if(!name||!pass){ err.textContent='Preencha todos os campos.'; err.style.display='block'; return; }
-  const users = DB.get('users',[]);
-  if(users.find(u=>u.username===name)){
-    err.textContent='Este nome de usuário já existe.'; err.style.display='block'; return;
+  function closePerfil(e) {
+    if (e.target === document.getElementById('perfilModal')) {
+      document.getElementById('perfilModal').classList.remove('open');
+    }
   }
-  DB.push('users', {
-    id:'u'+Date.now(), username:name, password:pass, role,
-    createdAt:new Date().toISOString(), createdBy: currentUser.username
+
+  // FORM SUBMIT
+  function submitForm(e) {
+    e.preventDefault();
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+    e.target.reset();
+  }
+
+  // SMOOTH NAV HIGHLIGHT
+  const sections = document.querySelectorAll('section[id], div.stats-bar');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    document.querySelectorAll('section[id]').forEach(sec => {
+      if (window.scrollY >= sec.offsetTop - 100) current = sec.id;
+    });
+    navLinks.forEach(link => {
+      link.style.color = '';
+      if (link.getAttribute('href') === '#' + current) {
+        link.style.color = 'var(--red)';
+      }
+    });
   });
-  ok.textContent=`✅ Usuário "${name}" criado com sucesso como ${role}.`;
-  ok.style.display='block';
-  document.getElementById('newUserName').value='';
-  document.getElementById('newUserPass').value='';
-  renderAdminUsers();
-}
-function deleteUser(i){
-  if(!confirm('Remover este usuário?')) return;
-  const users = DB.get('users',[]);
-  if(users[i].role==='SuperAdmin'){ alert('Não é possível remover o SuperAdmin.'); return; }
-  users.splice(i,1);
-  DB.set('users', users);
-  renderAdminUsers();
-}
-
-// ================================================================
-//   ADMIN MEMBERS
-// ================================================================
-function renderAdminMembers(){
-  const members = DB.get('members',[]);
-  const tbody = document.getElementById('adminMembersTable');
-  tbody.innerHTML = members.map((m,i)=>`
-    <tr>
-      <td><b>${m.name}</b></td>
-      <td>${m.role}</td>
-      <td><span class="badge badge-cyan">${m.spec}</span></td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteMember(${i})">🗑️</button></td>
-    </tr>
-  `).join('') || '<tr><td colspan="4" style="color:var(--text2);text-align:center;padding:1.5rem">Nenhum membro.</td></tr>';
-}
-function openAddMemberModal(){ openModal('modalAddMember'); }
-function createMember(){
-  const name = document.getElementById('newMemberName').value.trim();
-  const role = document.getElementById('newMemberRole').value.trim();
-  const spec = document.getElementById('newMemberSpec').value.trim();
-  const bio  = document.getElementById('newMemberBio').value.trim();
-  if(!name||!role){ return; }
-  const colors=['cyan','purple','gold','red','green'];
-  DB.push('members',{id:'m'+Date.now(),name,role,spec:spec||'Operador',bio:bio||'Membro da equipe Eternity.',color:colors[Math.floor(Math.random()*colors.length)]});
-  document.getElementById('memberCreateSuccess').style.display='block';
-  document.getElementById('memberCreateSuccess').textContent='✅ Membro adicionado!';
-  ['newMemberName','newMemberRole','newMemberSpec','newMemberBio'].forEach(f=>document.getElementById(f).value='');
-  renderAdminMembers();
-  setTimeout(()=>document.getElementById('memberCreateSuccess').style.display='none',2000);
-}
-function deleteMember(i){
-  if(!confirm('Remover este membro?')) return;
-  const members=DB.get('members',[]); members.splice(i,1); DB.set('members',members); renderAdminMembers();
-}
-
-// ================================================================
-//   ADMIN INVESTIGATIONS
-// ================================================================
-function renderAdminInv(){
-  const invs = DB.get('investigations',[]);
-  const tbody = document.getElementById('adminInvTable');
-  tbody.innerHTML = invs.map((inv,i)=>`
-    <tr>
-      <td style="font-family:monospace;color:var(--accent)">${inv.id.toUpperCase()}</td>
-      <td><b>${inv.title}</b></td>
-      <td><span class="badge ${inv.status==='active'?'badge-green':inv.status==='pending'?'badge-gold':'badge-cyan'}">${inv.status==='active'?'Ativo':inv.status==='pending'?'Em Análise':'Encerrado'}</span></td>
-      <td><span style="color:${inv.priority==='Alta'?'var(--accent3)':inv.priority==='Média'?'var(--gold)':'var(--success)'}">${inv.priority}</span></td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteInv(${i})">🗑️</button></td>
-    </tr>
-  `).join('') || '<tr><td colspan="5" style="color:var(--text2);text-align:center;padding:1.5rem">Nenhuma investigação.</td></tr>';
-}
-function openAddInvModal(){ openModal('modalAddInv'); }
-function createInvestigation(){
-  const title  = document.getElementById('newInvTitle').value.trim();
-  const desc   = document.getElementById('newInvDesc').value.trim();
-  const status = document.getElementById('newInvStatus').value;
-  const prio   = document.getElementById('newInvPriority').value;
-  if(!title) return;
-  DB.push('investigations',{
-    id:'inv'+Date.now(), title, desc:desc||'Sem descrição.', status, priority:prio,
-    date:new Date().toLocaleDateString('pt-BR'), agent:currentUser?currentUser.username:'—'
-  });
-  document.getElementById('invCreateSuccess').style.display='block';
-  document.getElementById('invCreateSuccess').textContent='✅ Investigação criada!';
-  ['newInvTitle','newInvDesc'].forEach(f=>document.getElementById(f).value='');
-  renderAdminInv();
-  setTimeout(()=>document.getElementById('invCreateSuccess').style.display='none',2000);
-}
-function deleteInv(i){
-  if(!confirm('Excluir esta investigação?')) return;
-  const invs=DB.get('investigations',[]); invs.splice(i,1); DB.set('investigations',invs); renderAdminInv();
-}
-
-// ================================================================
-//   DATABASE VIEW
-// ================================================================
-function refreshDB(){
-  const fmt = (data) => data.map((r,i)=>`<div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;border-left:2px solid var(--border)"><b style="color:var(--accent)">[${i}]</b> ${JSON.stringify(r)}</div>`).join('') || '<i>Vazio</i>';
-  document.getElementById('dbComplaints').innerHTML    = fmt(DB.get('complaints',[]));
-  document.getElementById('dbUsers').innerHTML         = fmt(DB.get('users',[]).map(u=>({...u,password:'[OCULTO]'})));
-  document.getElementById('dbMembers').innerHTML       = fmt(DB.get('members',[]));
-  document.getElementById('dbInvestigations').innerHTML= fmt(DB.get('investigations',[]));
-}
-function exportDB(){
-  const data = {
-    complaints:    DB.get('complaints',[]),
-    members:       DB.get('members',[]),
-    investigations:DB.get('investigations',[]),
-    users:         DB.get('users',[]).map(u=>({...u,password:'[OCULTO]'})),
-    exported:      new Date().toISOString()
-  };
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='eternity_db_'+Date.now()+'.json'; a.click();
-}
-
-// ================================================================
-//   MODALS
-// ================================================================
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-document.addEventListener('click',e=>{ if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('open'); });
-
-// ================================================================
-//   HAMBURGER MENU
-// ================================================================
-function toggleMenu(){
-  const m = document.getElementById('mobileMenu');
-  m.classList.toggle('open');
-}
-function showSectionMobile(id){
-  document.getElementById('mobileMenu').classList.remove('open');
-  showSection(id);
-}
-
-// ================================================================
-//   INIT
-// ================================================================
-initDB();
-initParticles();
-updateStats();
 </script>
+
 </body>
 </html>
