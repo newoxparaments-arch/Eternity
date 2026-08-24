@@ -1,3317 +1,568 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eternity Legacy | Investigação & Inteligência Digital</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <style>
-    :root {
-      --red: #c0001a;
-      --red-bright: #ff0033;
-      --red-glow: #ff003366;
-      --dark: #000000;
-      --dark2: #080808;
-      --dark3: #0f0f0f;
-      --dark4: #141414;
-      --gray: #1a1a1a;
-      --gray2: #252525;
-      --text: #f0f0f0;
-      --text-dim: #999;
-      --border: #2a0008;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--dark);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      overflow-x: hidden;
-    }
-
-    /* SCROLLBAR */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #000; }
-    ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 3px; }
-
-    /* CURSOR */
-    #cursor {
-      position: fixed;
-      width: 12px;
-      height: 12px;
-      background: var(--red);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 99999;
-      transform: translate(-50%, -50%);
-      transition: transform 0.1s, background 0.2s;
-      mix-blend-mode: difference;
-      box-shadow: 0 0 10px var(--red), 0 0 20px rgba(192,0,26,0.4);
-    }
-
-    #cursor-trail {
-      position: fixed;
-      width: 36px;
-      height: 36px;
-      border: 1px solid rgba(192,0,26,0.5);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 99998;
-      transform: translate(-50%, -50%);
-      transition: all 0.15s ease;
-    }
-
-    body:hover #cursor { opacity: 1; }
-
-    /* PARTICLE CANVAS */
-    #particleCanvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.6;
-    }
-
-    /* LOADER */
-    #loader {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      z-index: 99990;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.8s ease, visibility 0.8s;
-    }
-
-    #loader.done { opacity: 0; visibility: hidden; }
-
-    .loader-inner { text-align: center; }
-
-    .loader-hex {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 30px;
-    }
-
-    .hex-stroke {
-      stroke-dasharray: 400;
-      stroke-dashoffset: 400;
-      animation: drawHex 1.5s ease forwards;
-    }
-
-    @keyframes drawHex {
-      to { stroke-dashoffset: 0; }
-    }
-
-    .loader-logo {
-      position: absolute;
-      font-family: 'Orbitron', monospace;
-      font-size: 22px;
-      font-weight: 900;
-      color: var(--red);
-      text-shadow: 0 0 20px rgba(192,0,26,0.8);
-      animation: pulse-logo 1s infinite;
-    }
-
-    .loader-text {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 13px;
-      letter-spacing: 4px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      margin-bottom: 20px;
-    }
-
-    .loader-dots::after {
-      content: '';
-      animation: dots 1.2s infinite;
-    }
-
-    @keyframes dots {
-      0%   { content: ''; }
-      33%  { content: '.'; }
-      66%  { content: '..'; }
-      100% { content: '...'; }
-    }
-
-    .loader-bar {
-      width: 280px;
-      height: 2px;
-      background: rgba(192,0,26,0.15);
-      margin: 0 auto 10px;
-      overflow: hidden;
-    }
-
-    .loader-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--red), var(--red-bright));
-      width: 0%;
-      box-shadow: 0 0 10px var(--red);
-      transition: width 0.05s;
-    }
-
-    .loader-pct {
-      font-family: 'Orbitron', monospace;
-      font-size: 11px;
-      color: var(--red);
-      letter-spacing: 3px;
-    }
-
-    /* NOISE OVERLAY */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.4;
-    }
-
-    /* GRID BG */
-    .grid-bg {
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(192,0,26,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(192,0,26,0.04) 1px, transparent 1px);
-      background-size: 50px 50px;
-      pointer-events: none;
-      z-index: 0;
-      animation: grid-move 20s linear infinite;
-    }
-
-    @keyframes grid-move {
-      0%   { background-position: 0 0; }
-      100% { background-position: 50px 50px; }
-    }
-
-    /* REVEAL ANIMATION */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .reveal-left {
-      opacity: 0;
-      transform: translateX(-40px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    .reveal-left.visible {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .reveal-right {
-      opacity: 0;
-      transform: translateX(40px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    .reveal-right.visible {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    /* RED LIGHTNING */
-    .lightning-line {
-      position: absolute;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.07;
-    }
-
-    /* FLOATING PARTICLES (CSS) */
-    .float-particle {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: var(--red);
-      border-radius: 50%;
-      pointer-events: none;
-      animation: float-up linear infinite;
-      box-shadow: 0 0 4px var(--red);
-    }
-
-    @keyframes float-up {
-      0%   { transform: translateY(0) translateX(0); opacity: 1; }
-      100% { transform: translateY(-120px) translateX(var(--dx, 20px)); opacity: 0; }
-    }
-
-    /* NAV */
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
-      background: rgba(0,0,0,0.95);
-      border-bottom: 1px solid var(--red);
-      backdrop-filter: blur(20px);
-      padding: 0 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 70px;
-      box-shadow: 0 0 30px rgba(192,0,26,0.3);
-    }
-
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      text-decoration: none;
-    }
-
-    .logo-icon {
-      width: 42px;
-      height: 42px;
-      background: var(--red);
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 0 20px var(--red-glow);
-      animation: pulse-logo 2s infinite;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .logo-icon::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
-      transform: translateX(-100%);
-      animation: logo-shine 3s ease infinite;
-    }
-
-    @keyframes logo-shine {
-      0%,70% { transform: translateX(-100%); }
-      100%    { transform: translateX(200%); }
-    }
-
-    @keyframes pulse-logo {
-      0%, 100% { box-shadow: 0 0 20px var(--red-glow); }
-      50% { box-shadow: 0 0 40px rgba(255,0,51,0.6), 0 0 80px rgba(255,0,51,0.2); }
-    }
-
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-      line-height: 1;
-    }
-
-    .logo-main {
-      font-family: 'Orbitron', monospace;
-      font-size: 18px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    .logo-sub {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 9px;
-      color: var(--red);
-      letter-spacing: 4px;
-      text-transform: uppercase;
-    }
-
-    .nav-links {
-      display: flex;
-      list-style: none;
-      gap: 5px;
-    }
-
-    .nav-links a {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      text-decoration: none;
-      padding: 8px 16px;
-      border: 1px solid transparent;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .nav-links a::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: var(--red);
-      transition: width 0.3s;
-    }
-
-    .nav-links a:hover {
-      color: var(--red-bright);
-      border-color: rgba(192,0,26,0.3);
-      text-shadow: 0 0 10px var(--red-glow);
-    }
-
-    .nav-links a:hover::before { width: 100%; }
-
-    .nav-btn {
-      background: var(--red) !important;
-      color: #fff !important;
-      border: 1px solid var(--red) !important;
-      padding: 8px 20px !important;
-      font-weight: 700 !important;
-      box-shadow: 0 0 15px rgba(192,0,26,0.4);
-      transition: all 0.3s !important;
-    }
-
-    .nav-btn:hover {
-      background: var(--red-bright) !important;
-      box-shadow: 0 0 30px rgba(255,0,51,0.6) !important;
-    }
-
-    .nav-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: #00ff88;
-      border-radius: 50%;
-      animation: blink 1.5s infinite;
-      box-shadow: 0 0 8px #00ff88;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    /* NAV ENTRY ANIMATION */
-    nav { animation: nav-drop 0.6s ease 2s both; }
-
-    @keyframes nav-drop {
-      from { transform: translateY(-100%); opacity: 0; }
-      to   { transform: translateY(0);    opacity: 1; }
-    }
-
-    /* HERO */
-    #home {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding-top: 70px;
-      overflow: hidden;
-    }
-
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 50%, rgba(192,0,26,0.08) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(192,0,26,0.05) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 40% at 80% 20%, rgba(192,0,26,0.05) 0%, transparent 60%);
-    }
-
-    .hero-lines {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-    }
-
-    .hero-lines::before,
-    .hero-lines::after {
-      content: '';
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      border-radius: 50%;
-      border: 1px solid rgba(192,0,26,0.1);
-    }
-
-    .hero-lines::before {
-      width: 700px;
-      height: 700px;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      animation: rotate-slow 30s linear infinite;
-    }
-
-    .hero-lines::after {
-      width: 500px;
-      height: 500px;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      animation: rotate-slow 20s linear infinite reverse;
-    }
-
-    @keyframes rotate-slow {
-      from { transform: translate(-50%, -50%) rotate(0deg); }
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      padding: 40px 20px;
-      max-width: 900px;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(192,0,26,0.1);
-      border: 1px solid rgba(192,0,26,0.4);
-      color: var(--red-bright);
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 3px;
-      padding: 6px 18px;
-      margin-bottom: 30px;
-      text-transform: uppercase;
-      animation: badge-in 0.6s ease 2.2s both;
-    }
-
-    @keyframes badge-in {
-      from { opacity: 0; transform: translateY(-10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .hero-title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(42px, 8vw, 90px);
-      font-weight: 900;
-      line-height: 1;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      animation: hero-title-in 1s ease 2.4s both;
-    }
-
-    @keyframes hero-title-in {
-      from { opacity:0; transform: scale(1.08) translateY(20px); }
-      to   { opacity:1; transform: scale(1)    translateY(0); }
-    }
-
-    .hero-title .line1 { color: #fff; display: block; }
-    .hero-title .line2 {
-      color: var(--red);
-      display: block;
-      text-shadow: 0 0 40px rgba(192,0,26,0.5);
-    }
-
-    .hero-subtitle {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 13px;
-      letter-spacing: 6px;
-      color: var(--text-dim);
-      margin-bottom: 40px;
-      text-transform: uppercase;
-    }
-
-    .hero-desc {
-      font-size: 18px;
-      line-height: 1.8;
-      color: #aaa;
-      max-width: 650px;
-      margin: 0 auto 50px;
-    }
-
-    .hero-btns {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn-primary {
-      background: var(--red);
-      color: #fff;
-      border: none;
-      padding: 14px 36px;
-      font-family: 'Orbitron', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      box-shadow: 0 0 20px rgba(192,0,26,0.4);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-primary::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-      transition: left 0.5s;
-    }
-
-    .btn-primary:hover::before { left: 100%; }
-
-    .btn-primary:hover {
-      background: var(--red-bright);
-      box-shadow: 0 0 50px rgba(255,0,51,0.7), 0 0 100px rgba(255,0,51,0.2);
-      transform: translateY(-3px) scale(1.02);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: var(--red);
-      border: 1px solid var(--red);
-      padding: 14px 36px;
-      font-family: 'Orbitron', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
-      transition: all 0.3s;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(192,0,26,0.1);
-      box-shadow: 0 0 20px rgba(192,0,26,0.3);
-    }
-
-    /* STATS */
-    .stats-bar {
-      position: relative;
-      z-index: 2;
-      background: rgba(192,0,26,0.05);
-      border-top: 1px solid rgba(192,0,26,0.2);
-      border-bottom: 1px solid rgba(192,0,26,0.2);
-      padding: 30px 60px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-    }
-
-    .stat-item {
-      text-align: center;
-      position: relative;
-      padding: 0 20px;
-    }
-
-    .stat-item:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 40px;
-      width: 1px;
-      background: rgba(192,0,26,0.3);
-    }
-
-    .stat-num {
-      font-family: 'Orbitron', monospace;
-      font-size: 42px;
-      font-weight: 900;
-      color: var(--red);
-      text-shadow: 0 0 20px rgba(192,0,26,0.5), 0 0 40px rgba(192,0,26,0.2);
-      line-height: 1;
-      transition: text-shadow 0.3s;
-    }
-
-    .stat-item:hover .stat-num {
-      text-shadow: 0 0 30px rgba(255,0,51,0.8), 0 0 60px rgba(255,0,51,0.4);
-    }
-
-    .stats-bar {
-      transition: background 0.3s;
-    }
-
-    .stat-label {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 3px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      margin-top: 6px;
-    }
-
-    /* SECTIONS */
-    section {
-      position: relative;
-      z-index: 1;
-      padding: 100px 60px;
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 70px;
-    }
-
-    .section-tag {
-      display: inline-block;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 4px;
-      color: var(--red);
-      text-transform: uppercase;
-      margin-bottom: 16px;
-      position: relative;
-      padding: 0 20px;
-    }
-
-    .section-tag::before,
-    .section-tag::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      width: 40px;
-      height: 1px;
-      background: var(--red);
-    }
-
-    .section-tag::before { right: calc(100% - 10px); }
-    .section-tag::after { left: calc(100% - 10px); }
-
-    .section-title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(28px, 5vw, 48px);
-      font-weight: 900;
-      text-transform: uppercase;
-      color: #fff;
-    }
-
-    .section-title span { color: var(--red); }
-
-    .section-line {
-      width: 80px;
-      height: 2px;
-      background: var(--red);
-      margin: 20px auto 0;
-      box-shadow: 0 0 10px var(--red-glow);
-    }
-
-    /* SOBRE */
-    #sobre {
-      background: var(--dark2);
-    }
-
-    .sobre-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .sobre-text h3 {
-      font-family: 'Orbitron', monospace;
-      font-size: 22px;
-      color: var(--red);
-      margin-bottom: 20px;
-      letter-spacing: 2px;
-    }
-
-    .sobre-text p {
-      font-size: 16px;
-      line-height: 1.9;
-      color: #aaa;
-      margin-bottom: 20px;
-    }
-
-    .sobre-features {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .feature-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      padding: 16px 20px;
-      background: rgba(192,0,26,0.05);
-      border: 1px solid rgba(192,0,26,0.15);
-      border-left: 3px solid var(--red);
-      transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .feature-item::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, rgba(192,0,26,0.08) 0%, transparent 100%);
-      transform: translateX(-100%);
-      transition: transform 0.4s ease;
-    }
-
-    .feature-item:hover::after { transform: translateX(0); }
-
-    .feature-item:hover {
-      background: rgba(192,0,26,0.1);
-      border-color: rgba(192,0,26,0.5);
-      transform: translateX(8px);
-      box-shadow: -4px 0 20px rgba(192,0,26,0.15);
-    }
-
-    .feature-icon {
-      width: 40px;
-      height: 40px;
-      background: rgba(192,0,26,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--red);
-      font-size: 16px;
-      flex-shrink: 0;
-    }
-
-    .feature-info h4 {
-      font-family: 'Orbitron', monospace;
-      font-size: 13px;
-      color: #fff;
-      margin-bottom: 4px;
-      letter-spacing: 1px;
-    }
-
-    .feature-info p {
-      font-size: 13px;
-      color: var(--text-dim);
-      margin: 0;
-      line-height: 1.5;
-    }
-
-    /* MEMBERS */
-    #membros {
-      background: var(--dark3);
-    }
-
-    .members-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .member-card {
-      background: var(--dark4);
-      border: 1px solid rgba(192,0,26,0.15);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      cursor: pointer;
-    }
-
-    .member-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--red);
-      transform: scaleX(0);
-      transition: transform 0.4s;
-    }
-
-    .member-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(192,0,26,0.07) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-
-    .member-card:hover {
-      border-color: rgba(192,0,26,0.6);
-      transform: translateY(-8px) scale(1.01);
-      box-shadow: 0 25px 60px rgba(192,0,26,0.2), 0 0 0 1px rgba(192,0,26,0.1);
-    }
-
-    /* CARD GLARE EFFECT */
-    .member-card .card-glare {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.04) 0%, transparent 60%);
-      pointer-events: none;
-      z-index: 10;
-      transition: background 0.1s;
-    }
-
-    .member-card:hover::before { transform: scaleX(1); }
-    .member-card:hover::after { opacity: 1; }
-
-    .member-header {
-      padding: 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      border-bottom: 1px solid rgba(192,0,26,0.1);
-      position: relative;
-      z-index: 1;
-    }
-
-    .member-avatar {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, rgba(192,0,26,0.3), rgba(192,0,26,0.1));
-      border: 2px solid rgba(192,0,26,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Orbitron', monospace;
-      font-size: 20px;
-      font-weight: 900;
-      color: var(--red);
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      flex-shrink: 0;
-    }
-
-    .member-meta { flex: 1; }
-
-    .member-name {
-      font-family: 'Orbitron', monospace;
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 1px;
-    }
-
-    .member-role {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--red);
-      letter-spacing: 2px;
-      margin-top: 4px;
-    }
-
-    .member-rank {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      color: var(--text-dim);
-      background: rgba(192,0,26,0.1);
-      border: 1px solid rgba(192,0,26,0.2);
-      padding: 2px 8px;
-    }
-
-    .member-body {
-      padding: 20px 24px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .member-bio {
-      font-size: 14px;
-      line-height: 1.7;
-      color: #888;
-      margin-bottom: 16px;
-    }
-
-    .member-skills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .skill-tag {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 1px;
-      color: var(--red);
-      background: rgba(192,0,26,0.08);
-      border: 1px solid rgba(192,0,26,0.2);
-      padding: 3px 10px;
-      text-transform: uppercase;
-    }
-
-    .member-footer {
-      padding: 14px 24px;
-      border-top: 1px solid rgba(192,0,26,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-      z-index: 1;
-    }
-
-    .member-id {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      color: var(--text-dim);
-    }
-
-    .member-status-active {
-      width: 8px;
-      height: 8px;
-      background: #00ff88;
-      border-radius: 50%;
-      animation: blink 2s infinite;
-      box-shadow: 0 0 6px #00ff88;
-    }
-
-    .member-status-away {
-      width: 8px;
-      height: 8px;
-      background: #ffaa00;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #ffaa00;
-    }
-
-    /* CASOS */
-    #casos { background: var(--dark2); }
-
-    .casos-tabs {
-      display: flex;
-      gap: 0;
-      max-width: 1200px;
-      margin: 0 auto 40px;
-      border-bottom: 2px solid rgba(192,0,26,0.2);
-    }
-
-    .tab-btn {
-      font-family: 'Orbitron', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      background: transparent;
-      color: var(--text-dim);
-      border: none;
-      padding: 14px 30px;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-    }
-
-    .tab-btn::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--red);
-      transform: scaleX(0);
-      transition: transform 0.3s;
-    }
-
-    .tab-btn.active {
-      color: var(--red);
-    }
-
-    .tab-btn.active::after { transform: scaleX(1); }
-    .tab-btn:hover { color: #fff; }
-
-    .tab-content { display: none; max-width: 1200px; margin: 0 auto; }
-    .tab-content.active { display: block; }
-
-    .casos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 20px;
-    }
-
-    .caso-card {
-      background: var(--dark4);
-      border: 1px solid rgba(192,0,26,0.1);
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s;
-    }
-
-    .caso-card:hover {
-      border-color: rgba(192,0,26,0.4);
-      box-shadow: 0 10px 30px rgba(192,0,26,0.1);
-    }
-
-    .caso-status {
-      position: absolute;
-      top: 0;
-      right: 0;
-      padding: 4px 14px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .status-resolved {
-      background: rgba(0,255,100,0.1);
-      color: #00ff88;
-      border-bottom: 1px solid #00ff8840;
-      border-left: 1px solid #00ff8840;
-    }
-
-    .status-ongoing {
-      background: rgba(255,170,0,0.1);
-      color: #ffaa00;
-      border-bottom: 1px solid #ffaa0040;
-      border-left: 1px solid #ffaa0040;
-    }
-
-    .caso-id {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      color: var(--red);
-      letter-spacing: 2px;
-      margin-bottom: 10px;
-    }
-
-    .caso-title {
-      font-family: 'Orbitron', monospace;
-      font-size: 15px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 10px;
-      letter-spacing: 0.5px;
-      line-height: 1.4;
-    }
-
-    .caso-desc {
-      font-size: 14px;
-      color: #777;
-      line-height: 1.6;
-      margin-bottom: 16px;
-    }
-
-    .caso-meta {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .caso-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .caso-meta-item i { color: var(--red); font-size: 10px; }
-
-    /* DENUNCIA */
-    #denuncia { background: var(--dark3); }
-
-    .denuncia-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .denuncia-warning {
-      background: rgba(192,0,26,0.08);
-      border: 1px solid rgba(192,0,26,0.3);
-      border-left: 4px solid var(--red);
-      padding: 20px 24px;
-      margin-bottom: 40px;
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
-
-    .denuncia-warning i {
-      color: var(--red);
-      font-size: 20px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .denuncia-warning p {
-      font-size: 14px;
-      color: #aaa;
-      line-height: 1.7;
-    }
-
-    .form-group {
-      margin-bottom: 24px;
-    }
-
-    .form-label {
-      display: block;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 3px;
-      color: var(--red);
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .form-input,
-    .form-select,
-    .form-textarea {
-      width: 100%;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(192,0,26,0.2);
-      border-radius: 0;
-      color: #fff;
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 16px;
-      padding: 14px 18px;
-      outline: none;
-      transition: all 0.3s;
-      appearance: none;
-    }
-
-    .form-input:focus,
-    .form-select:focus,
-    .form-textarea:focus {
-      border-color: var(--red);
-      background: rgba(192,0,26,0.05);
-      box-shadow: 0 0 15px rgba(192,0,26,0.15);
-    }
-
-    .form-select option { background: #111; }
-
-    .form-textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .form-submit {
-      width: 100%;
-      background: var(--red);
-      color: #fff;
-      border: none;
-      padding: 16px;
-      font-family: 'Orbitron', monospace;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.3s;
-      clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
-      box-shadow: 0 0 20px rgba(192,0,26,0.3);
-    }
-
-    .form-submit:hover {
-      background: var(--red-bright);
-      box-shadow: 0 0 40px rgba(255,0,51,0.5);
-    }
-
-    .form-note {
-      text-align: center;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 16px;
-      letter-spacing: 1px;
-    }
-
-    /* FOOTER */
-    footer {
-      position: relative;
-      z-index: 1;
-      background: #000;
-      border-top: 1px solid rgba(192,0,26,0.3);
-      padding: 60px;
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 60px;
-      max-width: 1200px;
-      margin: 0 auto 40px;
-    }
-
-    .footer-brand .logo-main {
-      font-size: 22px;
-      margin-bottom: 4px;
-      display: block;
-    }
-
-    .footer-brand .logo-sub {
-      display: block;
-      margin-bottom: 20px;
-    }
-
-    .footer-brand p {
-      font-size: 14px;
-      color: var(--text-dim);
-      line-height: 1.8;
-      max-width: 300px;
-    }
-
-    .footer-col h4 {
-      font-family: 'Orbitron', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: var(--red);
-      text-transform: uppercase;
-      margin-bottom: 20px;
-    }
-
-    .footer-links {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .footer-links a {
-      font-size: 14px;
-      color: var(--text-dim);
-      text-decoration: none;
-      transition: color 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .footer-links a::before {
-      content: '›';
-      color: var(--red);
-    }
-
-    .footer-links a:hover { color: var(--red); }
-
-    .footer-bottom {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding-top: 30px;
-      border-top: 1px solid rgba(192,0,26,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-copy {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-    }
-
-    .footer-copy span { color: var(--red); }
-
-    .footer-secure {
-      display: flex;
-      gap: 16px;
-    }
-
-    .secure-badge {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 2px;
-      color: var(--text-dim);
-      background: rgba(192,0,26,0.05);
-      border: 1px solid rgba(192,0,26,0.15);
-      padding: 4px 10px;
-      text-transform: uppercase;
-    }
-
-    /* PERFIL LIST */
-    .perfil-list { display: flex; flex-direction: column; gap: 2px; }
-
-    .perfil-row {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 18px 24px;
-      background: var(--dark4);
-      border: 1px solid rgba(192,0,26,0.08);
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .perfil-row::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 0;
-      background: rgba(192,0,26,0.06);
-      transition: width 0.4s;
-    }
-
-    .perfil-row:hover {
-      border-color: rgba(192,0,26,0.4);
-      box-shadow: 0 0 20px rgba(192,0,26,0.08);
-    }
-
-    .perfil-row:hover::before { width: 100%; }
-
-    .perfil-avatar-sm {
-      width: 52px;
-      height: 52px;
-      background: linear-gradient(135deg, rgba(192,0,26,0.3), rgba(192,0,26,0.1));
-      border: 2px solid rgba(192,0,26,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Orbitron', monospace;
-      font-size: 16px;
-      font-weight: 900;
-      color: var(--red);
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      flex-shrink: 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    .perfil-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
-
-    .perfil-name-sm {
-      font-family: 'Orbitron', monospace;
-      font-size: 15px;
-      font-weight: 700;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .perfil-id-badge {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      color: var(--red);
-      background: rgba(192,0,26,0.1);
-      border: 1px solid rgba(192,0,26,0.3);
-      padding: 1px 8px;
-      letter-spacing: 1px;
-    }
-
-    .perfil-role-sm {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-      margin-top: 4px;
-    }
-
-    .perfil-tags { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
-
-    .perfil-status-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-      z-index: 1;
-      min-width: 80px;
-    }
-
-    .perfil-arrow {
-      color: rgba(192,0,26,0.4);
-      font-size: 14px;
-      position: relative;
-      z-index: 1;
-      transition: all 0.3s;
-    }
-
-    .perfil-row:hover .perfil-arrow { color: var(--red); transform: translateX(5px); }
-
-    /* MODAL */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.92);
-      z-index: 9000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      backdrop-filter: blur(10px);
-    }
-
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-
-    .modal-box {
-      background: var(--dark3);
-      border: 1px solid rgba(192,0,26,0.4);
-      max-width: 900px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-      box-shadow: 0 0 80px rgba(192,0,26,0.2);
-      animation: modalIn 0.3s ease;
-    }
-
-    @keyframes modalIn {
-      from { transform: scale(0.95) translateY(20px); opacity: 0; }
-      to { transform: scale(1) translateY(0); opacity: 1; }
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: rgba(192,0,26,0.15);
-      border: 1px solid rgba(192,0,26,0.3);
-      color: var(--red);
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s;
-      z-index: 10;
-    }
-
-    .modal-close:hover { background: var(--red); color: #fff; }
-
-    .modal-top {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      padding: 32px 36px 24px;
-      border-bottom: 1px solid rgba(192,0,26,0.15);
-      background: linear-gradient(135deg, rgba(192,0,26,0.06) 0%, transparent 60%);
-    }
-
-    .modal-avatar {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, rgba(192,0,26,0.4), rgba(192,0,26,0.1));
-      border: 2px solid var(--red);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Orbitron', monospace;
-      font-size: 28px;
-      font-weight: 900;
-      color: var(--red);
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      flex-shrink: 0;
-      box-shadow: 0 0 30px rgba(192,0,26,0.3);
-    }
-
-    .modal-name {
-      font-family: 'Orbitron', monospace;
-      font-size: 26px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 2px;
-    }
-
-    .modal-role {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 12px;
-      color: var(--red);
-      letter-spacing: 3px;
-      margin-top: 6px;
-    }
-
-    .modal-id {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 4px;
-    }
-
-    .modal-status-badge {
-      margin-left: auto;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      padding: 6px 16px;
-      letter-spacing: 2px;
-      flex-shrink: 0;
-    }
-
-    .modal-status-online {
-      background: rgba(0,255,136,0.1);
-      border: 1px solid rgba(0,255,136,0.3);
-      color: #00ff88;
-    }
-
-    .modal-status-offline {
-      background: rgba(255,170,0,0.1);
-      border: 1px solid rgba(255,170,0,0.3);
-      color: #ffaa00;
-    }
-
-    .modal-divider {
-      height: 1px;
-      background: rgba(192,0,26,0.1);
-    }
-
-    .modal-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 0;
-    }
-
-    .modal-left {
-      padding: 30px 36px;
-      border-right: 1px solid rgba(192,0,26,0.1);
-    }
-
-    .modal-right {
-      padding: 30px 36px;
-    }
-
-    .modal-section-title {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 3px;
-      color: var(--red);
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-
-    .modal-bio {
-      font-size: 15px;
-      line-height: 1.8;
-      color: #aaa;
-    }
-
-    .modal-skills { display: flex; flex-wrap: wrap; gap: 8px; }
-
-    .modal-quote {
-      border-left: 3px solid var(--red);
-      padding: 12px 16px;
-      background: rgba(192,0,26,0.05);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 15px;
-      font-style: italic;
-      color: #bbb;
-      line-height: 1.6;
-    }
-
-    .modal-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .mstat-box {
-      background: rgba(192,0,26,0.05);
-      border: 1px solid rgba(192,0,26,0.15);
-      padding: 14px;
-      text-align: center;
-    }
-
-    .mstat-num {
-      font-family: 'Orbitron', monospace;
-      font-size: 24px;
-      font-weight: 900;
-      color: var(--red);
-      text-shadow: 0 0 10px rgba(192,0,26,0.4);
-    }
-
-    .mstat-label {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 9px;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-      margin-top: 4px;
-      text-transform: uppercase;
-    }
-
-    .modal-bars { display: flex; flex-direction: column; gap: 12px; }
-
-    .mbar-item { .botao {
-    background-color: blue;
-    color: white;
-}}
-
-    .mbar-label {
-      display: flex;
-      justify-content: space-between;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: #aaa;
-      margin-bottom: 6px;
-      letter-spacing: 1px;
-    }
-
-    .mbar-track {
-      height: 4px;
-      background: rgba(192,0,26,0.1);
-      overflow: hidden;
-    }
-
-    .mbar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--red), var(--red-bright));
-      box-shadow: 0 0 8px rgba(192,0,26,0.5);
-      transition: width 1s ease;
-    }
-
-    .modal-ops { display: flex; flex-direction: column; gap: 8px; }
-
-    .mop-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--text-dim);
-      padding: 8px 12px;
-      background: rgba(192,0,26,0.04);
-      border: 1px solid rgba(192,0,26,0.1);
-    }
-
-    .mop-item i { color: var(--red); font-size: 10px; }
-
-    .modal-info-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .minfo-box {
-      background: rgba(192,0,26,0.04);
-      border: 1px solid rgba(192,0,26,0.12);
-      padding: 12px 14px;
-    }
-
-    .minfo-label {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 2px;
-      color: var(--red);
-      text-transform: uppercase;
-      margin-bottom: 5px;
-    }
-
-    .minfo-value {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      color: #ddd;
-    }
-
-    /* HISTORICO */
-    .modal-historico { display: flex; flex-direction: column; gap: 0; }
-
-    .hist-item {
-      display: flex;
-      gap: 16px;
-      position: relative;
-      padding-bottom: 18px;
-    }
-
-    .hist-item:last-child { padding-bottom: 0; }
-
-    .hist-item:last-child .hist-line { display: none; }
-
-    .hist-timeline {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex-shrink: 0;
-      width: 18px;
-    }
-
-    .hist-dot {
-      width: 10px;
-      height: 10px;
-      background: var(--red);
-      border-radius: 50%;
-      box-shadow: 0 0 8px rgba(192,0,26,0.6);
-      flex-shrink: 0;
-      margin-top: 3px;
-    }
-
-    .hist-dot.resolved { background: #00ff88; box-shadow: 0 0 8px rgba(0,255,136,0.5); }
-    .hist-dot.ongoing  { background: #ffaa00; box-shadow: 0 0 8px rgba(255,170,0,0.5); }
-
-    .hist-line {
-      flex: 1;
-      width: 1px;
-      background: rgba(192,0,26,0.2);
-      margin-top: 4px;
-    }
-
-    .hist-body { flex: 1; }
-
-    .hist-date {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      color: var(--text-dim);
-      letter-spacing: 1px;
-      margin-bottom: 3px;
-    }
-
-    .hist-title {
-      font-family: 'Orbitron', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 3px;
-    }
-
-    .hist-desc {
-      font-size: 13px;
-      color: #777;
-      line-height: 1.5;
-    }
-
-    .hist-badge {
-      display: inline-block;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 1px;
-      padding: 1px 7px;
-      margin-top: 5px;
-    }
-
-    .hist-badge.resolved { background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.25); color: #00ff88; }
-    .hist-badge.ongoing  { background: rgba(255,170,0,0.08); border: 1px solid rgba(255,170,0,0.25); color: #ffaa00; }
-
-    @media (max-width: 700px) {
-      .modal-grid { grid-template-columns: 1fr; }
-      .modal-left { border-right: none; border-bottom: 1px solid rgba(192,0,26,0.1); }
-      .perfil-tags { display: none; }
-      .perfil-status-wrap { display: none; }
-      .modal-info-grid { grid-template-columns: 1fr; }
-    }
-
-    /* RIPPLE */
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      transform: scale(0);
-      animation: ripple-anim 0.6s linear;
-      background: rgba(192,0,26,0.3);
-      pointer-events: none;
-    }
-
-    @keyframes ripple-anim {
-      to { transform: scale(4); opacity: 0; }
-    }
-
-    /* TIPO TERMINAL — SECTION TAGS */
-    .section-tag {
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* NEON FLICKER */
-    @keyframes neon-flicker {
-      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-        text-shadow: 0 0 10px var(--red), 0 0 20px var(--red), 0 0 40px var(--red);
-      }
-      20%, 24%, 55% {
-        text-shadow: none;
-      }
-    }
-
-    .hero-title .line2 {
-      animation: neon-flicker 5s infinite 3s !important;
-    }
-
-    /* CASO CARD HOVER */
-    .caso-card {
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .caso-card:hover {
-      transform: translateY(-4px) scale(1.01);
-    }
-
-    /* FORM INPUT FOCUS ANIM */
-    .form-input, .form-select, .form-textarea {
-      transition: all 0.3s ease;
-    }
-
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      animation: input-glow 2s ease infinite;
-    }
-
-    @keyframes input-glow {
-      0%, 100% { box-shadow: 0 0 10px rgba(192,0,26,0.2); }
-      50%       { box-shadow: 0 0 20px rgba(192,0,26,0.4), 0 0 40px rgba(192,0,26,0.1); }
-    }
-
-    /* SCROLL PROGRESS */
-    #scroll-progress {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--red), var(--red-bright));
-      z-index: 10001;
-      width: 0%;
-      transition: width 0.1s;
-      box-shadow: 0 0 8px var(--red);
-    }
-
-    /* GLITCH ANIMATION */
-    .glitch {
-      position: relative;
-    }
-
-    .glitch::before,
-    .glitch::after {
-      content: attr(data-text);
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .glitch::before {
-      color: var(--red);
-      animation: glitch1 3s infinite;
-      clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
-    }
-
-    .glitch::after {
-      color: #0ff;
-      animation: glitch2 3s infinite;
-      clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
-    }
-
-    @keyframes glitch1 {
-      0%, 90%, 100% { transform: none; opacity: 0; }
-      92% { transform: translateX(-4px); opacity: 0.6; }
-      94% { transform: translateX(4px); opacity: 0.6; }
-      96% { transform: none; opacity: 0; }
-    }
-
-    @keyframes glitch2 {
-      0%, 88%, 100% { transform: none; opacity: 0; }
-      90% { transform: translateX(4px); opacity: 0.4; }
-      92% { transform: translateX(-4px); opacity: 0.4; }
-      94% { transform: none; opacity: 0; }
-    }
-
-    /* SECTION DIVIDER */
-    .section-divider {
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(192,0,26,0.4), transparent);
-      position: relative;
-      overflow: visible;
-    }
-
-    .section-divider::after {
-      content: '◆';
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%,-50%);
-      color: var(--red);
-      font-size: 10px;
-      background: var(--dark2);
-      padding: 0 10px;
-    }
-
-    /* GLOW PULSE ON HOVER — SKILL TAGS */
-    .skill-tag {
-      transition: all 0.25s ease;
-    }
-
-    .skill-tag:hover {
-      background: rgba(192,0,26,0.2);
-      border-color: var(--red);
-      color: #fff;
-      box-shadow: 0 0 10px rgba(192,0,26,0.3);
-      transform: scale(1.05);
-    }
-
-    /* TYPING CURSOR */
-    .typing::after {
-      content: '|';
-      color: var(--red);
-      animation: cursor 0.8s infinite;
-    }
-
-    @keyframes cursor {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    /* HEXAGON DECOR */
-    .hex-decor {
-      position: absolute;
-      opacity: 0.03;
-      font-size: 300px;
-      color: var(--red);
-      pointer-events: none;
-    }
-
-    /* SCAN LINE */
-    .scanline {
-      position: fixed;
-      top: -100%;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(192,0,26,0.5), transparent);
-      animation: scan 4s linear infinite;
-      pointer-events: none;
-      z-index: 9998;
-      filter: blur(0.5px);
-    }
-
-    @keyframes scan {
-      from { top: -2px; }
-      to { top: 100%; }
-    }
-
-    /* ALERT BANNER */
-    .alert-banner {
-      background: rgba(192,0,26,0.1);
-      border-bottom: 1px solid rgba(192,0,26,0.3);
-      padding: 8px 60px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      overflow: hidden;
-      position: relative;
-      z-index: 999;
-      margin-top: 70px;
-    }
-
-    .alert-label {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 3px;
-      color: var(--red);
-      text-transform: uppercase;
-      white-space: nowrap;
-      background: rgba(192,0,26,0.2);
-      padding: 2px 10px;
-      flex-shrink: 0;
-    }
-
-    .alert-text {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--text-dim);
-      white-space: nowrap;
-      animation: marquee 25s linear infinite;
-    }
-
-    @keyframes marquee {
-      from { transform: translateX(100vw); }
-      to { transform: translateX(-100%); }
-    }
-
-    /* SUCCESS TOAST */
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: rgba(0,0,0,0.95);
-      border: 1px solid var(--red);
-      border-left: 4px solid var(--red);
-      padding: 16px 24px;
-      z-index: 9999;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 13px;
-      color: #fff;
-      transform: translateX(200px);
-      opacity: 0;
-      transition: all 0.4s;
-      box-shadow: 0 0 30px rgba(192,0,26,0.3);
-    }
-
-    .toast.show { transform: translateX(0); opacity: 1; }
-
-    /* RESPONSIVE */
-    @media (max-width: 900px) {
-      nav { padding: 0 20px; }
-      .nav-links { display: none; }
-      section { padding: 70px 24px; }
-      .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 24px; }
-      .stat-item::after { display: none; }
-      .sobre-grid { grid-template-columns: 1fr; }
-      .form-row { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr; gap: 30px; }
-      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
-      .alert-banner { padding: 8px 20px; }
-    }
-
-    /* COUNTER ANIMATION */
-    .counter { display: inline-block; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ETERNITY — Agência de Investigação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#050505; --surface:#0a0a0a; --card:#111111;
+    --txt:#f5f5f5; --txt2:#a1a1aa; --muted:#52525b;
+    --blood:#dc2626; --scarlet:#ef4444; --crimson:#b91c1c; --maroon:#7f1d1d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:"Manrope",sans-serif; overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:"JetBrains Mono",monospace}
+  .display{font-family:"Unbounded",sans-serif}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--blood);color:#fff}
+  ::-webkit-scrollbar{width:9px}
+  ::-webkit-scrollbar-track{background:#050505}
+  ::-webkit-scrollbar-thumb{background:#7f1d1d}
+  ::-webkit-scrollbar-thumb:hover{background:var(--blood)}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  section{scroll-margin-top:80px}
+
+  /* NOISE */
+  .noise{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* NAV */
+  header{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+  header.scrolled{background:rgba(0,0,0,.7);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.1)}
+  nav{height:64px;display:flex;align-items:center;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:8px;cursor:pointer}
+  .diamond{height:8px;width:8px;background:var(--blood);transform:rotate(45deg);transition:transform .3s}
+  .logo:hover .diamond{transform:rotate(45deg) scale(1.25)}
+  .logo span{font-weight:900;font-size:18px;letter-spacing:-.5px}
+  .nav-links{display:flex;align-items:center;gap:32px}
+  .nav-links a.link{font-family:"JetBrains Mono",monospace;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--txt2);position:relative;padding:4px 0;transition:color .2s;cursor:pointer}
+  .nav-links a.link:hover{color:#fff}
+  .nav-links a.link::after{content:"";position:absolute;left:0;bottom:-2px;height:1px;width:0;background:var(--blood);transition:width .3s}
+  .nav-links a.link:hover::after{width:100%}
+  .socials{display:flex;align-items:center;gap:12px;padding-left:12px;border-left:1px solid rgba(255,255,255,.1)}
+  .socials a{color:var(--txt2);transition:color .2s;display:flex}
+  .socials a:hover{color:var(--blood)}
+  .cta{font-family:"JetBrains Mono",monospace;font-size:12px;text-transform:uppercase;letter-spacing:2px;background:var(--blood);color:#fff;padding:9px 16px;box-shadow:0 0 15px rgba(220,38,38,.4);transition:background .2s;cursor:pointer;border:none}
+  .cta:hover{background:var(--scarlet)}
+  .burger{display:none;background:none;border:none;color:#fff;cursor:pointer}
+  .mobile{display:none;background:rgba(0,0,0,.96);border-top:1px solid rgba(255,255,255,.1);flex-direction:column;gap:16px;padding:16px 24px}
+  .mobile a{font-family:"JetBrains Mono",monospace;font-size:14px;text-transform:uppercase;letter-spacing:2px;color:#d4d4d8;cursor:pointer}
+
+  /* HERO */
+  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+  .hero-bg{position:absolute;inset:0;z-index:-1}
+  .hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.30}
+  .hero-bg .dark{position:absolute;inset:0;background:rgba(5,5,5,.7)}
+  .hero-bg .glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(220,38,38,.25),rgba(220,38,38,.05) 35%,transparent 65%)}
+  .over{font-family:"JetBrains Mono",monospace;font-size:13px;text-transform:uppercase;letter-spacing:.4em;color:var(--blood);margin-bottom:24px;opacity:0;animation:fade .8s .4s forwards}
+  .hero h1{font-family:"Unbounded",sans-serif;font-weight:900;line-height:.85;font-size:clamp(64px,15vw,13rem);letter-spacing:-.04em;display:flex}
+  .hero h1 .mask{overflow:hidden;display:inline-block}
+  .hero h1 .mask span{display:inline-block;transform:translateY(110%);animation:up .9s cubic-bezier(.16,1,.3,1) forwards}
+  .hero-sub{margin-top:32px;display:flex;flex-direction:column;gap:24px;opacity:0;animation:fade .8s 1.1s forwards}
+  .hero-sub p{font-family:"JetBrains Mono",monospace;font-size:15px;color:#d4d4d8;max-width:420px}
+  .cursor::after{content:"▌";color:var(--blood);animation:blink 1s steps(2,start) infinite;margin-left:2px}
+  .hero-meta{display:flex;gap:32px;font-family:"JetBrains Mono",monospace;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--muted)}
+  .scrolldown{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);opacity:0;animation:fade 1s 1.6s forwards}
+  .scrolldown .mono{font-size:10px;text-transform:uppercase;letter-spacing:2px}
+  .scrolldown svg{color:var(--blood);animation:bounce 1.8s infinite}
+  @keyframes up{to{transform:translateY(0)}}
+  @keyframes fade{to{opacity:1}}
+  @keyframes blink{to{visibility:hidden}}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+
+  /* MARQUEE */
+  .marquee{position:relative;padding:24px 0;border-top:1px solid rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.1);background:var(--blood);overflow:hidden;user-select:none}
+  .track{display:flex;width:max-content;animation:scroll 30s linear infinite}
+  .marquee:hover .track{animation-play-state:paused}
+  .track span{font-family:"Unbounded",sans-serif;font-weight:900;font-size:clamp(28px,4vw,48px);color:#000;padding:0 32px;white-space:nowrap;display:flex;align-items:center;gap:32px}
+  .track span i{color:rgba(0,0,0,.5);font-style:normal;font-size:24px}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* GENERIC SECTION */
+  .sec{padding:112px 0;border-top:1px solid rgba(255,255,255,.05)}
+  .sec.surface{background:var(--surface)}
+  .tag{font-family:"JetBrains Mono",monospace;font-size:12px;text-transform:uppercase;letter-spacing:.4em;color:var(--blood);margin-bottom:20px}
+  .h2{font-family:"Unbounded",sans-serif;font-weight:700;font-size:clamp(36px,6vw,60px);line-height:.95;letter-spacing:-.02em}
+  .h2 .red{color:var(--blood)}
+
+  /* REVEAL */
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ABOUT */
+  .about-head{max-width:760px;margin-bottom:80px}
+  .chapters{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.05)}
+  .chapter{background:var(--bg);padding:40px;transition:background .3s}
+  .chapter:hover{background:var(--surface)}
+  .chapter .num{font-family:"JetBrains Mono",monospace;font-size:48px;font-weight:700;color:var(--maroon);transition:color .3s}
+  .chapter:hover .num{color:var(--blood)}
+  .chapter h3{font-family:"Unbounded",sans-serif;font-weight:700;font-size:20px;margin:24px 0 12px}
+  .chapter p{font-size:14px;line-height:1.6;color:var(--txt2)}
+
+  /* MEMBERS */
+  .mhead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:64px;flex-wrap:wrap}
+  .mhead p{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);max-width:300px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .member{perspective:900px}
+  .card{position:relative;height:100%;background:var(--card);overflow:hidden;border:1px solid rgba(127,29,29,.3);transition:border-color .3s,transform .1s;transform-style:preserve-3d}
+  .card:hover{border-color:rgba(239,68,68,.6)}
+  .card.unica{border:1px solid rgba(255,255,255,.4);box-shadow:0 0 30px rgba(255,255,255,.08)}
+  .card.unica:hover{border-color:#fff}
+  .spot{position:absolute;inset:0;z-index:3;opacity:0;transition:opacity .3s;pointer-events:none;
+    background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),var(--rc)22,transparent 60%)}
+  .card:hover .spot{opacity:1}
+  .badges{position:absolute;top:12px;left:12px;right:12px;z-index:4;display:flex;justify-content:space-between;align-items:center}
+  .rank{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--rc)}
+  .role{display:flex;align-items:center;gap:6px;font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--rc);border:1px solid var(--rcb);padding:4px 8px;backdrop-filter:blur(4px)}
+  .mono-panel{position:relative;height:208px;display:flex;align-items:center;justify-content:center;background:var(--bg);overflow:hidden}
+  .mono-grid{position:absolute;inset:0;opacity:.12;background-image:linear-gradient(#ffffff22 1px,transparent 1px),linear-gradient(90deg,#ffffff22 1px,transparent 1px);background-size:22px 22px}
+  .mono-glow{position:absolute;inset:0;opacity:.4;transition:opacity .5s;background:radial-gradient(circle at 50% 45%,var(--rc)33,transparent 60%)}
+  .card:hover .mono-glow{opacity:.7}
+  .watermark{position:absolute;right:-12px;bottom:-12px;opacity:.1;transition:opacity .3s;color:var(--rc)}
+  .card:hover .watermark{opacity:.2}
+  .ring{position:absolute;border:1px solid var(--rcb);border-radius:50%;width:90px;height:90px;animation:ring 2.4s ease-out infinite}
+  @keyframes ring{0%{width:90px;height:90px;opacity:.5}100%{width:150px;height:150px;opacity:0}}
+  .letter{position:relative;z-index:2;font-family:"Unbounded",sans-serif;font-weight:900;font-size:72px;color:var(--rc);text-shadow:0 0 28px var(--rc)66;transition:transform .5s}
+  .card:hover .letter{transform:scale(1.1)}
+  .bar{position:absolute;bottom:0;left:0;height:4px;width:0;background:var(--rc);transition:width .5s}
+  .card:hover .bar{width:100%}
+  .body{position:relative;z-index:2;padding:20px;transform:translateZ(30px)}
+  .code{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);margin-bottom:4px;transition:color .3s}
+  .card:hover .code{color:#d4d4d8}
+  .body h3{font-family:"Unbounded",sans-serif;font-weight:700;font-size:24px;line-height:1;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .motto{font-family:"JetBrains Mono",monospace;font-size:12px;font-style:italic;color:var(--rc);margin-bottom:12px}
+  .desc{font-size:12px;line-height:1.6;color:var(--txt2);max-height:0;opacity:0;overflow:hidden;transition:max-height .5s,opacity .5s,margin-top .5s}
+  .card:hover .desc{max-height:160px;opacity:1;margin-top:4px}
+
+  /* CASES */
+  .case{border-bottom:1px solid rgba(255,255,255,.1)}
+  .case-btn{width:100%;display:flex;align-items:center;gap:16px;padding:24px 8px;text-align:left;background:none;border:none;color:#fff;cursor:pointer;transition:background .2s}
+  .case-btn:hover{background:rgba(127,29,29,.2)}
+  .case-id{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--blood);width:64px;flex-shrink:0}
+  .case-title{font-family:"Unbounded",sans-serif;font-weight:700;font-size:clamp(18px,2vw,24px);flex:1;transition:transform .2s}
+  .case-btn:hover .case-title{transform:translateX(4px)}
+  .case-status{font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;padding:4px 8px}
+  .case-year{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+  .case-toggle{color:var(--blood);flex-shrink:0;font-size:20px;line-height:1}
+  .case-panel{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .case-inner{padding:0 8px 32px 96px;max-width:760px}
+  .case-inner p{font-size:14px;color:var(--txt2);line-height:1.6;margin-bottom:16px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);border:1px solid rgba(255,255,255,.1);padding:4px 8px}
+
+  /* REPORT */
+  .report{position:relative;overflow:hidden}
+  .report .glow{position:absolute;inset:0;opacity:.6;z-index:0;background:radial-gradient(circle at 50% 60%,rgba(220,38,38,.25),rgba(220,38,38,.05) 35%,transparent 65%)}
+  .report-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:flex-start}
+  .report-info p.lead{font-size:14px;color:var(--txt2);line-height:1.6;max-width:420px;margin-bottom:32px}
+  .report-info ul{list-style:none;display:flex;flex-direction:column;gap:12px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--txt2)}
+  .report-info li{display:flex;align-items:center;gap:12px}
+  .report-info li svg{color:var(--blood)}
+  form{background:var(--card);border:1px solid rgba(127,29,29,.3);padding:32px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  label{font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);display:block;margin-bottom:8px}
+  input,select,textarea{width:100%;background:#000;border:1px solid rgba(127,29,29,.4);color:#fff;padding:12px 16px;font-family:"JetBrains Mono",monospace;font-size:14px;transition:border-color .2s;outline:none}
+  input::placeholder,textarea::placeholder{color:var(--muted)}
+  input:focus,select:focus,textarea:focus{border-color:var(--blood);box-shadow:0 0 0 2px rgba(220,38,38,.4)}
+  textarea{resize:none}
+  .field{margin-bottom:16px}
+  button.submit{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--blood);color:#fff;font-family:"JetBrains Mono",monospace;font-size:12px;text-transform:uppercase;letter-spacing:2px;padding:16px;border:none;cursor:pointer;box-shadow:0 0 20px rgba(220,38,38,.35);transition:background .2s;margin-top:8px}
+  button.submit:hover{background:var(--scarlet)}
+  .toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-20px);background:#111;border:1px solid var(--blood);color:#fff;padding:14px 20px;font-family:"JetBrains Mono",monospace;font-size:13px;z-index:10000;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* FOOTER */
+  footer{border-top:1px solid rgba(255,255,255,.1);background:var(--bg);padding:64px 0}
+  .foot-top{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
+  .foot-brand{max-width:360px}
+  .foot-brand .logo{margin-bottom:16px}
+  .foot-brand p{font-size:14px;color:var(--muted);line-height:1.6}
+  .foot-socials{margin-top:24px;display:flex;flex-wrap:wrap;gap:12px}
+  .foot-socials a{display:inline-flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:2px;border:1px solid rgba(127,29,29,.4);color:#d4d4d8;padding:10px 16px;transition:border-color .2s,background .2s,color .2s}
+  .foot-socials a:hover{border-color:var(--blood);background:rgba(127,29,29,.3);color:#fff}
+  .foot-cols{display:flex;gap:64px}
+  .foot-cols h4{font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--blood);margin-bottom:16px}
+  .foot-cols ul{list-style:none;display:flex;flex-direction:column;gap:8px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--txt2)}
+  .foot-cols a{cursor:pointer}
+  .foot-cols a:hover{color:#fff}
+  .dot{height:6px;width:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px;animation:pulse 1.5s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .foot-bottom{margin-top:56px;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#52525b}
+
+  @media(max-width:900px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .chapters{grid-template-columns:1fr}
+    .report-grid{grid-template-columns:1fr;gap:32px}
+  }
+  @media(max-width:640px){
+    .nav-links{display:none}
+    .burger{display:block}
+    .grid{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr}
+    .foot-cols{gap:40px}
+  }
+  @media(prefers-reduced-motion:reduce){.track{animation:none}.ring{animation:none}}
+</style>
 </head>
 <body>
-
-<!-- CANVAS PARTICLES -->
-<canvas id="particleCanvas"></canvas>
-
-<!-- CURSOR PERSONALIZADO -->
-<div id="cursor"></div>
-<div id="cursor-trail"></div>
-
-<!-- LOADER -->
-<div id="loader">
-  <div class="loader-inner">
-    <div class="loader-hex">
-      <svg viewBox="0 0 100 115" width="80">
-        <polygon points="50,5 95,27.5 95,87.5 50,110 5,87.5 5,27.5" fill="none" stroke="#c0001a" stroke-width="2" class="hex-stroke"/>
-        <polygon points="50,20 80,36 80,79 50,95 20,79 20,36" fill="none" stroke="rgba(192,0,26,0.3)" stroke-width="1"/>
-      </svg>
-      <div class="loader-logo">EL</div>
-    </div>
-    <div class="loader-text">INICIALIZANDO SISTEMA<span class="loader-dots"></span></div>
-    <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
-    <div class="loader-pct" id="loaderPct">0%</div>
-  </div>
-</div>
-
-<div class="grid-bg"></div>
-<div class="scanline"></div>
+<div class="noise"></div>
 
 <!-- NAV -->
-<nav>
-  <a href="#home" class="nav-logo">
-    <div class="logo-icon">⬡</div>
-    <div class="logo-text">
-      <span class="logo-main">ETERNITY</span>
-      <span class="logo-sub">// LEGACY · INVESTIGATION</span>
-    </div>
-  </a>
-
-  <ul class="nav-links">
-    <li><a href="#home">Início</a></li>
-    <li><a href="#sobre">Sobre</a></li>
-    <li><a href="#membros">Membros</a></li>
-    <li><a href="#casos">Casos</a></li>
-    <li><a href="#perfis">Perfis</a></li>
-    <li><a href="#denuncia" class="nav-btn">⚠ Denunciar</a></li>
-  </ul>
-
-  <div class="nav-status">
-    <div class="status-dot"></div>
-    SISTEMA ATIVO
+<header id="header">
+  <div class="wrap">
+    <nav>
+      <div class="logo" onclick="scrollToId('hero')">
+        <span class="diamond"></span><span class="display">ETERNITY</span>
+      </div>
+      <div class="nav-links">
+        <a class="link" onclick="scrollToId('sobre')">Sobre Nós</a>
+        <a class="link" onclick="scrollToId('membros')">Membros</a>
+        <a class="link" onclick="scrollToId('casos')">Casos</a>
+        <a class="link" onclick="scrollToId('denuncia')">Denúncia</a>
+        <div class="socials">
+          <a href="https://discord.gg/t9vTGxDaK" target="_blank" rel="noopener" aria-label="Discord">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.6 12.6 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.056c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028ZM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.955 2.418-2.157 2.418Zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418Z"/></svg>
+          </a>
+          <a href="https://t.me/lucrava" target="_blank" rel="noopener" aria-label="Telegram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0Zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635Z"/></svg>
+          </a>
+        </div>
+        <button class="cta" onclick="scrollToId('denuncia')">Reportar</button>
+      </div>
+      <button class="burger" onclick="toggleMenu()" aria-label="Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
   </div>
-</nav>
-
-<!-- SCROLL PROGRESS -->
-<div id="scroll-progress"></div>
-
-<!-- ALERT BANNER -->
-<div class="alert-banner">
-  <div class="alert-label">LIVE</div>
-  <div class="alert-text">
-    [ ALERTA ] Operação RedEye em andamento &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
-    Novo caso registrado: #EL-2026-089 &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
-    Sistema de denúncias ativo 24/7 &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
-    Colaboração com autoridades em 3 casos ativos &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
-    [ ETERNITY LEGACY — JUSTIÇA NÃO TEM PRAZO DE VALIDADE ]
+  <div class="mobile" id="mobile">
+    <a onclick="scrollToId('sobre')">Sobre Nós</a>
+    <a onclick="scrollToId('membros')">Membros</a>
+    <a onclick="scrollToId('casos')">Casos</a>
+    <a onclick="scrollToId('denuncia')">Denúncia</a>
+    <a href="https://discord.gg/t9vTGxDaK" target="_blank" rel="noopener">Discord</a>
+    <a href="https://t.me/lucrava" target="_blank" rel="noopener">Telegram · @lucrava</a>
   </div>
-</div>
+</header>
 
 <!-- HERO -->
-<section id="home" style="padding-top:0; padding-bottom:0;">
-  <div class="hero-bg"></div>
-  <div class="hero-lines"></div>
-
-  <div class="hero-content">
-    <div class="hero-badge">
-      <div class="status-dot"></div>
-      Sistema Operacional · Investigação Cibernética
+<section id="hero" class="hero">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1615012553971-f7251c225e01" alt="" />
+    <div class="dark"></div><div class="glow"></div>
+  </div>
+  <div class="wrap">
+    <p class="over mono">// Agência de Investigação Confidencial</p>
+    <h1 class="display" id="heroTitle"></h1>
+    <div class="hero-sub">
+      <p class="mono cursor">Procuramos a verdade onde ninguém mais olha</p>
+      <div class="hero-meta"><span>EST. 2019</span><span style="color:var(--blood)">CLASSIFICADO</span></div>
     </div>
-
-    <h1 class="hero-title">
-      <span class="line1 glitch" data-text="ETERNITY">ETERNITY</span>
-      <span class="line2">LEGACY</span>
-    </h1>
-
-    <p class="hero-subtitle">// Inteligência · OSINT · Investigação Digital</p>
-
-    <p class="hero-desc">
-      Somos uma organização de investigação cibernética de elite. Rastreamos, identificamos e colaboramos na apreensão de criminosos digitais — porque a justiça não tem prazo de validade.
-    </p>
-
-    <div class="hero-btns">
-      <a href="#denuncia" class="btn-primary">
-        <i class="fas fa-exclamation-triangle"></i>
-        Fazer Denúncia
-      </a>
-      <a href="#casos" class="btn-secondary">
-        <i class="fas fa-folder-open"></i>
-        Ver Casos
-      </a>
-    </div>
+  </div>
+  <div class="scrolldown">
+    <span class="mono">Role para investigar</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
   </div>
 </section>
 
-<!-- STATS -->
-<div class="stats-bar">
-  <div class="stat-item">
-    <div class="stat-num"><span class="counter" data-target="89">0</span>+</div>
-    <div class="stat-label">Casos Resolvidos</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num"><span class="counter" data-target="12">0</span></div>
-    <div class="stat-label">Em Investigação</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num"><span class="counter" data-target="34">0</span>+</div>
-    <div class="stat-label">Prisões Colaborativas</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num"><span class="counter" data-target="7">0</span></div>
-    <div class="stat-label">Membros Ativos</div>
-  </div>
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="track" id="track"></div>
 </div>
 
-<!-- SOBRE -->
-<section id="sobre">
-  <div class="section-header">
-    <div class="section-tag">Quem Somos</div>
-    <h2 class="section-title">SOBRE A <span>ETERNITY LEGACY</span></h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="sobre-grid">
-    <div class="sobre-text">
-      <h3>NOSSA MISSÃO</h3>
-      <p>A <strong style="color:#fff;">Eternity Legacy</strong> é um grupo de investigação cibernética formado por especialistas em OSINT, engenharia social, segurança da informação e análise de inteligência digital.</p>
-      <p>Atuamos no combate a crimes virtuais de alta gravidade — incluindo pedofilia, indução ao suicídio, apologia ao nazismo e cibercrimes organizados — colaborando diretamente com autoridades competentes.</p>
-      <p>Nossa filosofia é simples: <strong style="color:var(--red);">criminosos não se escondem para sempre.</strong></p>
+<!-- ABOUT -->
+<section id="sobre" class="sec">
+  <div class="wrap">
+    <div class="about-head reveal">
+      <p class="tag mono">// Sobre Nós</p>
+      <h2 class="h2 display">Investigamos o que <span class="red">outros temem</span> tocar.</h2>
     </div>
-
-    <div class="sobre-features">
-      <div class="feature-item">
-        <div class="feature-icon"><i class="fas fa-crosshairs"></i></div>
-        <div class="feature-info">
-          <h4>OSINT & Rastreamento</h4>
-          <p>Coleta de inteligência de fontes abertas para identificação e localização de alvos.</p>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
-        <div class="feature-info">
-          <h4>Proteção Digital</h4>
-          <p>Combate ativo a grupos criminosos e proteção de vítimas vulneráveis.</p>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon"><i class="fas fa-code"></i></div>
-        <div class="feature-info">
-          <h4>Análise Forense</h4>
-          <p>Ferramentas próprias de análise forense digital e investigação em redes sociais.</p>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon"><i class="fas fa-handcuffs"></i></div>
-        <div class="feature-info">
-          <h4>Colaboração com Autoridades</h4>
-          <p>Parceria direta com delegacias especializadas em crimes cibernéticos.</p>
-        </div>
-      </div>
-    </div>
+    <div class="chapters" id="chapters"></div>
   </div>
 </section>
 
-<!-- MEMBROS -->
-<section id="membros">
-  <div class="section-header">
-    <div class="section-tag">Nossa Equipe</div>
-    <h2 class="section-title">OPERADORES <span>DE ELITE</span></h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="members-grid">
-
-    <!-- Membro 1 -->
-    <div class="member-card">
-      <div class="member-header">
-        <div class="member-avatar">PH</div>
-        <div class="member-meta">
-          <div class="member-name">Phantom</div>
-          <div class="member-role">// COMMANDER · OSINT LEAD</div>
-        </div>
-        <div class="member-rank">RANK-01</div>
-      </div>
-      <div class="member-body">
-        <p class="member-bio">Fundador e líder operacional da Eternity Legacy. Especialista em investigação cibernética com mais de 6 anos de experiência. Coordena operações críticas e mantém contato direto com autoridades.</p>
-        <div class="member-skills">
-          <span class="skill-tag">OSINT</span>
-          <span class="skill-tag">HUMINT</span>
-          <span class="skill-tag">Ops</span>
-          <span class="skill-tag">Darkweb</span>
-        </div>
-      </div>
-      <div class="member-footer">
-        <span class="member-id">ID: EL-OPS-001</span>
-        <div class="member-status-active"></div>
-      </div>
-    </div>
-
-    <!-- Membro 2 -->
-    <div class="member-card">
-      <div class="member-header">
-        <div class="member-avatar">VX</div>
-        <div class="member-meta">
-          <div class="member-name">Vortex</div>
-          <div class="member-role">// SENIOR ANALYST · DEV</div>
-        </div>
-        <div class="member-rank">RANK-02</div>
-      </div>
-      <div class="member-body">
-        <p class="member-bio">Desenvolvedor fullstack e analista de segurança. Criou ferramentas internas de rastreamento e análise de metadados. Especialista em engenharia reversa de perfis sociais.</p>
-        <div class="member-skills">
-          <span class="skill-tag">Dev</span>
-          <span class="skill-tag">Infosec</span>
-          <span class="skill-tag">GEOINT</span>
-          <span class="skill-tag">Python</span>
-        </div>
-      </div>
-      <div class="member-footer">
-        <span class="member-id">ID: EL-OPS-002</span>
-        <div class="member-status-active"></div>
-      </div>
-    </div>
-
-    <!-- Membro 3 -->
-    <div class="member-card">
-      <div class="member-header">
-        <div class="member-avatar">EC</div>
-        <div class="member-meta">
-          <div class="member-name">Eclipse</div>
-          <div class="member-role">// INTELLIGENCE · IMINT</div>
-        </div>
-        <div class="member-rank">RANK-03</div>
-      </div>
-      <div class="member-body">
-        <p class="member-bio">Especialista em análise de imagens e vídeos para coleta de inteligência. Conduz operações encobertas em redes sociais. Experiência em infiltração e mapeamento de grupos criminosos.</p>
-        <div class="member-skills">
-          <span class="skill-tag">IMINT</span>
-          <span class="skill-tag">Infiltração</span>
-          <span class="skill-tag">Social Eng.</span>
-        </div>
-      </div>
-      <div class="member-footer">
-        <span class="member-id">ID: EL-OPS-003</span>
-        <div class="member-status-active"></div>
-      </div>
-    </div>
-
-    <!-- Membro 4 -->
-    <div class="member-card">
-      <div class="member-header">
-        <div class="member-avatar">RV</div>
-        <div class="member-meta">
-          <div class="member-name">Raven</div>
-          <div class="member-role">// FORENSICS · DATA INTEL</div>
-        </div>
-        <div class="member-rank">RANK-04</div>
-      </div>
-      <div class="member-body">
-        <p class="member-bio">Analista forense digital e especialista em extração de dados. Responsável pelo processamento e organização de provas digitais para encaminhamento às autoridades.</p>
-        <div class="member-skills">
-          <span class="skill-tag">Forense</span>
-          <span class="skill-tag">Data Intel</span>
-          <span class="skill-tag">OSINT</span>
-          <span class="skill-tag">Análise</span>
-        </div>
-      </div>
-      <div class="member-footer">
-        <span class="member-id">ID: EL-OPS-004</span>
-        <div class="member-status-away"></div>
-      </div>
-    </div>
-
-    <!-- Membro 5 -->
-    <div class="member-card">
-      <div class="member-header">
-        <div class="member-avatar">CR</div>
-        <div class="member-meta">
-          <div class="member-name">Cipher</div>
-          <div class="member-role">// CRYPTOGRAPHY · NETWORK</div>
-        </div>
-        <div class="member-rank">RANK-05</div>
-      </div>
-      <div class="member-body">
-        <p class="member-bio">Especialista em criptografia e análise de redes. Rastreia comunicações de grupos criminosos e decifra mensagens codificadas. Operador de ferramentas de inteligência de rede.</p>
-        <div class="member-skills">
-          <span class="skill-tag">Crypto</span>
-          <span class="skill-tag">Network</span>
-          <span class="skill-tag">Tracking</span>
-        </div>
-      </div>
-      <div class="member-footer">
-        <span class="member-id">ID: EL-OPS-005</span>
-        <div class="member-status-active"></div>
-      </div>
-    </div>
-
-    <!-- Membro 6 -->
-    <div class="member-card">
-      <div class="member-header">
-        <div class="member-avatar">NX</div>
-        <div class="member-meta">
-          <div class="member-name">Nova_X</div>
-          <div class="member-role">// HUMINT · FIELD INTEL</div>
-        </div>
-        <div class="member-rank">RANK-06</div>
-      </div>
-      <div class="member-body">
-        <p class="member-bio">Operador de inteligência humana e analista de comportamento. Especialista em reconhecimento de padrões e identificação de ameaças emergentes em ambientes digitais.</p>
-        <div class="member-skills">
-          <span class="skill-tag">HUMINT</span>
-          <span class="skill-tag">Comportamento</span>
-          <span class="skill-tag">Padrões</span>
-        </div>
-      </div>
-      <div class="member-footer">
-        <span class="member-id">ID: EL-OPS-006</span>
-        <div class="member-status-active"></div>
-      </div>
-    </div>
-
-    <!-- Membro 7 -->
-    <div class="member-card">
-      <div class="member-header">
-        <div class="member-avatar">SR</div>
-        <div class="member-meta">
-          <div class="member-name">Specter</div>
-          <div class="member-role">// DARKWEB · RECON</div>
-        </div>
-        <div class="member-rank">RANK-07</div>
-      </div>
-      <div class="member-body">
-        <p class="member-bio">Especialista em operações na darkweb e reconhecimento avançado. Monitora fóruns e mercados clandestinos para identificação precoce de ameaças. Hacker ético certificado.</p>
-        <div class="member-skills">
-          <span class="skill-tag">Darkweb</span>
-          <span class="skill-tag">Recon</span>
-          <span class="skill-tag">Hacking ético</span>
-        </div>
-      </div>
-      <div class="member-footer">
-        <span class="member-id">ID: EL-OPS-007</span>
-        <div class="member-status-away"></div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- CASOS -->
-<section id="casos">
-  <div class="section-header">
-    <div class="section-tag">Arquivo de Operações</div>
-    <h2 class="section-title">CASOS <span>REGISTRADOS</span></h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="casos-tabs">
-    <button class="tab-btn active" onclick="switchTab('resolvidos', this)">
-      ✓ Casos Resolvidos
-    </button>
-    <button class="tab-btn" onclick="switchTab('andamento', this)">
-      ◉ Em Andamento
-    </button>
-  </div>
-
-  <!-- RESOLVIDOS -->
-  <div id="tab-resolvidos" class="tab-content active">
-    <div class="casos-grid">
-
-      <div class="caso-card">
-        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
-        <div class="caso-id">// CASO #EL-2025-041</div>
-        <div class="caso-title">Grupo de Pedofilia em Plataforma de Jogos Online</div>
-        <div class="caso-desc">Identificação e mapeamento de rede de pedofilia operando em plataforma de jogos. 3 indivíduos apreendidos pela Delegacia de Crimes Cibernéticos.</div>
-        <div class="caso-meta">
-          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Mar 2025</span>
-          <span class="caso-meta-item"><i class="fas fa-users"></i> 3 Apreendidos</span>
-          <span class="caso-meta-item"><i class="fas fa-clock"></i> 18 dias</span>
-        </div>
-      </div>
-
-      <div class="caso-card">
-        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
-        <div class="caso-id">// CASO #EL-2025-038</div>
-        <div class="caso-title">Campanha de Indução ao Suicídio via Discord</div>
-        <div class="caso-desc">Servidor do Discord com mais de 800 membros promovendo conteúdo de indução ao suicídio. Servidor derrubado, moderadores identificados e denunciados.</div>
-        <div class="caso-meta">
-          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Fev 2025</span>
-          <span class="caso-meta-item"><i class="fas fa-server"></i> 1 Servidor</span>
-          <span class="caso-meta-item"><i class="fas fa-clock"></i> 9 dias</span>
-        </div>
-      </div>
-
-      <div class="caso-card">
-        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
-        <div class="caso-id">// CASO #EL-2025-031</div>
-        <div class="caso-title">Ameaça de Atentado em Escola Pública — SP</div>
-        <div class="caso-desc">Indivíduo planejava ataque a escola pública em São Paulo. Identificado via OSINT, informações repassadas à polícia antes do incidente.</div>
-        <div class="caso-meta">
-          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Jan 2025</span>
-          <span class="caso-meta-item"><i class="fas fa-shield-alt"></i> Prevenido</span>
-          <span class="caso-meta-item"><i class="fas fa-clock"></i> 4 dias</span>
-        </div>
-      </div>
-
-      <div class="caso-card">
-        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
-        <div class="caso-id">// CASO #EL-2024-077</div>
-        <div class="caso-title">Grupo Neonazista Recrutando Menores Online</div>
-        <div class="caso-desc">Rede de recrutamento nazista voltada para adolescentes identificada e desmontada. 7 líderes identificados, dados encaminhados ao Ministério Público.</div>
-        <div class="caso-meta">
-          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Out 2024</span>
-          <span class="caso-meta-item"><i class="fas fa-users"></i> 7 Identificados</span>
-          <span class="caso-meta-item"><i class="fas fa-clock"></i> 31 dias</span>
-        </div>
-      </div>
-
-      <div class="caso-card">
-        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
-        <div class="caso-id">// CASO #EL-2024-065</div>
-        <div class="caso-title">Scam de Criptomoedas Vitimando Idosos</div>
-        <div class="caso-desc">Esquema de golpe em criptomoedas identificado. Prejuízo estimado de R$ 2.4M. Quadrilha de 5 pessoas exposta e denunciada às autoridades financeiras.</div>
-        <div class="caso-meta">
-          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Ago 2024</span>
-          <span class="caso-meta-item"><i class="fas fa-dollar-sign"></i> R$ 2.4M</span>
-          <span class="caso-meta-item"><i class="fas fa-clock"></i> 45 dias</span>
-        </div>
-      </div>
-
-      <div class="caso-card">
-        <span class="caso-status status-resolved">✓ RESOLVIDO</span>
-        <div class="caso-id">// CASO #EL-2024-052</div>
-        <div class="caso-title">Extorsão e Revenge Porn — Caso Múltiplas Vítimas</div>
-        <div class="caso-desc">Operador de esquema de extorsão e divulgação de imagens íntimas sem consentimento identificado. Vítimas orientadas, agressor denunciado.</div>
-        <div class="caso-meta">
-          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Jun 2024</span>
-          <span class="caso-meta-item"><i class="fas fa-user-shield"></i> 12 Vítimas</span>
-          <span class="caso-meta-item"><i class="fas fa-clock"></i> 22 dias</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- EM ANDAMENTO -->
-  <div id="tab-andamento" class="tab-content">
-    <div class="casos-grid">
-
-      <div class="caso-card">
-        <span class="caso-status status-ongoing">◉ EM ANDAMENTO</span>
-        <div class="caso-id">// CASO #EL-2026-089</div>
-        <div class="caso-title">Operação RedEye — Rede de Grooming Internacional</div>
-        <div class="caso-desc">Investigação em andamento sobre rede de grooming que opera em múltiplos países. Fase 2 de coleta de inteligência em progresso. Dados parciais já encaminhados.</div>
-        <div class="caso-meta">
-          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Jun 2026</span>
-          <span class="caso-meta-item"><i class="fas fa-globe"></i> Internacional</span>
-          <span class="caso-meta-item"><i class="fas fa-hourglass-half"></i> Fase 2/4</span>
-        </div>
-      </div>
-
-      <div class="caso-card">
-        <span class="caso-status status-ongoing">◉ EM ANDAMENTO</span>
-        <div class="caso-id">// CASO #EL-2026-083</div>
-        <div class="caso-title">Mapeamento de Célula Extremista — Telegram</div>
-        <div class="caso-desc">Grupo extremista com atividade crescente no Telegram sendo monitorado. Identificação de líderes em andamento. Colaboração com autoridades federais iniciada.</div>
-        <div class="caso-meta">
-          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Mai 2026</span>
-          <span class="caso-meta-item"><i class="fas fa-users"></i> +200 membros</span>
-          <span class="caso-meta-item"><i class="fas fa-hourglass-half"></i> Fase 1/3</span>
-        </div>
-      </div>
-
-      <div class="caso-card">
-        <span class="caso-status status-ongoing">◉ EM ANDAMENTO</span>
-        <div class="caso-id">// CASO #EL-2026-079</div>
-        <div class="caso-title">Stalker Serial — Múltiplas Vítimas Identificadas</div>
-        <div class="caso-desc">Indivíduo praticando assédio e stalking sistemático contra múltiplas vítimas. Localização sendo rastreada via OSINT. Relatório em elaboração para entrega à DEAM.</div>
-        <div class="caso-meta">
-          <span class="caso-meta-item"><i class="fas fa-calendar"></i> Abr 2026</span>
-          <span class="caso-meta-item"><i class="fas fa-user-shield"></i> 6 Vítimas</span>
-          <span class="caso-meta-item"><i class="fas fa-hourglass-half"></i> Fase 3/4</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- PERFIS -->
-<section id="perfis" style="background:var(--dark2);">
-  <div class="section-header">
-    <div class="section-tag">Identidades</div>
-    <h2 class="section-title">PERFIS <span>DOS OPERADORES</span></h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div style="max-width:1200px;margin:0 auto;">
-
-    <!-- PERFIL GRID -->
-    <div class="perfil-list">
-
-      <!-- PHANTOM -->
-      <div class="perfil-row" onclick="openPerfil('phantom')">
-        <div class="perfil-avatar-sm">PH</div>
-        <div class="perfil-info">
-          <div class="perfil-name-sm">Phantom <span class="perfil-id-badge">EL-OPS-001</span></div>
-          <div class="perfil-role-sm">Commander · OSINT Lead</div>
-        </div>
-        <div class="perfil-tags">
-          <span class="skill-tag">OSINT</span><span class="skill-tag">HUMINT</span><span class="skill-tag">Darkweb</span>
-        </div>
-        <div class="perfil-status-wrap">
-          <div class="member-status-active"></div>
-          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
-        </div>
-        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
-      </div>
-
-      <!-- VORTEX -->
-      <div class="perfil-row" onclick="openPerfil('vortex')">
-        <div class="perfil-avatar-sm">VX</div>
-        <div class="perfil-info">
-          <div class="perfil-name-sm">Vortex <span class="perfil-id-badge">EL-OPS-002</span></div>
-          <div class="perfil-role-sm">Senior Analyst · Dev</div>
-        </div>
-        <div class="perfil-tags">
-          <span class="skill-tag">Dev</span><span class="skill-tag">Infosec</span><span class="skill-tag">GEOINT</span>
-        </div>
-        <div class="perfil-status-wrap">
-          <div class="member-status-active"></div>
-          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
-        </div>
-        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
-      </div>
-
-      <!-- ECLIPSE -->
-      <div class="perfil-row" onclick="openPerfil('eclipse')">
-        <div class="perfil-avatar-sm">EC</div>
-        <div class="perfil-info">
-          <div class="perfil-name-sm">Eclipse <span class="perfil-id-badge">EL-OPS-003</span></div>
-          <div class="perfil-role-sm">Intelligence · IMINT</div>
-        </div>
-        <div class="perfil-tags">
-          <span class="skill-tag">IMINT</span><span class="skill-tag">Infiltração</span><span class="skill-tag">Social Eng.</span>
-        </div>
-        <div class="perfil-status-wrap">
-          <div class="member-status-active"></div>
-          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
-        </div>
-        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
-      </div>
-
-      <!-- RAVEN -->
-      <div class="perfil-row" onclick="openPerfil('raven')">
-        <div class="perfil-avatar-sm">RV</div>
-        <div class="perfil-info">
-          <div class="perfil-name-sm">Raven <span class="perfil-id-badge">EL-OPS-004</span></div>
-          <div class="perfil-role-sm">Forensics · Data Intel</div>
-        </div>
-        <div class="perfil-tags">
-          <span class="skill-tag">Forense</span><span class="skill-tag">Data Intel</span><span class="skill-tag">OSINT</span>
-        </div>
-        <div class="perfil-status-wrap">
-          <div class="member-status-away"></div>
-          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#ffaa00;">AUSENTE</span>
-        </div>
-        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
-      </div>
-
-      <!-- CIPHER -->
-      <div class="perfil-row" onclick="openPerfil('cipher')">
-        <div class="perfil-avatar-sm">CR</div>
-        <div class="perfil-info">
-          <div class="perfil-name-sm">Cipher <span class="perfil-id-badge">EL-OPS-005</span></div>
-          <div class="perfil-role-sm">Cryptography · Network</div>
-        </div>
-        <div class="perfil-tags">
-          <span class="skill-tag">Crypto</span><span class="skill-tag">Network</span><span class="skill-tag">Tracking</span>
-        </div>
-        <div class="perfil-status-wrap">
-          <div class="member-status-active"></div>
-          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
-        </div>
-        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
-      </div>
-
-      <!-- NOVA_X -->
-      <div class="perfil-row" onclick="openPerfil('novax')">
-        <div class="perfil-avatar-sm">NX</div>
-        <div class="perfil-info">
-          <div class="perfil-name-sm">Nova_X <span class="perfil-id-badge">EL-OPS-006</span></div>
-          <div class="perfil-role-sm">HUMINT · Field Intel</div>
-        </div>
-        <div class="perfil-tags">
-          <span class="skill-tag">HUMINT</span><span class="skill-tag">Comportamento</span><span class="skill-tag">Padrões</span>
-        </div>
-        <div class="perfil-status-wrap">
-          <div class="member-status-active"></div>
-          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff88;">ONLINE</span>
-        </div>
-        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
-      </div>
-
-      <!-- SPECTER -->
-      <div class="perfil-row" onclick="openPerfil('specter')">
-        <div class="perfil-avatar-sm">SR</div>
-        <div class="perfil-info">
-          <div class="perfil-name-sm">Specter <span class="perfil-id-badge">EL-OPS-007</span></div>
-          <div class="perfil-role-sm">Darkweb · Recon</div>
-        </div>
-        <div class="perfil-tags">
-          <span class="skill-tag">Darkweb</span><span class="skill-tag">Recon</span><span class="skill-tag">Hacking ético</span>
-        </div>
-        <div class="perfil-status-wrap">
-          <div class="member-status-away"></div>
-          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#ffaa00;">AUSENTE</span>
-        </div>
-        <div class="perfil-arrow"><i class="fas fa-chevron-right"></i></div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- MODAL PERFIL -->
-<div id="perfilModal" class="modal-overlay" onclick="closePerfil(event)">
-  <div class="modal-box">
-    <button class="modal-close" onclick="document.getElementById('perfilModal').classList.remove('open')"><i class="fas fa-times"></i></button>
-
-    <div class="modal-top">
-      <div class="modal-avatar" id="mAvatar"></div>
+<!-- MEMBERS -->
+<section id="membros" class="sec surface">
+  <div class="wrap">
+    <div class="mhead reveal">
       <div>
-        <div class="modal-name" id="mName"></div>
-        <div class="modal-role" id="mRole"></div>
-        <div class="modal-id" id="mId"></div>
+        <p class="tag mono">// Os Agentes</p>
+        <h2 class="h2 display">Membros</h2>
       </div>
-      <div class="modal-status-badge" id="mStatus"></div>
+      <p class="mono">Mova o cursor sobre um agente para inclinar o dossiê e revelar o arquivo.</p>
     </div>
-
-    <div class="modal-divider"></div>
-
-    <div class="modal-grid">
-      <div class="modal-left">
-        <div class="modal-section-title">// BIO</div>
-        <p class="modal-bio" id="mBio"></p>
-
-        <div class="modal-section-title" style="margin-top:24px;">// ESPECIALIDADES</div>
-        <div class="modal-skills" id="mSkills"></div>
-
-        <div class="modal-section-title" style="margin-top:24px;">// CITAÇÃO</div>
-        <blockquote class="modal-quote" id="mQuote"></blockquote>
-      </div>
-
-      <div class="modal-right">
-        <div class="modal-section-title">// ESTATÍSTICAS</div>
-        <div class="modal-stats" id="mStats"></div>
-
-        <div class="modal-section-title" style="margin-top:24px;">// INTEL LEVEL</div>
-        <div class="modal-bars" id="mBars"></div>
-
-        <div class="modal-section-title" style="margin-top:24px;">// HISTÓRICO DE OPERAÇÕES</div>
-        <div class="modal-ops modal-historico" id="mOps"></div>
-
-        <div class="modal-section-title" style="margin-top:24px;">// INFORMAÇÕES</div>
-        <div class="modal-info-grid" id="mInfo"></div>
-      </div>
-    </div>
+    <div class="grid" id="grid"></div>
   </div>
-</div>
+</section>
 
-<!-- DENUNCIA -->
-<section id="denuncia">
-  <div class="section-header">
-    <div class="section-tag">Canal Seguro</div>
-    <h2 class="section-title">FAZER <span>DENÚNCIA</span></h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="denuncia-container">
-
-    <div class="denuncia-warning">
-      <i class="fas fa-shield-alt"></i>
-      <p>
-        <strong style="color:#fff;">Sua segurança é prioridade.</strong> Todas as denúncias são tratadas com total sigilo. Não compartilhamos dados de denunciantes em hipótese alguma. Em caso de perigo imediato, contate o <strong style="color:var(--red);">190</strong> (Polícia) ou <strong style="color:var(--red);">197</strong> (Polícia Civil — Crimes Cibernéticos).
-      </p>
+<!-- CASES -->
+<section id="casos" class="sec">
+  <div class="wrap">
+    <div class="reveal" style="margin-bottom:56px">
+      <p class="tag mono">// Arquivo Confidencial</p>
+      <h2 class="h2 display">Casos</h2>
     </div>
+    <div id="cases" style="border-top:1px solid rgba(255,255,255,.1)"></div>
+  </div>
+</section>
 
-    <form id="formDenuncia" onsubmit="submitForm(event)">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Tipo de Crime *</label>
-          <select class="form-select" required>
-            <option value="">Selecione...</option>
-            <option>Pedofilia / Grooming</option>
-            <option>Ameaça de Massacre</option>
-            <option>Indução ao Suicídio</option>
-            <option>Apologia ao Nazismo</option>
-            <option>Extorsão / Revenge Porn</option>
-            <option>Stalking / Assédio</option>
-            <option>Golpe / Fraude Digital</option>
-            <option>Maus Tratos a Animais</option>
-            <option>Tráfico / Venda Ilegal</option>
-            <option>Outro</option>
+<!-- REPORT -->
+<section id="denuncia" class="sec surface report">
+  <div class="glow"></div>
+  <div class="wrap">
+    <div class="report-grid">
+      <div class="report-info reveal">
+        <p class="tag mono">// Canal Seguro</p>
+        <h2 class="h2 display" style="margin-bottom:24px">Faça uma <br/> Denúncia</h2>
+        <p class="lead">Viu algo que ninguém deveria ver? Envie sua denúncia diretamente para a liderança da Eternity. Trate cada detalhe como uma pista — nós trataremos.</p>
+        <ul>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Transmissão confidencial</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> Identidade opcional</li>
+        </ul>
+      </div>
+      <form class="reveal" id="reportForm" onsubmit="return sendReport(event)">
+        <div class="row">
+          <div><label>Nome (opcional)</label><input id="f_nome" placeholder="Anônimo" /></div>
+          <div><label>Contato (opcional)</label><input id="f_contato" placeholder="email / telefone" /></div>
+        </div>
+        <div class="field">
+          <label>Tipo de caso</label>
+          <select id="f_tipo">
+            <option>Desaparecimento</option><option>Fraude</option><option>Ameaça</option><option>Vigilância</option><option>Outro</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Plataforma do Crime *</label>
-          <select class="form-select" required>
-            <option value="">Selecione...</option>
-            <option>Discord</option>
-            <option>Telegram</option>
-            <option>Instagram</option>
-            <option>WhatsApp</option>
-            <option>Twitter / X</option>
-            <option>TikTok</option>
-            <option>Roblox / Jogos</option>
-            <option>Darkweb</option>
-            <option>Outro</option>
-          </select>
+        <div class="field">
+          <label>Descreva os fatos</label>
+          <textarea id="f_msg" rows="5" placeholder="Conte tudo o que sabe. Cada detalhe importa..."></textarea>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Link / Perfil do Suspeito *</label>
-        <input type="text" class="form-input" placeholder="URL, @ ou identificador do suspeito" required />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Descrição Detalhada *</label>
-        <textarea class="form-textarea" rows="5" placeholder="Descreva o que aconteceu com o máximo de detalhes possível. Inclua datas, horários, e qualquer informação relevante..." required></textarea>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Evidências (Links ou Descrição)</label>
-        <textarea class="form-textarea" rows="3" placeholder="Cole links de prints, vídeos, ou descreva as evidências que você possui..."></textarea>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Seu Apelido (Opcional)</label>
-          <input type="text" class="form-input" placeholder="Como podemos te chamar?" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Contato Seguro (Opcional)</label>
-          <input type="text" class="form-input" placeholder="Discord, Telegram ou e-mail" />
-        </div>
-      </div>
-
-      <button type="submit" class="form-submit">
-        <i class="fas fa-paper-plane"></i> &nbsp; ENVIAR DENÚNCIA COM SEGURANÇA
-      </button>
-      <p class="form-note">🔒 CRIPTOGRAFADO · ANÔNIMO · PROTEGIDO</p>
-    </form>
-
+        <button type="submit" class="submit">Enviar denúncia
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <span class="logo-main">ETERNITY LEGACY</span>
-      <span class="logo-sub">// INVESTIGAÇÃO & INTELIGÊNCIA DIGITAL</span>
-      <p>Organização de investigação cibernética dedicada à exposição de criminosos digitais e à proteção das vítimas. Operamos com ética, sigilo e eficiência.</p>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <div class="logo"><span class="diamond"></span><span class="display" style="font-size:24px;font-weight:900">ETERNITY</span></div>
+        <p>Agência de investigação confidencial. Procuramos a verdade onde ninguém mais olha.</p>
+        <div class="foot-socials">
+          <a href="https://discord.gg/t9vTGxDaK" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.6 12.6 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.056c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028ZM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.955 2.418-2.157 2.418Zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418Z"/></svg>
+            Discord
+          </a>
+          <a href="https://t.me/lucrava" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0Zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635Z"/></svg>
+            @lucrava
+          </a>
+        </div>
+      </div>
+      <div class="foot-cols">
+        <div>
+          <h4>Navegar</h4>
+          <ul>
+            <li><a onclick="scrollToId('sobre')">Sobre Nós</a></li>
+            <li><a onclick="scrollToId('membros')">Membros</a></li>
+            <li><a onclick="scrollToId('casos')">Casos</a></li>
+            <li><a onclick="scrollToId('denuncia')">Denúncia</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Status</h4>
+          <ul>
+            <li><span class="dot"></span>Operacional</li>
+            <li>Vigilância 24/7</li>
+            <li>Est. 2019</li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <div class="footer-col">
-      <h4>Navegação</h4>
-      <ul class="footer-links">
-        <li><a href="#home">Início</a></li>
-        <li><a href="#sobre">Sobre Nós</a></li>
-        <li><a href="#membros">Membros</a></li>
-        <li><a href="#casos">Casos</a></li>
-        <li><a href="#denuncia">Fazer Denúncia</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Emergências</h4>
-      <ul class="footer-links">
-        <li><a href="#">190 — Polícia Militar</a></li>
-        <li><a href="#">197 — Polícia Civil</a></li>
-        <li><a href="#">CVV — 188</a></li>
-        <li><a href="#">Disque Denúncia 181</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="footer-bottom">
-    <div class="footer-copy">
-      © 2026 <span>ETERNITY LEGACY</span> · Todos os direitos reservados · Operando no Brasil
-    </div>
-    <div class="footer-secure">
-      <span class="secure-badge">🔒 SSL</span>
-      <span class="secure-badge">⚡ LIVE</span>
-      <span class="secure-badge">🛡 SEGURO</span>
+    <div class="foot-bottom">
+      <span id="year"></span>
+      <span>Classificado // Acesso restrito</span>
     </div>
   </div>
 </footer>
 
-<!-- TOAST -->
-<div id="toast" class="toast">
-  ✓ Denúncia enviada com sucesso! Nossa equipe analisará em breve.
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
-  // ─── LOADER ───
-  const loaderFill = document.getElementById('loaderFill');
-  const loaderPct  = document.getElementById('loaderPct');
-  const loader     = document.getElementById('loader');
-  let pct = 0;
-  const loaderTimer = setInterval(() => {
-    pct += Math.random() * 18;
-    if (pct >= 100) { pct = 100; clearInterval(loaderTimer); setTimeout(() => loader.classList.add('done'), 300); }
-    loaderFill.style.width = pct + '%';
-    loaderPct.textContent  = Math.floor(pct) + '%';
-  }, 120);
-
-  // ─── CURSOR ───
-  const cur = document.getElementById('cursor');
-  const trail = document.getElementById('cursor-trail');
-  let mx = 0, my = 0, tx = 0, ty = 0;
-
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    cur.style.left = mx + 'px'; cur.style.top = my + 'px';
-  });
-
-  (function animTrail() {
-    tx += (mx - tx) * 0.12; ty += (my - ty) * 0.12;
-    trail.style.left = tx + 'px'; trail.style.top = ty + 'px';
-    requestAnimationFrame(animTrail);
-  })();
-
-  document.querySelectorAll('a,button,.member-card,.perfil-row,.caso-card,.feature-item').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cur.style.transform = 'translate(-50%,-50%) scale(1.8)';
-      trail.style.transform = 'translate(-50%,-50%) scale(1.4)';
-      trail.style.borderColor = 'rgba(192,0,26,0.8)';
-    });
-    el.addEventListener('mouseleave', () => {
-      cur.style.transform = 'translate(-50%,-50%) scale(1)';
-      trail.style.transform = 'translate(-50%,-50%) scale(1)';
-      trail.style.borderColor = 'rgba(192,0,26,0.5)';
-    });
-  });
-
-  // ─── PARTICLES CANVAS ───
-  const canvas = document.getElementById('particleCanvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-
-  function resizeCanvas() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  class Particle {
-    constructor() { this.reset(); }
-    reset() {
-      this.x = Math.random() * W;
-      this.y = Math.random() * H;
-      this.vx = (Math.random() - 0.5) * 0.4;
-      this.vy = -Math.random() * 0.6 - 0.2;
-      this.alpha = Math.random() * 0.5 + 0.1;
-      this.r = Math.random() * 1.5 + 0.3;
-      this.life = 0;
-      this.maxLife = Math.random() * 200 + 100;
-    }
-    update() {
-      this.x += this.vx; this.y += this.vy;
-      this.life++;
-      if (this.life > this.maxLife || this.y < 0) this.reset();
-    }
-    draw() {
-      const a = this.alpha * (1 - this.life / this.maxLife);
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(192,0,26,${a})`;
-      ctx.shadowBlur = 6;
-      ctx.shadowColor = 'rgba(192,0,26,0.6)';
-      ctx.fill();
-    }
-  }
-
-  for (let i = 0; i < 120; i++) particles.push(new Particle());
-
-  function drawConnections() {
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const d  = Math.sqrt(dx*dx + dy*dy);
-        if (d < 100) {
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(192,0,26,${0.06 * (1 - d / 100)})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        }
-      }
-    }
-  }
-
-  function animParticles() {
-    ctx.clearRect(0, 0, W, H);
-    drawConnections();
-    particles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(animParticles);
-  }
-  animParticles();
-
-  // ─── SCROLL PROGRESS ───
-  window.addEventListener('scroll', () => {
-    const max = document.body.scrollHeight - window.innerHeight;
-    const pct = (window.scrollY / max) * 100;
-    document.getElementById('scroll-progress').style.width = pct + '%';
-  });
-
-  // ─── REVEAL ON SCROLL ───
-  const revealEls = document.querySelectorAll('.member-card,.feature-item,.caso-card,.perfil-row,.stat-item,.sobre-text,.sobre-features,.section-header');
-  const revealObs = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('visible'), i * 80);
-        revealObs.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  revealEls.forEach(el => { el.classList.add('reveal'); revealObs.observe(el); });
-
-  // ─── CARD GLARE ───
-  document.querySelectorAll('.member-card').forEach(card => {
-    const glare = document.createElement('div');
-    glare.className = 'card-glare';
-    card.appendChild(glare);
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const mx = ((e.clientX - rect.left) / rect.width)  * 100;
-      const my = ((e.clientY - rect.top)  / rect.height) * 100;
-      glare.style.background = `radial-gradient(circle at ${mx}% ${my}%, rgba(255,255,255,0.05) 0%, transparent 60%)`;
-    });
-  });
-
-  // ─── RIPPLE ON BUTTONS ───
-  document.querySelectorAll('.btn-primary,.btn-secondary,.form-submit,.tab-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const rect = btn.getBoundingClientRect();
-      const r = document.createElement('span');
-      r.className = 'ripple';
-      const size = Math.max(rect.width, rect.height);
-      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
-      btn.appendChild(r);
-      setTimeout(() => r.remove(), 600);
-    });
-  });
-
-  // ─── TYPING EFFECT HERO SUBTITLE ───
-  const subtitle = document.querySelector('.hero-subtitle');
-  if (subtitle) {
-    const text = subtitle.textContent;
-    subtitle.textContent = '';
-    subtitle.style.opacity = '1';
-    let i = 0;
-    setTimeout(() => {
-      const t = setInterval(() => {
-        subtitle.textContent = text.slice(0, ++i);
-        if (i >= text.length) clearInterval(t);
-      }, 40);
-    }, 2800);
-  }
-
-  // ─── SECTION TAG TYPING ───
-  document.querySelectorAll('.section-tag').forEach(tag => {
-    const txt = tag.textContent;
-    tag.dataset.original = txt;
-    const tagObs = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting && !tag.dataset.typed) {
-          tag.dataset.typed = '1';
-          tag.textContent = '';
-          let j = 0;
-          const t = setInterval(() => {
-            tag.textContent = txt.slice(0, ++j);
-            if (j >= txt.length) clearInterval(t);
-          }, 50);
-        }
-      });
-    }, { threshold: 0.8 });
-    tagObs.observe(tag);
-  });
-
-  // TAB SWITCH
-  function switchTab(tab, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  // COUNTER ANIMATION
-  function animateCounter(el) {
-    const target = parseInt(el.dataset.target);
-    const duration = 2000;
-    const step = target / (duration / 16);
-    let current = 0;
-    const timer = setInterval(() => {
-      current += step;
-      if (current >= target) {
-        el.textContent = target;
-        clearInterval(timer);
-      } else {
-        el.textContent = Math.floor(current);
-      }
-    }, 16);
-  }
-
-  const counters = document.querySelectorAll('.counter');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        animateCounter(entry.target);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.5 });
-
-  counters.forEach(c => observer.observe(c));
-
-  // HISTORICO HELPER
-  function renderHistorico(hist) {
-    return hist.map(h => `
-      <div class="hist-item">
-        <div class="hist-timeline">
-          <div class="hist-dot ${h.status}"></div>
-          <div class="hist-line"></div>
-        </div>
-        <div class="hist-body">
-          <div class="hist-date">${h.date}</div>
-          <div class="hist-title">${h.op}</div>
-          <div class="hist-desc">${h.desc}</div>
-          <span class="hist-badge ${h.status}">${h.status === 'resolved' ? '✓ CONCLUÍDA' : '◉ EM ANDAMENTO'}</span>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // PERFIL DATA
-  const perfilData = {
-    phantom: {
-      avatar: 'PH', name: 'Phantom', role: '// COMMANDER · OSINT LEAD', id: 'ID: EL-OPS-001 · RANK-01',
-      status: 'ONLINE', statusClass: 'modal-status-online',
-      bio: 'Fundador e líder operacional da Eternity Legacy. Com mais de 6 anos de experiência em investigação cibernética, coordena operações críticas, mantém contato direto com autoridades e define as diretrizes éticas do grupo.',
-      skills: ['OSINT', 'HUMINT', 'Ops & Comando', 'Darkweb', 'Threat Intel', 'Investigação Criminal'],
-      quote: '"Criminosos acreditam que a internet é anônima. Nós provamos todos os dias que não é."',
-      stats: [{ n: '89+', l: 'Casos Liderados' }, { n: '34', l: 'Prisões' }, { n: '6', l: 'Anos Ativos' }, { n: '100%', l: 'Ética' }],
-      bars: [{ l: 'OSINT', v: 98 }, { l: 'Investigação', v: 96 }, { l: 'Liderança', v: 92 }, { l: 'Darkweb', v: 85 }],
-      info: { entrada: '14/03/2020', local: 'São Paulo, BR', contato: '@phantom_el · Discord' },
-      historico: [
-        { date: 'Jun 2026', op: 'Operação RedEye', desc: 'Liderança da operação contra rede de grooming internacional. Fase 2 em andamento.', status: 'ongoing' },
-        { date: 'Jan 2025', op: 'Operação Phoenix', desc: 'Coordenou investigação de grupo pedofílico em plataforma de jogos. 3 apreendidos.', status: 'resolved' },
-        { date: 'Set 2024', op: 'Operação Venom', desc: 'Desmantelou rede neonazista de recrutamento de menores. 7 identificados.', status: 'resolved' },
-        { date: 'Mar 2024', op: 'Operação Nightfall', desc: 'Prevenção de atentado escolar em SP. Alvo identificado e entregue à polícia em 4 dias.', status: 'resolved' }
-      ]
-    },
-    vortex: {
-      avatar: 'VX', name: 'Vortex', role: '// SENIOR ANALYST · DEV', id: 'ID: EL-OPS-002 · RANK-02',
-      status: 'ONLINE', statusClass: 'modal-status-online',
-      bio: 'Desenvolvedor fullstack e analista de segurança sênior. Criou ferramentas internas de rastreamento e análise de metadados. Especialista em engenharia reversa de perfis sociais e automação de coleta de dados em escala.',
-      skills: ['Dev Fullstack', 'Infosec', 'GEOINT', 'Python', 'Automação', 'API Hacking'],
-      quote: '"Código bem escrito abre portas. Código malicioso deixa rastros que eu sei encontrar."',
-      stats: [{ n: '12', l: 'Ferramentas Criadas' }, { n: '5', l: 'Linguagens' }, { n: '4', l: 'Anos Ativos' }, { n: '97%', l: 'Precisão' }],
-      bars: [{ l: 'Programação', v: 97 }, { l: 'GEOINT', v: 88 }, { l: 'Análise', v: 91 }, { l: 'Automação', v: 95 }],
-      info: { entrada: '02/07/2022', local: 'Rio de Janeiro, BR', contato: '@vortex_el · Discord' },
-      historico: [
-        { date: 'Jun 2026', op: 'Operação RedEye — Dev', desc: 'Desenvolvimento de ferramentas de rastreamento para op. em andamento.', status: 'ongoing' },
-        { date: 'Nov 2024', op: 'ElTracker v3', desc: 'Lançamento da ferramenta interna de rastreamento de perfis v3.0.', status: 'resolved' },
-        { date: 'Mai 2024', op: 'Integração OSINT API', desc: 'Integrou módulo de coleta automática com 14 fontes abertas.', status: 'resolved' },
-        { date: 'Jan 2023', op: 'Sistema de Alertas', desc: 'Criou sistema de monitoramento automático de alvos de alta prioridade.', status: 'resolved' }
-      ]
-    },
-    eclipse: {
-      avatar: 'EC', name: 'Eclipse', role: '// INTELLIGENCE · IMINT', id: 'ID: EL-OPS-003 · RANK-03',
-      status: 'ONLINE', statusClass: 'modal-status-online',
-      bio: 'Especialista em análise de imagens e vídeos para coleta de inteligência. Conduz operações encobertas em redes sociais há 3 anos. Expert em geolocalização por imagem e reconstrução de cronologias a partir de mídias digitais.',
-      skills: ['IMINT', 'Infiltração', 'Social Eng.', 'Geolocalização', 'Análise de Vídeo', 'Perfilamento'],
-      quote: '"Uma imagem vale mil palavras. Para mim, vale a identidade completa de um suspeito."',
-      stats: [{ n: '47', l: 'Infiltrações' }, { n: '3', l: 'Anos Ativos' }, { n: '23', l: 'Grupos Mapeados' }, { n: '89%', l: 'Sucesso' }],
-      bars: [{ l: 'IMINT', v: 96 }, { l: 'Infiltração', v: 93 }, { l: 'Eng. Social', v: 88 }, { l: 'Análise Visual', v: 90 }],
-      info: { entrada: '19/11/2023', local: 'Belo Horizonte, BR', contato: '@eclipse_el · Telegram' },
-      historico: [
-        { date: 'Mai 2026', op: 'Célula Extremista — Telegram', desc: 'Infiltração encoberta em grupo extremista com +200 membros. Fase 1 em andamento.', status: 'ongoing' },
-        { date: 'Fev 2025', op: 'Campanha Discord — IMINT', desc: 'Análise de mídia do servidor que induzia ao suicídio. Servidor derrubado.', status: 'resolved' },
-        { date: 'Out 2024', op: 'Rede Grooming — Mapeamento', desc: 'Mapeou rede de grooming internacional via análise de imagens e vídeos.', status: 'resolved' },
-        { date: 'Mar 2024', op: 'Operação Venom — IMINT Lead', desc: 'Liderou coleta de inteligência visual no caso neonazista.', status: 'resolved' }
-      ]
-    },
-    raven: {
-      avatar: 'RV', name: 'Raven', role: '// FORENSICS · DATA INTEL', id: 'ID: EL-OPS-004 · RANK-04',
-      status: 'AUSENTE', statusClass: 'modal-status-offline',
-      bio: 'Analista forense digital e especialista em extração e preservação de dados probatórios. Responsável por laudos e cadeia de custódia digital para encaminhamento às autoridades competentes.',
-      skills: ['Forense Digital', 'Data Intel', 'OSINT', 'Cadeia Custódia', 'Análise Artefatos', 'Relatórios'],
-      quote: '"A prova digital não mente. Meu trabalho é garantir que ela seja ouvida."',
-      stats: [{ n: '89', l: 'Laudos Emitidos' }, { n: '100%', l: 'Aceitação' }, { n: '5', l: 'Anos Ativos' }, { n: '0', l: 'Falhas' }],
-      bars: [{ l: 'Forense', v: 99 }, { l: 'Análise de Dados', v: 95 }, { l: 'OSINT', v: 82 }, { l: 'Documentação', v: 97 }],
-      info: { entrada: '05/01/2021', local: 'Curitiba, BR', contato: '@raven_el · Discord' },
-      historico: [
-        { date: 'Ago 2024', op: 'Laudo Scam Criptomoedas', desc: 'Emitiu laudo forense do esquema de R$ 2.4M. Aceito pelo MP Federal.', status: 'resolved' },
-        { date: 'Jan 2025', op: 'Laudo Pedofilia — SP', desc: 'Documentação forense das provas do caso de plataforma de jogos.', status: 'resolved' },
-        { date: 'Set 2024', op: 'Documentação Op. Phoenix', desc: 'Cadeia de custódia completa para entrega à Delegacia de Crimes Cibernéticos.', status: 'resolved' },
-        { date: 'Abr 2024', op: 'Análise Op. Venom', desc: 'Laudo de artefatos digitais do caso neonazista. Aceito pelo TRF.', status: 'resolved' }
-      ]
-    },
-    cipher: {
-      avatar: 'CR', name: 'Cipher', role: '// CRYPTOGRAPHY · NETWORK', id: 'ID: EL-OPS-005 · RANK-05',
-      status: 'ONLINE', statusClass: 'modal-status-online',
-      bio: 'Especialista em criptografia e análise de redes. Rastreia comunicações de grupos criminosos e decifra mensagens codificadas. Opera ferramentas de inteligência de rede e identifica infraestruturas criminosas.',
-      skills: ['Criptografia', 'Network Anal.', 'Tracking', 'SIGINT', 'Packet Analysis', 'Infra Mapping'],
-      quote: '"Não existe criptografia perfeita quando o operador comete erros. E eles sempre cometem."',
-      stats: [{ n: '31', l: 'Redes Rastreadas' }, { n: '4', l: 'Anos Ativos' }, { n: '8', l: 'Infras Mapeadas' }, { n: '94%', l: 'Eficiência' }],
-      bars: [{ l: 'Criptografia', v: 95 }, { l: 'Network', v: 93 }, { l: 'SIGINT', v: 87 }, { l: 'Infra', v: 89 }],
-      info: { entrada: '30/06/2022', local: 'Porto Alegre, BR', contato: '@cipher_el · Telegram' },
-      historico: [
-        { date: 'Jun 2026', op: 'Op. RedEye — Network Intel', desc: 'Mapeando infraestrutura de rede da organização criminosa internacional.', status: 'ongoing' },
-        { date: 'Fev 2025', op: 'Decifração Grupo Telegram', desc: 'Decodificou mensagens cifradas de grupo extremista. 12 membros identificados.', status: 'resolved' },
-        { date: 'Ago 2024', op: 'Infra Scam Criptomoedas', desc: 'Mapeou infraestrutura de servidores usados pelo grupo de fraude.', status: 'resolved' },
-        { date: 'Nov 2023', op: 'Rastreio Rede Darknet', desc: 'Identificação de nós de comunicação de rede criminosa na darknet.', status: 'resolved' }
-      ]
-    },
-    novax: {
-      avatar: 'NX', name: 'Nova_X', role: '// HUMINT · FIELD INTEL', id: 'ID: EL-OPS-006 · RANK-06',
-      status: 'ONLINE', statusClass: 'modal-status-online',
-      bio: 'Operador de inteligência humana e analista de comportamento. Especialista em reconhecimento de padrões psicológicos e identificação de ameaças emergentes. Expert em detecção de discurso extremista e perfilamento criminal.',
-      skills: ['HUMINT', 'Comportamento', 'Padrões', 'Psicologia', 'Análise Discurso', 'Detecção de Ameaças'],
-      quote: '"Comportamento nunca mente. Palavras podem iludir, mas padrões revelam tudo."',
-      stats: [{ n: '156', l: 'Perfis Analisados' }, { n: '3', l: 'Anos Ativos' }, { n: '12', l: 'Ameaças Previstas' }, { n: '91%', l: 'Precisão' }],
-      bars: [{ l: 'HUMINT', v: 94 }, { l: 'Análise Comportamental', v: 96 }, { l: 'Detecção', v: 90 }, { l: 'Relatórios', v: 88 }],
-      info: { entrada: '12/04/2023', local: 'Salvador, BR', contato: '@novax_el · Discord' },
-      historico: [
-        { date: 'Abr 2026', op: 'Stalker Serial — Comportamento', desc: 'Análise comportamental do suspeito. Perfil psicológico entregue à DEAM.', status: 'ongoing' },
-        { date: 'Out 2024', op: 'Grupo Neonazista — Perfilamento', desc: 'Perfilou líderes do grupo extremista. 7 perfis detalhados entregues ao MP.', status: 'resolved' },
-        { date: 'Jan 2025', op: 'Ameaça Massacre — Perfilamento', desc: 'Análise psicológica do suspeito de atentado escolar em SP.', status: 'resolved' },
-        { date: 'Jul 2024', op: 'Op. Phoenix — HUMINT', desc: 'Apoio HUMINT no caso de pedofilia em plataforma de jogos.', status: 'resolved' }
-      ]
-    },
-    specter: {
-      avatar: 'SR', name: 'Specter', role: '// DARKWEB · RECON', id: 'ID: EL-OPS-007 · RANK-07',
-      status: 'AUSENTE', statusClass: 'modal-status-offline',
-      bio: 'Especialista em operações na darkweb e reconhecimento avançado. Monitora fóruns e mercados clandestinos para identificação precoce de ameaças. Hacker ético certificado.',
-      skills: ['Darkweb', 'Recon', 'Hacking Ético', 'Threat Hunt', 'OPSEC', 'Tor/I2P'],
-      quote: '"A darkweb não é o fim da investigação. É o começo. Eu conheço cada esquina."',
-      stats: [{ n: '200+', l: 'Fóruns Monitorados' }, { n: '5', l: 'Anos Ativos' }, { n: '15', l: 'Mercados Mapeados' }, { n: '88%', l: 'Infiltrações' }],
-      bars: [{ l: 'Darkweb', v: 99 }, { l: 'Recon', v: 95 }, { l: 'OPSEC', v: 92 }, { l: 'Threat Hunt', v: 90 }],
-      info: { entrada: '08/09/2021', local: 'Recífe, BR', contato: '@specter_el · Telegram' },
-      historico: [
-        { date: 'Fev 2025', op: 'Rede Pedofilia — Darkweb', desc: 'Mapeou rede de distribuição de material ilegal em fórum clandestino.', status: 'resolved' },
-        { date: 'Jun 2024', op: 'Mercado Ilegal — Recon', desc: 'Identificação e documentação de marketplace ilegal com +1.200 produtos.', status: 'resolved' },
-        { date: 'Mar 2024', op: 'Op. Nightfall — Recon Lead', desc: 'Liderou reconhecimento da infraestrutura criminosa no caso de atentado.', status: 'resolved' },
-        { date: 'Dez 2022', op: 'Fórum Extremista — Monitoramento', desc: 'Monitoramento contínuo de fórum com conteúdo extremista. 3 alertas emitidos.', status: 'resolved' }
-      ]
-    }
+  const ICONS = {
+    Scale:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v18M5 21h14M6 8l-3 6a3 3 0 0 0 6 0L6 8zm12 0l-3 6a3 3 0 0 0 6 0l-3-6zM3 8h18"/></svg>',
+    Crown:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 18h20M3 8l4 4 5-7 5 7 4-4v10H3V8z"/></svg>',
+    Swords:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg>',
+    Shield:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>',
+    Finger:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 10v4M8 8a5 5 0 0 1 8 0M6 11a8 8 0 0 1 12 0M10 18c0-1 .5-2 2-2s2 1 2 2"/></svg>'
   };
+  const BIG = {
+    Scale:'<svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v18M5 21h14M6 8l-3 6a3 3 0 0 0 6 0L6 8zm12 0l-3 6a3 3 0 0 0 6 0l-3-6zM3 8h18"/></svg>',
+    Crown:'<svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 18h20M3 8l4 4 5-7 5 7 4-4v10H3V8z"/></svg>',
+    Swords:'<svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg>',
+    Shield:'<svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+    Finger:'<svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 10v4M8 8a5 5 0 0 1 8 0M6 11a8 8 0 0 1 12 0M10 18c0-1 .5-2 2-2s2 1 2 2"/></svg>'
+  };
+  const ROLE = {
+    "Única":{c:"#f5f5f5",label:"ÚNICA",rank:"00",icon:"Scale"},
+    "Dono":{c:"#ff1a1a",label:"DONO",rank:"01",icon:"Crown"},
+    "Líder":{c:"#dc2626",label:"LÍDER",rank:"02",icon:"Swords"},
+    "Adm":{c:"#b91c1c",label:"ADM",rank:"03",icon:"Shield"},
+    "Membro":{c:"#7f1d1d",label:"MEMBRO",rank:"04",icon:"Finger"}
+  };
+  const MEMBERS = [
+    {name:"Juíza",role:"Única",code:"//verdict",motto:"A sentença final é minha.",desc:"A Juíza Única da Eternity. Acima de todas as patentes, sua palavra encerra qualquer caso. Imparcial, absoluta e inquestionável."},
+    {name:"Newox",role:"Dono",code:"//origin",motto:"Onde tudo começa, eu já estive.",desc:"Fundador da Eternity. Mente por trás de cada operação e guardião dos segredos mais profundos."},
+    {name:"Nauter",role:"Dono",code:"//nemesis",motto:"Nada escapa duas vezes.",desc:"Co-fundador. Estrategista frio que enxerga padrões onde outros veem apenas ruído."},
+    {name:"Mafioso",role:"Líder",code:"//syndicate",motto:"Ordem nasce do controle.",desc:"Líder de campo. Comanda as equipes em solo com precisão implacável."},
+    {name:"Azra",role:"Líder",code:"//spectre",motto:"Eu vejo o que você esconde.",desc:"Líder de inteligência. Especialista em vigilância e leitura de comportamento."},
+    {name:"Luiki",role:"Líder",code:"//breaker",motto:"Toda fechadura tem um ponto fraco.",desc:"Líder técnico. Domina sistemas, redes e o que existe entre as linhas de código."},
+    {name:"Yusk",role:"Líder",code:"//phantom",motto:"Silêncio também é uma arma.",desc:"Líder de infiltração. Entra, observa e desaparece sem deixar rastro."},
+    {name:"Tomas",role:"Adm",code:"//archive",motto:"A verdade fica nos detalhes.",desc:"Administrador. Organiza cada caso, prova e registro da Eternity."},
+    {name:"Abbadon",role:"Membro",code:"//ashes",motto:"Do caos, respostas.",desc:"Agente de campo. Trabalha nas sombras dos casos mais perigosos."},
+    {name:"Dracco",role:"Membro",code:"//venom",motto:"Paciência é o veneno mais lento.",desc:"Agente de investigação. Persegue cada pista até o fim."},
+    {name:"Moraes",role:"Membro",code:"//echo",motto:"O passado sempre fala.",desc:"Agente analista. Reconstrói eventos a partir do menor fragmento."},
+    {name:"Lopess",role:"Membro",code:"//willpower",motto:"Dê o seu melhor.",desc:"Agente dedicado. Prova que esforço e vontade quebram qualquer caso."}
+  ];
+  const CASES = [
+    {id:"ETN-001",title:"O Último Contato",status:"Encerrado",year:"2024",tags:["Desaparecimento","Rastreamento digital"],summary:"Um sinal perdido no meio da madrugada. Rastreamos a última conexão e reconstruímos a rota até o esconderijo."},
+    {id:"ETN-014",title:"Fantasma na Rede",status:"Encerrado",year:"2024",tags:["Fraude","Cyber"],summary:"Identidades falsas movimentavam contas por trás de servidores anônimos. Cada camada foi descascada."},
+    {id:"ETN-022",title:"Silêncio na Torre 9",status:"Em andamento",year:"2025",tags:["Vigilância","Infiltração"],summary:"Movimentações suspeitas em um prédio abandonado. A equipe de campo mantém observação constante."},
+    {id:"ETN-031",title:"A Carta Sem Nome",status:"Em andamento",year:"2025",tags:["Ameaça","Análise"],summary:"Uma denúncia anônima abriu uma trilha de evidências que ainda estamos seguindo, letra por letra."},
+    {id:"ETN-040",title:"Eco do Cofre",status:"Arquivado",year:"2023",tags:["Roubo","Reconstrução"],summary:"Nada foi levado, mas tudo foi tocado. Reconstruímos a sequência exata dos eventos."},
+    {id:"ETN-047",title:"Sombra Vermelha",status:"Confidencial",year:"2025",tags:["Classificado"],summary:"Detalhes deste caso permanecem selados. Acesso restrito à liderança da Eternity."}
+  ];
+  const STATUS_COLOR = {"Encerrado":"#22c55e","Em andamento":"#dc2626","Arquivado":"#a1a1aa","Confidencial":"#ef4444"};
+  const CHAPTERS = [
+    {n:"01",t:"Quem Somos",b:"A Eternity é uma agência de investigação que opera nas fronteiras do visível e do oculto. Reunimos mentes obsessivas por respostas, unidas por um único princípio: nenhuma verdade permanece enterrada para sempre."},
+    {n:"02",t:"Como Agimos",b:"Cada caso é tratado com precisão cirúrgica. Da vigilância de campo à análise digital, cruzamos evidências até que o quebra-cabeça se complete. Discrição absoluta, resultados implacáveis."},
+    {n:"03",t:"Nosso Código",b:"Trabalhamos nas sombras, mas guiados pela luz da verdade. Lealdade à missão, respeito ao cliente e silêncio como promessa. O que entra na Eternity, jamais sai."}
+  ];
+  const OWNER_EMAIL = "newoxallz@gmail.com";
 
-  function openPerfil(id) {
-    const p = perfilData[id];
-    if (!p) return;
-    document.getElementById('mAvatar').textContent = p.avatar;
-    document.getElementById('mName').textContent = p.name;
-    document.getElementById('mRole').textContent = p.role;
-    document.getElementById('mId').textContent = p.id;
-    const sb = document.getElementById('mStatus');
-    sb.textContent = '● ' + p.status;
-    sb.className = 'modal-status-badge ' + p.statusClass;
-    document.getElementById('mBio').textContent = p.bio;
-    document.getElementById('mSkills').innerHTML = p.skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
-    document.getElementById('mQuote').textContent = p.quote;
-    document.getElementById('mStats').innerHTML = p.stats.map(s => `<div class="mstat-box"><div class="mstat-num">${s.n}</div><div class="mstat-label">${s.l}</div></div>`).join('');
-    document.getElementById('mBars').innerHTML = p.bars.map(b => `<div class="mbar-item"><div class="mbar-label"><span>${b.l}</span><span>${b.v}%</span></div><div class="mbar-track"><div class="mbar-fill" style="width:0%" data-w="${b.v}%"></div></div></div>`).join('');
-    document.getElementById('mOps').innerHTML = renderHistorico(p.historico);
-    document.getElementById('mInfo').innerHTML = [
-      { l: 'Data de Entrada', v: p.info.entrada, i: 'fa-calendar-plus' },
-      { l: 'Localização', v: p.info.local, i: 'fa-map-marker-alt' },
-      { l: 'Contato', v: p.info.contato, i: 'fa-shield-alt' }
-    ].map(x => `<div class="minfo-box"><div class="minfo-label"><i class="fas ${x.i}" style="color:var(--red);margin-right:5px;"></i>${x.l}</div><div class="minfo-value">${x.v}</div></div>`).join('');
-    document.getElementById('perfilModal').classList.add('open');
-    setTimeout(() => {
-      document.querySelectorAll('.mbar-fill').forEach(bar => {
-        bar.style.width = bar.dataset.w;
-      });
-    }, 100);
-  }
-
-  function closePerfil(e) {
-    if (e.target === document.getElementById('perfilModal')) {
-      document.getElementById('perfilModal').classList.remove('open');
-    }
-  }
-
-  // FORM SUBMIT
-  function submitForm(e) {
-    e.preventDefault();
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 4000);
-    e.target.reset();
-  }
-
-  // SMOOTH NAV HIGHLIGHT
-  const sections = document.querySelectorAll('section[id], div.stats-bar');
-  const navLinks = document.querySelectorAll('.nav-links a');
-
-  window.addEventListener('scroll', () => {
-    let current = '';
-    document.querySelectorAll('section[id]').forEach(sec => {
-      if (window.scrollY >= sec.offsetTop - 100) current = sec.id;
-    });
-    navLinks.forEach(link => {
-      link.style.color = '';
-      if (link.getAttribute('href') === '#' + current) {
-        link.style.color = 'var(--red)';
-      }
-    });
+  const heroTitle = document.getElementById('heroTitle');
+  "ETERNITY".split("").forEach((ch,i)=>{
+    const mask=document.createElement('span'); mask.className='mask';
+    const s=document.createElement('span'); s.textContent=ch; s.style.animationDelay=(0.2+i*0.08)+'s';
+    mask.appendChild(s); heroTitle.appendChild(mask);
   });
-</script>
 
+  const words=["VERDADE","DISCRIÇÃO","PRECISÃO","LEALDADE","SILÊNCIO","JUSTIÇA"];
+  const track=document.getElementById('track');
+  [...words,...words].forEach(w=>{ const s=document.createElement('span'); s.innerHTML=w+' <i>✶</i>'; track.appendChild(s); });
+
+  const chapters=document.getElementById('chapters');
+  CHAPTERS.forEach((c,i)=>{
+    const d=document.createElement('div'); d.className='chapter reveal'; d.style.transitionDelay=(i*0.08)+'s';
+    d.innerHTML=`<span class="num mono">${c.n}</span><h3 class="display">${c.t}</h3><p>${c.b}</p>`;
+    chapters.appendChild(d);
+  });
+
+  const grid=document.getElementById('grid');
+  MEMBERS.forEach((m,i)=>{
+    const r=ROLE[m.role]; const initial=m.name.charAt(0).toUpperCase();
+    const wrap=document.createElement('div'); wrap.className='member reveal'; wrap.style.transitionDelay=((i%4)*0.08)+'s';
+    wrap.innerHTML=`
+      <article class="card ${m.role==='Única'?'unica':''}" style="--rc:${r.c};--rcb:${r.c}55">
+        <div class="spot"></div>
+        <div class="badges">
+          <span class="rank">${r.rank}</span>
+          <span class="role">${ICONS[r.icon]}${r.label}</span>
+        </div>
+        <div class="mono-panel">
+          <div class="mono-grid"></div>
+          <div class="mono-glow"></div>
+          <div class="watermark">${BIG[r.icon]}</div>
+          <span class="ring"></span>
+          <span class="letter display">${initial}</span>
+          <span class="bar"></span>
+        </div>
+        <div class="body">
+          <p class="code">${m.code}</p>
+          <h3 class="display">${m.name} ${m.role==='Única'?ICONS.Scale.replace('11','16'):''}</h3>
+          <p class="motto">&ldquo;${m.motto}&rdquo;</p>
+          <p class="desc">${m.desc}</p>
+        </div>
+      </article>`;
+    grid.appendChild(wrap);
+  });
+
+  document.querySelectorAll('.card').forEach(card=>{
+    card.addEventListener('mousemove',e=>{
+      const b=card.getBoundingClientRect();
+      const px=(e.clientX-b.left)/b.width, py=(e.clientY-b.top)/b.height;
+      card.style.transform=`rotateX(${(0.5-py)*16}deg) rotateY(${(px-0.5)*16}deg)`;
+      card.style.setProperty('--mx',(px*100)+'%');
+      card.style.setProperty('--my',(py*100)+'%');
+    });
+    card.addEventListener('mouseleave',()=>{ card.style.transform='rotateX(0) rotateY(0)'; });
+  });
+
+  const casesEl=document.getElementById('cases');
+  CASES.forEach((c,i)=>{
+    const sc=STATUS_COLOR[c.status];
+    const div=document.createElement('div'); div.className='case reveal'; div.style.transitionDelay=(i*0.05)+'s';
+    div.innerHTML=`
+      <button class="case-btn" onclick="toggleCase(this)">
+        <span class="case-id">${c.id}</span>
+        <span class="case-title display">${c.title}</span>
+        <span class="case-status" style="color:${sc};border:1px solid ${sc}44">${c.status}</span>
+        <span class="case-year">${c.year}</span>
+        <span class="case-toggle">+</span>
+      </button>
+      <div class="case-panel">
+        <div class="case-inner">
+          <p>${c.summary}</p>
+          <div class="chips">${c.tags.map(t=>`<span class="chip">${t}</span>`).join('')}</div>
+        </div>
+      </div>`;
+    casesEl.appendChild(div);
+  });
+  function toggleCase(btn){
+    const panel=btn.nextElementSibling, tog=btn.querySelector('.case-toggle');
+    if(panel.style.maxHeight && panel.style.maxHeight!=='0px'){ panel.style.maxHeight='0px'; tog.textContent='+'; }
+    else { panel.style.maxHeight=panel.scrollHeight+'px'; tog.textContent='–'; }
+  }
+
+  function sendReport(e){
+    e.preventDefault();
+    const nome=document.getElementById('f_nome').value.trim()||'Anônimo';
+    const contato=document.getElementById('f_contato').value.trim()||'não informado';
+    const tipo=document.getElementById('f_tipo').value;
+    const msg=document.getElementById('f_msg').value.trim();
+    if(msg.length<10){ showToast('Descreva a denúncia com mais detalhes (mín. 10 caracteres).'); return false; }
+    const subject=encodeURIComponent('[ETERNITY] Nova denúncia — '+tipo);
+    const body=encodeURIComponent(`Tipo: ${tipo}\nNome: ${nome}\nContato: ${contato}\n\nRelato:\n${msg}`);
+    window.location.href=`mailto:${OWNER_EMAIL}?subject=${subject}&body=${body}`;
+    showToast('Abrindo seu e-mail para enviar a denúncia...');
+    document.getElementById('reportForm').reset();
+    return false;
+  }
+  function showToast(t){
+    const el=document.getElementById('toast'); el.textContent=t; el.classList.add('show');
+    clearTimeout(window._tt); window._tt=setTimeout(()=>el.classList.remove('show'),3500);
+  }
+
+  function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); document.getElementById('mobile').style.display='none'; }
+  function toggleMenu(){ const m=document.getElementById('mobile'); m.style.display=(m.style.display==='flex')?'none':'flex'; }
+  window.addEventListener('scroll',()=>{ document.getElementById('header').classList.toggle('scrolled',window.scrollY>40); });
+  document.getElementById('year').textContent='© '+new Date().getFullYear()+' Eternity. Todos os segredos reservados.';
+
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+  },{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
 </body>
-</html>
+</html>****
