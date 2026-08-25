@@ -1,4 +1,4 @@
-<html lang="pt-BR">
+ <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -309,7 +309,6 @@
         <p class="tag mono">// Os Agentes</p>
         <h2 class="h2 display">Membros</h2>
       </div>
-      <p class="mono">Cada agente possui uma cor, um código e uma assinatura própria. Mova o cursor sobre um dossiê para revelar os detalhes.</p>
     </div>
     <div class="grid" id="grid"></div>
   </div>
@@ -437,7 +436,7 @@
     {name:"NK",role:"DRC",color:"#f5f5f5",code:"//directive",motto:"A decisão final começa comigo.",desc:"Direção estratégica da Eternity. NK transforma informação em comando e mantém cada operação alinhada ao objetivo."},
     {name:"Newox",role:"Dono",color:"#ff3b30",code:"//origin",motto:"A visão transforma o caos em estratégia.",desc:"Fundador da Eternity e arquiteto das operações. Newox conecta pessoas, pistas e decisões para manter a agência sempre à frente."},
     {name:"Mexycana",role:"Webcasais",color:"#f472b6",code:"//webcasais",motto:"Conexões certas revelam novas pistas.",desc:"Especialista Webcasais. Mexycana aproxima pessoas, identifica sinais e transforma conexões em informação útil para cada investigação."},
-    {name:"Nauter",role:"Dono",color:"#ff7a18",code:"//nemesis",motto:"Nada escapa duas vezes.",desc:"Co-fundador. Estrategista frio que enxerga padrões onde outros veem apenas ruído."},
+    {name:"Nauter",role:"Dono",color:"#ff7a18",code:"//eternity",motto:"Nada escapa duas vezes.",desc:"Co-fundador. Estrategista frio que enxerga padrões onde outros veem apenas ruído."},
     {name:"Mafioso",role:"Líder",color:"#f59e0b",code:"//syndicate",motto:"Ordem nasce do controle.",desc:"Líder de campo. Comanda as equipes em solo com precisão implacável."},
     {name:"Azra",role:"Líder",color:"#22d3ee",code:"//spectre",motto:"Eu vejo o que você esconde.",desc:"Líder de inteligência. Especialista em vigilância e leitura de comportamento."},
     {name:"Luiki",role:"Líder",color:"#60a5fa",code:"//breaker",motto:"Toda fechadura tem um ponto fraco.",desc:"Líder técnico. Domina sistemas, redes e o que existe entre as linhas de código."},
@@ -579,3 +578,4 @@
 </script>
 </body>
 </html>
+
