@@ -109,14 +109,21 @@
   .chapter p{font-size:14px;line-height:1.6;color:var(--txt2)}
 
   /* MEMBERS */
-  .mhead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:64px;flex-wrap:wrap}
-  .mhead p{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);max-width:300px}
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-  .member{perspective:900px}
-  .card{position:relative;height:100%;background:var(--card);overflow:hidden;border:1px solid rgba(127,29,29,.3);transition:border-color .3s,transform .1s;transform-style:preserve-3d}
-  .card:hover{border-color:rgba(239,68,68,.6)}
-  .card.unica{border:1px solid rgba(255,255,255,.4);box-shadow:0 0 30px rgba(255,255,255,.08)}
-  .card.unica:hover{border-color:#fff}
+  #membros{position:relative;overflow:hidden}
+  #membros::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.38;background:radial-gradient(circle at 12% 18%,rgba(220,38,38,.13),transparent 28%),radial-gradient(circle at 88% 82%,rgba(236,72,153,.10),transparent 30%)}
+  .mhead{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:64px;flex-wrap:wrap}
+  .mhead p{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);max-width:340px;line-height:1.7}
+  .mhead .tag{margin-bottom:14px}
+  .grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .grid::before{content:"";position:absolute;left:-8%;right:-8%;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--blood),transparent);opacity:.45;animation:membersScan 5s ease-in-out infinite}
+  .member{perspective:900px;--member-delay:0ms}
+  .member.in{animation:memberRise .8s cubic-bezier(.16,1,.3,1) both;animation-delay:var(--member-delay)}
+  .card{position:relative;height:100%;background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 34%),var(--card);overflow:hidden;border:1px solid rgba(127,29,29,.3);transition:border-color .3s,transform .18s,box-shadow .3s;transform-style:preserve-3d}
+  .card::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.08) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s ease}
+  .card:hover{border-color:rgba(239,68,68,.6);box-shadow:0 18px 42px rgba(0,0,0,.35),0 0 24px var(--rc)18}
+  .card:hover::after{transform:translateX(120%)}
+  .card.featured{border:1px solid rgba(255,255,255,.4);box-shadow:0 0 30px rgba(255,255,255,.08)}
+  .card.featured:hover{border-color:#fff}
   .spot{position:absolute;inset:0;z-index:3;opacity:0;transition:opacity .3s;pointer-events:none;
     background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),var(--rc)22,transparent 60%)}
   .card:hover .spot{opacity:1}
@@ -124,13 +131,18 @@
   .rank{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--rc)}
   .role{display:flex;align-items:center;gap:6px;font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--rc);border:1px solid var(--rcb);padding:4px 8px;backdrop-filter:blur(4px)}
   .mono-panel{position:relative;height:208px;display:flex;align-items:center;justify-content:center;background:var(--bg);overflow:hidden}
+  .mono-panel::after{content:"";position:absolute;left:0;right:0;top:-20%;height:18%;z-index:1;pointer-events:none;background:linear-gradient(180deg,transparent,var(--rc)22,transparent);opacity:.22;animation:panelScan 3.6s linear infinite}
   .mono-grid{position:absolute;inset:0;opacity:.12;background-image:linear-gradient(#ffffff22 1px,transparent 1px),linear-gradient(90deg,#ffffff22 1px,transparent 1px);background-size:22px 22px}
-  .mono-glow{position:absolute;inset:0;opacity:.4;transition:opacity .5s;background:radial-gradient(circle at 50% 45%,var(--rc)33,transparent 60%)}
+  .mono-glow{position:absolute;inset:0;opacity:.4;transition:opacity .5s;background:radial-gradient(circle at 50% 45%,var(--rc)33,transparent 60%);animation:glowBreath 3s ease-in-out infinite}
   .card:hover .mono-glow{opacity:.7}
   .watermark{position:absolute;right:-12px;bottom:-12px;opacity:.1;transition:opacity .3s;color:var(--rc)}
   .card:hover .watermark{opacity:.2}
-  .ring{position:absolute;border:1px solid var(--rcb);border-radius:50%;width:90px;height:90px;animation:ring 2.4s ease-out infinite}
+  .ring{position:absolute;border:1px solid var(--rcb);border-radius:50%;width:90px;height:90px;animation:ring var(--ring-time,2.4s) ease-out infinite}
   @keyframes ring{0%{width:90px;height:90px;opacity:.5}100%{width:150px;height:150px;opacity:0}}
+  @keyframes membersScan{0%,100%{transform:translateX(-12%);opacity:.15}50%{transform:translateX(12%);opacity:.7}}
+  @keyframes panelScan{0%{transform:translateY(-140%)}100%{transform:translateY(720%)}}
+  @keyframes glowBreath{0%,100%{transform:scale(.96);opacity:.3}50%{transform:scale(1.06);opacity:.55}}
+  @keyframes memberRise{from{opacity:0;transform:translateY(26px) scale(.98);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
   .letter{position:relative;z-index:2;font-family:"Unbounded",sans-serif;font-weight:900;font-size:72px;color:var(--rc);text-shadow:0 0 28px var(--rc)66;transition:transform .5s}
   .card:hover .letter{transform:scale(1.1)}
   .bar{position:absolute;bottom:0;left:0;height:4px;width:0;background:var(--rc);transition:width .5s}
@@ -210,7 +222,7 @@
     .row{grid-template-columns:1fr}
     .foot-cols{gap:40px}
   }
-  @media(prefers-reduced-motion:reduce){.track{animation:none}.ring{animation:none}}
+  @media(prefers-reduced-motion:reduce){.track{animation:none}.ring{animation:none}.grid::before,.mono-panel::after,.mono-glow,.member.in{animation:none}}
 </style>
 </head>
 <body>
@@ -297,7 +309,7 @@
         <p class="tag mono">// Os Agentes</p>
         <h2 class="h2 display">Membros</h2>
       </div>
-      <p class="mono">Mova o cursor sobre um agente para inclinar o dossiê e revelar o arquivo.</p>
+      <p class="mono">Cada agente possui uma cor, um código e uma assinatura própria. Mova o cursor sobre um dossiê para revelar os detalhes.</p>
     </div>
     <div class="grid" id="grid"></div>
   </div>
@@ -414,25 +426,27 @@
     Finger:'<svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 10v4M8 8a5 5 0 0 1 8 0M6 11a8 8 0 0 1 12 0M10 18c0-1 .5-2 2-2s2 1 2 2"/></svg>'
   };
   const ROLE = {
-    "Única":{c:"#f5f5f5",label:"ÚNICA",rank:"00",icon:"Scale"},
+    "DRC":{c:"#f5f5f5",label:"DRC",rank:"00",icon:"Scale"},
     "Dono":{c:"#ff1a1a",label:"DONO",rank:"01",icon:"Crown"},
+    "Webcasais":{c:"#ec4899",label:"WEBCASAIS",rank:"05",icon:"Shield"},
     "Líder":{c:"#dc2626",label:"LÍDER",rank:"02",icon:"Swords"},
     "Adm":{c:"#b91c1c",label:"ADM",rank:"03",icon:"Shield"},
     "Membro":{c:"#7f1d1d",label:"MEMBRO",rank:"04",icon:"Finger"}
   };
   const MEMBERS = [
-    {name:"Juíza",role:"Única",code:"//verdict",motto:"A sentença final é minha.",desc:"A Juíza Única da Eternity. Acima de todas as patentes, sua palavra encerra qualquer caso. Imparcial, absoluta e inquestionável."},
-    {name:"Newox",role:"Dono",code:"//origin",motto:"Onde tudo começa, eu já estive.",desc:"Fundador da Eternity. Mente por trás de cada operação e guardião dos segredos mais profundos."},
-    {name:"Nauter",role:"Dono",code:"//nemesis",motto:"Nada escapa duas vezes.",desc:"Co-fundador. Estrategista frio que enxerga padrões onde outros veem apenas ruído."},
-    {name:"Mafioso",role:"Líder",code:"//syndicate",motto:"Ordem nasce do controle.",desc:"Líder de campo. Comanda as equipes em solo com precisão implacável."},
-    {name:"Azra",role:"Líder",code:"//spectre",motto:"Eu vejo o que você esconde.",desc:"Líder de inteligência. Especialista em vigilância e leitura de comportamento."},
-    {name:"Luiki",role:"Líder",code:"//breaker",motto:"Toda fechadura tem um ponto fraco.",desc:"Líder técnico. Domina sistemas, redes e o que existe entre as linhas de código."},
-    {name:"Yusk",role:"Líder",code:"//phantom",motto:"Silêncio também é uma arma.",desc:"Líder de infiltração. Entra, observa e desaparece sem deixar rastro."},
-    {name:"Tomas",role:"Adm",code:"//archive",motto:"A verdade fica nos detalhes.",desc:"Administrador. Organiza cada caso, prova e registro da Eternity."},
-    {name:"Abbadon",role:"Membro",code:"//ashes",motto:"Do caos, respostas.",desc:"Agente de campo. Trabalha nas sombras dos casos mais perigosos."},
-    {name:"Dracco",role:"Membro",code:"//venom",motto:"Paciência é o veneno mais lento.",desc:"Agente de investigação. Persegue cada pista até o fim."},
-    {name:"Moraes",role:"Membro",code:"//echo",motto:"O passado sempre fala.",desc:"Agente analista. Reconstrói eventos a partir do menor fragmento."},
-    {name:"Lopess",role:"Membro",code:"//willpower",motto:"Dê o seu melhor.",desc:"Agente dedicado. Prova que esforço e vontade quebram qualquer caso."}
+    {name:"NK",role:"DRC",color:"#f5f5f5",code:"//directive",motto:"A decisão final começa comigo.",desc:"Direção estratégica da Eternity. NK transforma informação em comando e mantém cada operação alinhada ao objetivo."},
+    {name:"Newox",role:"Dono",color:"#ff3b30",code:"//origin",motto:"A visão transforma o caos em estratégia.",desc:"Fundador da Eternity e arquiteto das operações. Newox conecta pessoas, pistas e decisões para manter a agência sempre à frente."},
+    {name:"Mexycana",role:"Webcasais",color:"#f472b6",code:"//webcasais",motto:"Conexões certas revelam novas pistas.",desc:"Especialista Webcasais. Mexycana aproxima pessoas, identifica sinais e transforma conexões em informação útil para cada investigação."},
+    {name:"Nauter",role:"Dono",color:"#ff7a18",code:"//nemesis",motto:"Nada escapa duas vezes.",desc:"Co-fundador. Estrategista frio que enxerga padrões onde outros veem apenas ruído."},
+    {name:"Mafioso",role:"Líder",color:"#f59e0b",code:"//syndicate",motto:"Ordem nasce do controle.",desc:"Líder de campo. Comanda as equipes em solo com precisão implacável."},
+    {name:"Azra",role:"Líder",color:"#22d3ee",code:"//spectre",motto:"Eu vejo o que você esconde.",desc:"Líder de inteligência. Especialista em vigilância e leitura de comportamento."},
+    {name:"Luiki",role:"Líder",color:"#60a5fa",code:"//breaker",motto:"Toda fechadura tem um ponto fraco.",desc:"Líder técnico. Domina sistemas, redes e o que existe entre as linhas de código."},
+    {name:"Yusk",role:"Líder",color:"#a78bfa",code:"//phantom",motto:"Silêncio também é uma arma.",desc:"Líder de infiltração. Entra, observa e desaparece sem deixar rastro."},
+    {name:"Tomas",role:"Adm",color:"#34d399",code:"//archive",motto:"A verdade fica nos detalhes.",desc:"Administrador. Organiza cada caso, prova e registro da Eternity."},
+    {name:"Abbadon",role:"Membro",color:"#fb7185",code:"//ashes",motto:"Do caos, respostas.",desc:"Agente de campo. Trabalha nas sombras dos casos mais perigosos."},
+    {name:"Dracco",role:"Membro",color:"#84cc16",code:"//venom",motto:"Paciência é o veneno mais lento.",desc:"Agente de investigação. Persegue cada pista até o fim."},
+    {name:"Moraes",role:"Membro",color:"#38bdf8",code:"//echo",motto:"O passado sempre fala.",desc:"Agente analista. Reconstrói eventos a partir do menor fragmento."},
+    {name:"Lopess",role:"Membro",color:"#facc15",code:"//willpower",motto:"Dê o seu melhor.",desc:"Agente dedicado. Prova que esforço e vontade quebram qualquer caso."}
   ];
   const CASES = [
     {id:"ETN-001",title:"O Último Contato",status:"Encerrado",year:"2024",tags:["Desaparecimento","Rastreamento digital"],summary:"Um sinal perdido no meio da madrugada. Rastreamos a última conexão e reconstruímos a rota até o esconderijo."},
@@ -471,9 +485,9 @@
   const grid=document.getElementById('grid');
   MEMBERS.forEach((m,i)=>{
     const r=ROLE[m.role]; const initial=m.name.charAt(0).toUpperCase();
-    const wrap=document.createElement('div'); wrap.className='member reveal'; wrap.style.transitionDelay=((i%4)*0.08)+'s';
+    const wrap=document.createElement('div'); wrap.className='member reveal'; wrap.style.transitionDelay=((i%4)*0.08)+'s'; wrap.style.setProperty('--member-delay',(i*70)+'ms'); wrap.style.setProperty('--ring-time',(2.2+(i%5)*0.22)+'s');
     wrap.innerHTML=`
-      <article class="card ${m.role==='Única'?'unica':''}" style="--rc:${r.c};--rcb:${r.c}55">
+        <article class="card ${m.role==='DRC'?'featured':''}" style="--rc:${m.color||r.c};--rcb:${(m.color||r.c)}55">
         <div class="spot"></div>
         <div class="badges">
           <span class="rank">${r.rank}</span>
@@ -489,7 +503,7 @@
         </div>
         <div class="body">
           <p class="code">${m.code}</p>
-          <h3 class="display">${m.name} ${m.role==='Única'?ICONS.Scale.replace('11','16'):''}</h3>
+          <h3 class="display">${m.name} ${m.role==='DRC'?ICONS.Scale.replace('11','16'):''}</h3>
           <p class="motto">&ldquo;${m.motto}&rdquo;</p>
           <p class="desc">${m.desc}</p>
         </div>
