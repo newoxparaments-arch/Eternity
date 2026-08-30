@@ -537,6 +537,7 @@
         </div>
       </article>`;
     grid.appendChild(wrap);
+    requestAnimationFrame(()=>wrap.classList.add('in'));
     });
   }
   renderMembers();
