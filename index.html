@@ -512,7 +512,7 @@
     }catch(e){}
     grid.innerHTML='';
     list.forEach((m,i)=>{
-    const r=ROLE[m.role]||ROLE.Membro; const initial=m.name.charAt(0).toUpperCase();
+    const r=ROLE[m.role]||{c:'#7f1d1d',label:'MEMBRO',rank:'04',icon:'Finger'}; const initial=m.name.charAt(0).toUpperCase();
     const wrap=document.createElement('div'); wrap.className='member reveal'; wrap.style.transitionDelay=((i%4)*0.08)+'s'; wrap.style.setProperty('--member-delay',(i*70)+'ms'); wrap.style.setProperty('--ring-time',(2.2+(i%5)*0.22)+'s');
     wrap.innerHTML=`
         <article class="card ${m.role==='DRC'?'featured':''}" style="--rc:${m.color||r.c};--rcb:${(m.color||r.c)}55">
