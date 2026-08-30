@@ -108,7 +108,8 @@
   .chapter h3{font-family:"Unbounded",sans-serif;font-weight:700;font-size:20px;margin:24px 0 12px}
   .chapter p{font-size:14px;line-height:1.6;color:var(--txt2)}
 
-  /* MEMBERS */
+  .member-photo{position:absolute;inset:12%;width:76%;height:76%;object-fit:cover;border-radius:50%;z-index:2;filter:saturate(.8) contrast(1.05)}
+    /* MEMBERS */
   #membros{position:relative;overflow:hidden}
   #membros::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.38;background:radial-gradient(circle at 12% 18%,rgba(220,38,38,.13),transparent 28%),radial-gradient(circle at 88% 82%,rgba(236,72,153,.10),transparent 30%)}
   .mhead{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:64px;flex-wrap:wrap}
@@ -446,6 +447,7 @@
   const MEMBERS = [
     {name:"NK",role:"DRC",color:"#f5f5f5",code:"//directive",motto:"A decisão final começa comigo.",desc:"Direção estratégica da Eternity. NK transforma informação em comando e mantém cada operação alinhada ao objetivo."},
     {name:"Newox",role:"Dono",color:"#ff3b30",code:"//origin",motto:"A visão transforma o caos em estratégia.",desc:"Fundador da Eternity e arquiteto das operações. Newox conecta pessoas, pistas e decisões para manter a agência sempre à frente."},
+    {name:"Juiza Unica",role:"Membro",color:"#f97316",code:"//juris",motto:"A justiça encontra o caminho.",desc:"Membro da Eternity. Atua na análise de casos e na organização de informações para apoiar decisões responsáveis."},
     {name:"Mexycana",role:"Webcasais",color:"#f472b6",code:"//webcasais",motto:"Conexões certas revelam novas pistas.",desc:"Especialista Webcasais. Mexycana aproxima pessoas, identifica sinais e transforma conexões em informação útil para cada investigação."},
     {name:"Nauter",role:"Dono",color:"#ff7a18",code:"//eternity",motto:"Nada escapa duas vezes.",desc:"Co-fundador. Estrategista frio que enxerga padrões onde outros veem apenas ruído."},
     {name:"Mafioso",role:"Líder",color:"#f59e0b",code:"//syndicate",motto:"Ordem nasce do controle.",desc:"Líder de campo. Comanda as equipes em solo com precisão implacável."},
@@ -474,7 +476,9 @@
     {n:"03",t:"Segurança",b:"A Eternity trabalha na prevenção e identificação de ameaças digitais, utilizando inteligência, análise técnica e monitoramento de riscos. Nosso objetivo é proteger pessoas, comunidades e sistemas, antecipando possíveis ameaças e contribuindo para um ambiente digital mais seguro."}
   ];
   // Configure a URL pública da Edge Function do seu projeto Supabase antes do deploy.
-  const SUPABASE_FUNCTION_URL = "https://zyreuptfiqzyqulpeisz.supabase.co/functions/v1/hyper-api";
+  const SUPABASE_FUNCTION_URL = "https://zyreuptfiqzyqulpeisz.supabase.co/functions/v1/submit-report";
+  const MEMBERS_API_URL = "https://zyreuptfiqzyqulpeisz.supabase.co/rest/v1/members?select=*&active=eq.true&order=display_order.asc,created_at.asc";
+  const SUPABASE_PUBLIC_KEY = "sb_publishable_nffhSsr30_Yz7n1yqXIfKA_fzgFGP_G";
 
   const heroTitle = document.getElementById('heroTitle');
   "ETERNITY".split("").forEach((ch,i)=>{
@@ -495,7 +499,14 @@
   });
 
   const grid=document.getElementById('grid');
-  MEMBERS.forEach((m,i)=>{
+  async function renderMembers(){
+    let list=MEMBERS;
+    try{
+      const res=await fetch(MEMBERS_API_URL,{headers:{apikey:SUPABASE_PUBLIC_KEY}});
+      if(res.ok){const remote=await res.json(); if(remote.length) list=remote;}
+    }catch(e){}
+    grid.innerHTML='';
+    list.forEach((m,i)=>{
     const r=ROLE[m.role]; const initial=m.name.charAt(0).toUpperCase();
     const wrap=document.createElement('div'); wrap.className='member reveal'; wrap.style.transitionDelay=((i%4)*0.08)+'s'; wrap.style.setProperty('--member-delay',(i*70)+'ms'); wrap.style.setProperty('--ring-time',(2.2+(i%5)*0.22)+'s');
     wrap.innerHTML=`
@@ -510,18 +521,20 @@
           <div class="mono-glow"></div>
           <div class="watermark">${BIG[r.icon]}</div>
           <span class="ring"></span>
-          <span class="letter display">${initial}</span>
+          ${m.photo_url?`<img class="member-photo" src="${m.photo_url}" alt="Foto de ${m.name}" loading="lazy">`:`<span class="letter display">${initial}</span>`}
           <span class="bar"></span>
         </div>
         <div class="body">
           <p class="code">${m.code}</p>
           <h3 class="display">${m.name} ${m.role==='DRC'?ICONS.Scale.replace('11','16'):''}</h3>
           <p class="motto">&ldquo;${m.motto}&rdquo;</p>
-          <p class="desc">${m.desc}</p>
+          <p class="desc">${m.desc||m.description||''}</p>
         </div>
       </article>`;
     grid.appendChild(wrap);
-  });
+    });
+  }
+  renderMembers();
 
   document.querySelectorAll('.card').forEach(card=>{
     card.addEventListener('mousemove',e=>{
@@ -605,4 +618,3 @@
 </script>
 </body>
 </html>
-
