@@ -182,6 +182,7 @@
   form{background:var(--card);border:1px solid rgba(127,29,29,.3);padding:32px}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
   label{font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);display:block;margin-bottom:8px}
+  .privacy-consent{display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-family:Manrope,sans-serif;font-size:12px;line-height:1.5;color:var(--txt2);margin:8px 0 16px}.privacy-consent input{width:auto;margin-top:3px;accent-color:var(--blood)}.privacy-consent a{color:var(--scarlet);text-decoration:underline}
   input,select,textarea{width:100%;background:#000;border:1px solid rgba(127,29,29,.4);color:#fff;padding:12px 16px;font-family:"JetBrains Mono",monospace;font-size:14px;transition:border-color .2s;outline:none}
   input::placeholder,textarea::placeholder{color:var(--muted)}
   input:focus,select:focus,textarea:focus{border-color:var(--blood);box-shadow:0 0 0 2px rgba(220,38,38,.4)}
@@ -344,16 +345,19 @@
           <div><label>Nome (opcional)</label><input id="f_nome" placeholder="Anônimo" /></div>
           <div><label>Contato (opcional)</label><input id="f_contato" placeholder="email / telefone" /></div>
         </div>
-        <div class="field">
-          <label>Tipo de caso</label>
-          <select id="f_tipo">
-            <option>Desaparecimento</option><option>Fraude</option><option>Ameaça</option><option>Vigilância</option><option>Outro</option>
-          </select>
+        <div class="row">
+          <div class="field"><label>Cidade (opcional)</label><input id="f_cidade" placeholder="Ex.: São Paulo" maxlength="80" /></div>
+          <div class="field"><label>Tipo de caso</label>
+            <select id="f_tipo">
+              <option>Desaparecimento</option><option>Fraude</option><option>Ameaça</option><option>Vigilância</option><option>Outro</option>
+            </select>
+          </div>
         </div>
         <div class="field">
           <label>Descreva os fatos</label>
           <textarea id="f_msg" rows="5" placeholder="Conte tudo o que sabe. Cada detalhe importa..."></textarea>
         </div>
+        <label class="privacy-consent"><input id="f_consent" type="checkbox" /> <span>Concordo com o registro desta denúncia e com o tratamento de dados técnicos mínimos (IP truncado, cidade aproximada e categoria do dispositivo) para segurança e prevenção de abuso. <a href="#privacidade">Saiba mais</a>.</span></label>
         <button type="submit" class="submit">Enviar denúncia
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
@@ -407,6 +411,13 @@
   </div>
 </footer>
 
+<section id="privacidade" class="sec" style="padding:56px 0 40px;background:#080808">
+  <div class="wrap">
+    <p class="tag mono">// Privacidade</p>
+    <p style="max-width:760px;color:var(--txt2);font-size:13px;line-height:1.7">Para proteger o canal contra abuso, o servidor pode registrar o IP de forma truncada/anonimizada, a cidade aproximada e a categoria do dispositivo. Esses dados são usados apenas para segurança, não são vendidos e devem ter prazo de retenção definido pelo administrador. O conteúdo da denúncia e os dados de contato só ficam disponíveis a membros autorizados.</p>
+  </div>
+</section>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -445,7 +456,8 @@
     {name:"Abbadon",role:"Membro",color:"#fb7185",code:"//ashes",motto:"Do caos, respostas.",desc:"Agente de campo. Trabalha nas sombras dos casos mais perigosos."},
     {name:"Dracco",role:"Membro",color:"#84cc16",code:"//venom",motto:"Paciência é o veneno mais lento.",desc:"Agente de investigação. Persegue cada pista até o fim."},
     {name:"Moraes",role:"Membro",color:"#38bdf8",code:"//echo",motto:"O passado sempre fala.",desc:"Agente analista. Reconstrói eventos a partir do menor fragmento."},
-    {name:"Lopess",role:"Membro",color:"#facc15",code:"//willpower",motto:"Dê o seu melhor.",desc:"Agente dedicado. Prova que esforço e vontade quebram qualquer caso."}
+    {name:"Lopess",role:"Membro",color:"#facc15",code:"//willpower",motto:"Dê o seu melhor.",desc:"Agente dedicado. Prova que esforço e vontade quebram qualquer caso."},
+    {name:"Bones",role:"Membro",color:"#c084fc",code:"//bones",motto:"Cada vestígio conta.",desc:"Membro da Eternity. Atua no apoio às investigações e na organização de pistas digitais."}
   ];
   const CASES = [
     {id:"ETN-001",title:"O Último Contato",status:"Encerrado",year:"2024",tags:["Desaparecimento","Rastreamento digital"],summary:"Um sinal perdido no meio da madrugada. Rastreamos a última conexão e reconstruímos a rota até o esconderijo."},
@@ -461,7 +473,8 @@
     {n:"02",t:"Como Agimos",b:"A Eternity atua de forma estratégica e responsável, utilizando inteligência digital, OSINT e análise técnica para investigar ameaças e identificar atividades suspeitas. Coletamos informações públicas, analisamos evidências e documentamos ocorrências para auxiliar na prevenção e no combate a golpes, abusos, doxxing e ameaças em ambientes digitais."},
     {n:"03",t:"Segurança",b:"A Eternity trabalha na prevenção e identificação de ameaças digitais, utilizando inteligência, análise técnica e monitoramento de riscos. Nosso objetivo é proteger pessoas, comunidades e sistemas, antecipando possíveis ameaças e contribuindo para um ambiente digital mais seguro."}
   ];
-  const OWNER_EMAIL = "newoxallz@gmail.com";
+  // Configure a URL pública da Edge Function do seu projeto Supabase antes do deploy.
+  const SUPABASE_FUNCTION_URL = "https://SEU-PROJETO.supabase.co/functions/v1/submit-report";
 
   const heroTitle = document.getElementById('heroTitle');
   "ETERNITY".split("").forEach((ch,i)=>{
@@ -547,18 +560,32 @@
     else { panel.style.maxHeight=panel.scrollHeight+'px'; tog.textContent='–'; }
   }
 
-  function sendReport(e){
+  function getDeviceType(){
+    const ua=navigator.userAgent.toLowerCase();
+    if(/tablet|ipad/.test(ua)) return 'tablet';
+    if(/mobi|android|iphone|ipod/.test(ua)) return 'celular';
+    return 'desktop';
+  }
+  async function sendReport(e){
     e.preventDefault();
-    const nome=document.getElementById('f_nome').value.trim()||'Anônimo';
-    const contato=document.getElementById('f_contato').value.trim()||'não informado';
+    const nome=document.getElementById('f_nome').value.trim()||null;
+    const contato=document.getElementById('f_contato').value.trim()||null;
+    const cidade=document.getElementById('f_cidade').value.trim()||null;
     const tipo=document.getElementById('f_tipo').value;
     const msg=document.getElementById('f_msg').value.trim();
+    const consent=document.getElementById('f_consent').checked;
     if(msg.length<10){ showToast('Descreva a denúncia com mais detalhes (mín. 10 caracteres).'); return false; }
-    const subject=encodeURIComponent('[ETERNITY] Nova denúncia — '+tipo);
-    const body=encodeURIComponent(`Tipo: ${tipo}\nNome: ${nome}\nContato: ${contato}\n\nRelato:\n${msg}`);
-    window.location.href=`mailto:${OWNER_EMAIL}?subject=${subject}&body=${body}`;
-    showToast('Abrindo seu e-mail para enviar a denúncia...');
-    document.getElementById('reportForm').reset();
+    if(!consent){ showToast('Marque o consentimento para enviar a denúncia.'); return false; }
+    if(SUPABASE_FUNCTION_URL.includes('SEU-PROJETO')){ showToast('O banco ainda precisa ser configurado pelo administrador.'); return false; }
+    const button=e.target.querySelector('button[type="submit"]');
+    button.disabled=true; button.dataset.original=button.textContent; button.firstChild.textContent='Enviando...';
+    try{
+      const response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),consent_at:new Date().toISOString()})});
+      if(!response.ok) throw new Error('request_failed');
+      showToast('Denúncia registrada com segurança. Obrigado.');
+      document.getElementById('reportForm').reset();
+    }catch(error){ showToast('Não foi possível registrar agora. Tente novamente mais tarde.'); }
+    finally{ button.disabled=false; button.firstChild.textContent='Enviar denúncia'; }
     return false;
   }
   function showToast(t){
