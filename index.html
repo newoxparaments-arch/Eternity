@@ -503,7 +503,12 @@
     let list=MEMBERS;
     try{
       const res=await fetch(MEMBERS_API_URL,{headers:{apikey:SUPABASE_PUBLIC_KEY}});
-      if(res.ok){const remote=await res.json(); if(remote.length) list=remote;}
+      if(res.ok){
+        const remote=await res.json();
+        const byName=new Map(remote.map(m=>[m.name.toLowerCase(),m]));
+        list=MEMBERS.map(m=>byName.get(m.name.toLowerCase())||m);
+        remote.forEach(m=>{if(!MEMBERS.some(base=>base.name.toLowerCase()===m.name.toLowerCase())) list.push(m);});
+      }
     }catch(e){}
     grid.innerHTML='';
     list.forEach((m,i)=>{
