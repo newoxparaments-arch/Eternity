@@ -355,11 +355,11 @@
           </div>
         </div>
         <div class="field">
-          <label>Foto ou evidência (opcional)</label>
-          <input id="f_anexo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" />
+          <label>Fotos ou evidências (opcional)</label>
+          <input id="f_anexo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple />
           <button type="button" id="clearAnexo" style="display:none;margin-top:8px;background:#27272a;border-color:#52525b">Remover arquivo</button>
           <small id="anexoStatus" style="display:block;color:var(--txt2);margin-top:6px"></small>
-          <small style="display:block;color:var(--txt2);margin-top:6px">Imagem até 5 MB. Não envie dados pessoais desnecessários.</small>
+          <small style="display:block;color:var(--txt2);margin-top:6px">Até 3 imagens, 5 MB cada. Não envie dados pessoais desnecessários.</small>
         </div>
         <div class="field">
           <label>Descreva os fatos</label>
@@ -600,29 +600,36 @@
     const cidade=document.getElementById('f_cidade').value.trim()||null;
     const tipo=document.getElementById('f_tipo').value;
     const msg=document.getElementById('f_msg').value.trim();
-    const attachment=document.getElementById('f_anexo').files[0];
+    const attachments=Array.from(document.getElementById('f_anexo').files);
     const consent=document.getElementById('f_consent').checked;
     if(msg.length<10){ showToast('Descreva a denúncia com mais detalhes (mín. 10 caracteres).'); return false; }
     if(!consent){ showToast('Marque o consentimento para enviar a denúncia.'); return false; }
-    if(attachment){
+    if(attachments.length>3){ showToast('Você pode anexar no máximo 3 fotos.'); return false; }
+    if(attachments.length){
       const allowed=['image/jpeg','image/png','image/webp','image/gif'];
-      if(!allowed.includes(attachment.type) || attachment.size>5*1024*1024){ showToast('A foto precisa ser JPG, PNG, WEBP ou GIF de até 5 MB.'); return false; }
+      if(attachments.some(file=>!allowed.includes(file.type) || file.size>5*1024*1024)){ showToast('Cada foto precisa ser JPG, PNG, WEBP ou GIF de até 5 MB.'); return false; }
     }
     if(SUPABASE_FUNCTION_URL.includes('SEU-PROJETO')){ showToast('O banco ainda precisa ser configurado pelo administrador.'); return false; }
     const button=e.target.querySelector('button[type="submit"]');
     button.disabled=true; button.dataset.original=button.textContent; button.firstChild.textContent='Enviando...';
     try{
       let attachment_url=null;
-      if(attachment){
-        const path=crypto.randomUUID()+'/'+attachment.name.replace(/[^a-z0-9._-]/gi,'_');
-        const upload=await fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+path,{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Content-Type':attachment.type,'x-upsert':'false'},body:attachment});
-        if(!upload.ok) throw new Error('upload_failed');
-        attachment_url=SUPABASE_URL+'/storage/v1/object/public/report-attachments/'+path;
+      if(attachments.length){
+        const uploaded=[];
+        for(const attachment of attachments){
+          const path=crypto.randomUUID()+'/'+attachment.name.replace(/[^a-z0-9._-]/gi,'_');
+          const upload=await fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+path,{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Content-Type':attachment.type,'x-upsert':'false'},body:attachment});
+          if(!upload.ok) throw new Error('upload_failed');
+          uploaded.push(SUPABASE_URL+'/storage/v1/object/public/report-attachments/'+path);
+        }
+        attachment_url=uploaded.length===1?uploaded[0]:JSON.stringify(uploaded);
       }
       const response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),attachment_url,consent_at:new Date().toISOString()})});
       if(!response.ok){ let detail='request_failed'; try{detail=(await response.json()).error||detail}catch(_){} throw new Error(detail); }
       showToast('Denúncia registrada com segurança. Obrigado.');
       document.getElementById('reportForm').reset();
+      document.getElementById('clearAnexo').style.display='none';
+      document.getElementById('anexoStatus').textContent='';
     }catch(error){ console.error('Falha ao registrar denúncia:',error); showToast(error.message==='upload_failed'?'Não foi possível enviar a foto. Tente outra imagem.':'Não foi possível registrar agora. Tente novamente mais tarde.'); }
     finally{ button.disabled=false; button.firstChild.textContent='Enviar denúncia'; }
     return false;
@@ -633,8 +640,8 @@
   }
 
   document.getElementById('f_anexo').addEventListener('change',e=>{
-    const f=e.target.files[0], clear=document.getElementById('clearAnexo'), status=document.getElementById('anexoStatus');
-    clear.style.display=f?'inline-block':'none'; status.textContent=f?`Foto selecionada: ${f.name}`:'';
+    const files=Array.from(e.target.files), clear=document.getElementById('clearAnexo'), status=document.getElementById('anexoStatus');
+    clear.style.display=files.length?'inline-block':'none'; status.textContent=files.length?`${files.length} foto(s) selecionada(s).`:'';
   });
   document.getElementById('clearAnexo').addEventListener('click',()=>{
     const input=document.getElementById('f_anexo'); input.value=''; document.getElementById('clearAnexo').style.display='none'; document.getElementById('anexoStatus').textContent='Foto removida.';
