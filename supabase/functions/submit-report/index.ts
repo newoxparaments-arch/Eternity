@@ -1,0 +1,23 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const OWNER_EMAIL = 'limaoliveira825@gmail.com'
+const cors = {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'}
+const json = (body: unknown, status=200) => new Response(JSON.stringify(body), {status, headers:{...cors,'Content-Type':'application/json'}})
+function truncateIp(raw:string|null){if(!raw)return null;const ip=raw.split(',')[0].trim();if(ip.includes(':')){const p=ip.split(':').filter(Boolean).slice(0,4);return p.length?`${p.join(':')}::/64`:null}const p=ip.split('.');return p.length===4?`${p[0]}.${p[1]}.${p[2]}.0/24`:null}
+function deviceType(v:unknown){return ['celular','tablet','desktop'].includes(String(v))?String(v):'desconhecido'}
+Deno.serve(async(req)=>{
+ if(req.method==='OPTIONS')return new Response('ok',{headers:cors}); if(req.method!=='POST')return json({error:'Método não permitido'},405)
+ try{
+  const body=await req.json(); const service=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!); const action=String(body.action||'submit_report')
+  if(action==='submit_report'){
+   const mensagem=String(body.mensagem??'').trim(); if(mensagem.length<10||mensagem.length>10000||body.consent_at==null)return json({error:'Dados inválidos'},400)
+   const {error}=await service.from('denuncias').insert({nome:body.nome?String(body.nome).slice(0,120):null,contato:body.contato?String(body.contato).slice(0,180):null,cidade:body.cidade?String(body.cidade).slice(0,80):null,tipo:String(body.tipo??'Outro').slice(0,60),mensagem,device_type:deviceType(body.device_type),ip_truncado:truncateIp(req.headers.get('x-forwarded-for')??req.headers.get('cf-connecting-ip')),consent_at:new Date(String(body.consent_at)).toISOString(),attachment_url:body.attachment_url?String(body.attachment_url).slice(0,3000):null}); if(error)throw error; return json({ok:true},201)
+  }
+  const token=(req.headers.get('Authorization')||'').replace(/^Bearer\s+/i,''); if(!token)return json({error:'Não autorizado'},401)
+  const {data:{user},error:userError}=await service.auth.getUser(token); if(userError||!user||user.email?.toLowerCase()!==OWNER_EMAIL)return json({error:'Somente o proprietário pode gerenciar acessos'},403)
+  if(action==='list_admins'){const {data,error}=await service.from('admin_profiles').select('id,user_id,email,name,role,active,last_access,created_at').order('created_at',{ascending:true});if(error)throw error;return json({admins:data})}
+  if(action==='create_admin'){const email=String(body.email||'').trim().toLowerCase(),password=String(body.password||'');if(!/^\S+@\S+\.\S+$/.test(email)||password.length<8)return json({error:'E-mail inválido ou senha com menos de 8 caracteres'},400);const created=await service.auth.admin.createUser({email,password,email_confirm:true});if(created.error)throw created.error;const {error}=await service.from('admin_profiles').insert({user_id:created.data.user.id,email,name:String(body.name||email).slice(0,100),role:String(body.role||'Administrador').slice(0,60),active:true});if(error){await service.auth.admin.deleteUser(created.data.user.id);throw error}return json({ok:true})}
+  if(action==='toggle_admin'){const id=String(body.id||''),active=Boolean(body.active);const {error}=await service.from('admin_profiles').update({active}).eq('id',id);if(error)throw error;return json({ok:true})}
+  return json({error:'Ação inválida'},400)
+ }catch(e){return json({error:e instanceof Error?e.message:'Erro interno'},500)}
+})
