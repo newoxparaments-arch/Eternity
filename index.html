@@ -355,6 +355,11 @@
           </div>
         </div>
         <div class="field">
+          <label>Foto ou evidência (opcional)</label>
+          <input id="f_anexo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" />
+          <small style="display:block;color:var(--txt2);margin-top:6px">Imagem até 5 MB. Não envie dados pessoais desnecessários.</small>
+        </div>
+        <div class="field">
           <label>Descreva os fatos</label>
           <textarea id="f_msg" rows="5" placeholder="Conte tudo o que sabe. Cada detalhe importa..."></textarea>
         </div>
@@ -592,14 +597,26 @@
     const cidade=document.getElementById('f_cidade').value.trim()||null;
     const tipo=document.getElementById('f_tipo').value;
     const msg=document.getElementById('f_msg').value.trim();
+    const attachment=document.getElementById('f_anexo').files[0];
     const consent=document.getElementById('f_consent').checked;
     if(msg.length<10){ showToast('Descreva a denúncia com mais detalhes (mín. 10 caracteres).'); return false; }
     if(!consent){ showToast('Marque o consentimento para enviar a denúncia.'); return false; }
+    if(attachment){
+      const allowed=['image/jpeg','image/png','image/webp','image/gif'];
+      if(!allowed.includes(attachment.type) || attachment.size>5*1024*1024){ showToast('A foto precisa ser JPG, PNG, WEBP ou GIF de até 5 MB.'); return false; }
+    }
     if(SUPABASE_FUNCTION_URL.includes('SEU-PROJETO')){ showToast('O banco ainda precisa ser configurado pelo administrador.'); return false; }
     const button=e.target.querySelector('button[type="submit"]');
     button.disabled=true; button.dataset.original=button.textContent; button.firstChild.textContent='Enviando...';
     try{
-      const response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),consent_at:new Date().toISOString()})});
+      let attachment_url=null;
+      if(attachment){
+        const path=crypto.randomUUID()+'/'+attachment.name.replace(/[^a-z0-9._-]/gi,'_');
+        const upload=await fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+path,{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Content-Type':attachment.type,'x-upsert':'false'},body:attachment});
+        if(!upload.ok) throw new Error('upload_failed');
+        attachment_url=SUPABASE_URL+'/storage/v1/object/public/report-attachments/'+path;
+      }
+      const response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),attachment_url,consent_at:new Date().toISOString()})});
       if(!response.ok) throw new Error('request_failed');
       showToast('Denúncia registrada com segurança. Obrigado.');
       document.getElementById('reportForm').reset();
