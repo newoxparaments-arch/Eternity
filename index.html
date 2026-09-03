@@ -644,7 +644,7 @@
         for(const attachment of attachments){
           const path=crypto.randomUUID()+'/'+attachment.name.replace(/[^a-z0-9._-]/gi,'_');
           const safePath=path.split('/').map(encodeURIComponent).join('/');
-          const upload=await fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+safePath,{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Content-Type':attachment.type,'x-upsert':'false'},body:attachment});
+          const upload=await fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+safePath,{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY,'Content-Type':attachment.type,'x-upsert':'false'},body:attachment});
           if(!upload.ok) throw new Error('upload_failed');
           uploaded.push(SUPABASE_URL+'/storage/v1/object/public/report-attachments/'+safePath);
         }
