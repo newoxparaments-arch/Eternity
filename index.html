@@ -245,7 +245,7 @@
     .foot-cols{gap:40px}
   }
   @media(prefers-reduced-motion:reduce){.track{animation:none}.ring{animation:none}.grid::before,.mono-panel::after,.mono-glow,.member.in{animation:none}}
-</style>
+</style><style>.member-banner{position:relative;z-index:6;display:flex;align-items:center;gap:9px;min-height:46px;padding:8px 12px;box-sizing:border-box;background:linear-gradient(100deg,var(--rc)40%,#15151b 88%);border-bottom:1px solid var(--rcb);overflow:hidden}.member-banner:before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#fff4,transparent);transform:translateX(-110%);animation:stableBannerShine 5s ease-in-out infinite}.member-banner span,.member-banner strong,.member-banner b{position:relative;z-index:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.member-banner span{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.8;text-transform:uppercase}.member-banner strong{font:700 12px "Unbounded",sans-serif;color:#fff;margin-right:auto}.member-banner b{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.78}.member .mono-panel{border-top:0}@keyframes stableBannerShine{0%,35%{transform:translateX(-110%)}65%,100%{transform:translateX(110%)}}@media(max-width:700px){.member-banner{min-height:42px;padding:7px 10px;gap:6px}.member-banner span{font-size:7px}.member-banner strong{font-size:10px}.member-banner b{font-size:7px}}@media(prefers-reduced-motion:reduce){.member-banner:before{animation:none}}</style>
 </head>
 <body>
 <div class="noise"></div>
@@ -539,6 +539,7 @@
     const wrap=document.createElement('div'); wrap.className='member reveal'; wrap.style.transitionDelay=((i%4)*0.08)+'s'; wrap.style.setProperty('--member-delay',(i*70)+'ms'); wrap.style.setProperty('--ring-time',(2.2+(i%5)*0.22)+'s');
     wrap.innerHTML=`
         <article class="card ${m.role==='DRC'?'featured':''}" style="--rc:${m.color||r.c};--rcb:${(m.color||r.c)}55">
+        <div class="member-banner"><span>${r.label}</span><strong>${m.name}</strong><b>${m.code||'//eternity'}</b></div>
         <div class="spot"></div><span class="member-line"></span><span class="member-stamp">VERIFICADO</span>
         <div class="badges">
           <span class="rank">${r.rank}</span>
