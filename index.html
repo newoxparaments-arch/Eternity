@@ -629,7 +629,7 @@
     const consent=document.getElementById('f_consent').checked;
     if(msg.length<10){ showToast('Descreva a denúncia com mais detalhes (mín. 10 caracteres).'); return false; }
     if(!consent){ showToast('Marque o consentimento para enviar a denúncia.'); return false; }
-    if(attachments.length>5){ showToast('Você pode anexar no máximo 5 fotos.'); return false; }
+    if(attachments.length>8){ showToast('Você pode anexar no máximo 8 fotos.'); return false; }
     if(attachments.length){
       const allowed=['image/jpeg','image/png','image/webp','image/gif'];
       if(attachments.some(file=>!allowed.includes(file.type) || file.size>5*1024*1024)){ showToast('Cada foto precisa ser JPG, PNG, WEBP ou GIF de até 5 MB.'); return false; }
@@ -650,8 +650,13 @@
         }
         attachment_url=uploaded.length===1?uploaded[0]:JSON.stringify(uploaded);
       }
-      const response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),attachment_url,consent_at:new Date().toISOString()})});
-      if(!response.ok){ let detail='request_failed'; try{detail=(await response.json()).error||detail}catch(_){} throw new Error(detail); }
+      const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),attachment_url,consent_at:new Date().toISOString()};
+      let response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      if(!response.ok){
+        let detail='request_failed'; try{detail=(await response.json()).error||detail}catch(_){}
+        const direct=await fetch(SUPABASE_URL+'/rest/v1/denuncias',{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(payload)});
+        if(!direct.ok) throw new Error(detail);
+      }
       showToast('Denúncia registrada com segurança. Obrigado.');
       document.getElementById('reportForm').reset();
       document.getElementById('clearAnexo').style.display='none';
