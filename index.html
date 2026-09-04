@@ -648,7 +648,7 @@
           if(!upload.ok) throw new Error('upload_failed');
           uploaded.push(SUPABASE_URL+'/storage/v1/object/public/report-attachments/'+safePath);
         }
-        attachment_url=uploaded.length===1?uploaded[0]:JSON.stringify(uploaded);
+        attachment_url=uploaded[0]||null;
       }
       const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),attachment_url,consent_at:new Date().toISOString()};
       let response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
