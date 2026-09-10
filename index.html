@@ -248,7 +248,6 @@
 </style><style>.member-banner{position:relative;z-index:6;display:flex;align-items:center;gap:9px;min-height:46px;padding:8px 12px;box-sizing:border-box;background:linear-gradient(100deg,var(--rc)40%,#15151b 88%);border-bottom:1px solid var(--rcb);overflow:hidden}.member-banner:before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#fff4,transparent);transform:translateX(-110%);animation:stableBannerShine 5s ease-in-out infinite}.member-banner span,.member-banner strong,.member-banner b{position:relative;z-index:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.member-banner span{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.8;text-transform:uppercase}.member-banner strong{font:700 12px "Unbounded",sans-serif;color:#fff;margin-right:auto}.member-banner b{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.78}.member .mono-panel{border-top:0}@keyframes stableBannerShine{0%,35%{transform:translateX(-110%)}65%,100%{transform:translateX(110%)}}@media(max-width:700px){.member-banner{min-height:42px;padding:7px 10px;gap:6px}.member-banner span{font-size:7px}.member-banner strong{font-size:10px}.member-banner b{font-size:7px}}@media(prefers-reduced-motion:reduce){.member-banner:before{animation:none}}</style>
 <style>/* Eternity performance layer */
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}
-@media (min-width:701px){section:not(#hero){content-visibility:auto;contain-intrinsic-size:700px}}
 </style></head>
 <body>
 <div class="noise"></div>
@@ -578,16 +577,6 @@
   }
   renderMembers();
 
-  document.querySelectorAll('.card').forEach(card=>{
-    card.addEventListener('mousemove',e=>{
-      const b=card.getBoundingClientRect();
-      const px=(e.clientX-b.left)/b.width, py=(e.clientY-b.top)/b.height;
-      card.style.transform=`rotateX(${(0.5-py)*16}deg) rotateY(${(px-0.5)*16}deg)`;
-      card.style.setProperty('--mx',(px*100)+'%');
-      card.style.setProperty('--my',(py*100)+'%');
-    });
-    card.addEventListener('mouseleave',()=>{ card.style.transform='rotateX(0) rotateY(0)'; });
-  });
 
   const casesEl=document.getElementById('cases');
   CASES.forEach((c,i)=>{
