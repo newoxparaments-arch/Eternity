@@ -246,7 +246,10 @@
   }
   @media(prefers-reduced-motion:reduce){.track{animation:none}.ring{animation:none}.grid::before,.mono-panel::after,.mono-glow,.member.in{animation:none}}
 </style><style>.member-banner{position:relative;z-index:6;display:flex;align-items:center;gap:9px;min-height:46px;padding:8px 12px;box-sizing:border-box;background:linear-gradient(100deg,var(--rc)40%,#15151b 88%);border-bottom:1px solid var(--rcb);overflow:hidden}.member-banner:before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#fff4,transparent);transform:translateX(-110%);animation:stableBannerShine 5s ease-in-out infinite}.member-banner span,.member-banner strong,.member-banner b{position:relative;z-index:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.member-banner span{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.8;text-transform:uppercase}.member-banner strong{font:700 12px "Unbounded",sans-serif;color:#fff;margin-right:auto}.member-banner b{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.78}.member .mono-panel{border-top:0}@keyframes stableBannerShine{0%,35%{transform:translateX(-110%)}65%,100%{transform:translateX(110%)}}@media(max-width:700px){.member-banner{min-height:42px;padding:7px 10px;gap:6px}.member-banner span{font-size:7px}.member-banner strong{font-size:10px}.member-banner b{font-size:7px}}@media(prefers-reduced-motion:reduce){.member-banner:before{animation:none}}</style>
-</head>
+<style>/* Eternity performance layer */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}
+@media (min-width:701px){section:not(#hero){content-visibility:auto;contain-intrinsic-size:700px}}
+</style></head>
 <body>
 <div class="noise"></div>
 
@@ -290,7 +293,7 @@
 <!-- HERO -->
 <section id="hero" class="hero">
   <div class="hero-bg">
-    <img src="https://images.unsplash.com/photo-1615012553971-f7251c225e01" alt="" />
+    <img src="https://images.unsplash.com/photo-1615012553971-f7251c225e01" alt="" fetchpriority="high" decoding="async" />
     <div class="dark"></div><div class="glow"></div>
   </div>
   <div class="wrap">
@@ -651,7 +654,7 @@
         attachment_url=uploaded[0]||null;
       }
       const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),attachment_url,consent_at:new Date().toISOString()};
-      let response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      const controller=new AbortController(); const requestTimer=setTimeout(()=>controller.abort(),20000); let response; try{response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY},body:JSON.stringify(payload),signal:controller.signal});}finally{clearTimeout(requestTimer);}
       if(!response.ok){
         let detail='request_failed'; try{detail=(await response.json()).error||detail}catch(_){}
         const direct=await fetch(SUPABASE_URL+'/rest/v1/denuncias',{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(payload)});
@@ -661,7 +664,7 @@
       document.getElementById('reportForm').reset();
       document.getElementById('clearAnexo').style.display='none';
       document.getElementById('anexoStatus').textContent='';
-    }catch(error){ console.error('Falha ao registrar denúncia:',error); showToast(error.message==='upload_failed'?'Não foi possível enviar a foto. Tente outra imagem.':'Não foi possível registrar agora. Tente novamente mais tarde.'); }
+    }catch(error){ console.error('Falha ao registrar denúncia:',error); showToast(error.name==='AbortError'?'A conexão demorou. Verifique a internet e tente novamente.':error.message==='upload_failed'?'Não foi possível enviar a foto. Tente outra imagem.':'Não foi possível registrar agora. Tente novamente mais tarde.'); }
     finally{ button.disabled=false; button.firstChild.textContent='Enviar denúncia'; }
     return false;
   }
