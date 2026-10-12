@@ -105,3 +105,78 @@ insert into public.admin_profiles (user_id,email,name,role,active)
 select id,'limaoliveira825@gmail.com','Proprietário Eternity','Proprietário',true from auth.users
 where lower(email)=lower('limaoliveira825@gmail.com')
 on conflict (user_id) do update set email=excluded.email,name=excluded.name,role=excluded.role,active=true;
+
+
+-- Hardening pós-incidente: somente admins ativos podem alterar dados administrativos.
+DROP POLICY IF EXISTS "authenticated members can manage members" ON public.members;
+DROP POLICY IF EXISTS "authenticated manage members" ON public.members;
+DROP POLICY IF EXISTS "admins manage members" ON public.members;
+CREATE POLICY "admins manage members" ON public.members FOR ALL TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true));
+
+DROP POLICY IF EXISTS "authenticated members can read reports" ON public.denuncias;
+DROP POLICY IF EXISTS "authenticated members can update report status" ON public.denuncias;
+CREATE POLICY "active admins can read reports" ON public.denuncias FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true));
+CREATE POLICY "active admins can update report status" ON public.denuncias FOR UPDATE TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true));
+
+DROP POLICY IF EXISTS "authenticated can upload member photos" ON storage.objects;
+DROP POLICY IF EXISTS "authenticated can update member photos" ON storage.objects;
+CREATE POLICY "active admins can upload member photos" ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'member-photos' AND EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true));
+CREATE POLICY "active admins can update member photos" ON storage.objects FOR UPDATE TO authenticated
+  USING (bucket_id = 'member-photos' AND EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true));
+
+CREATE TABLE IF NOT EXISTS public.security_audit_log (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  actor_user_id uuid,
+  actor_email text,
+  action text NOT NULL,
+  table_name text NOT NULL,
+  record_id text,
+  ip_truncated inet,
+  metadata jsonb NOT NULL DEFAULT '{}'::jsonb
+);
+ALTER TABLE public.security_audit_log ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.security_audit_log FROM anon;
+REVOKE ALL ON public.security_audit_log FROM authenticated;
+GRANT SELECT ON public.security_audit_log TO authenticated;
+DROP POLICY IF EXISTS "active admins can read audit log" ON public.security_audit_log;
+CREATE POLICY "active admins can read audit log" ON public.security_audit_log FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true));
+CREATE INDEX IF NOT EXISTS security_audit_log_created_at_idx ON public.security_audit_log (created_at DESC);
+CREATE INDEX IF NOT EXISTS security_audit_log_action_idx ON public.security_audit_log (action);
+COMMENT ON COLUMN public.security_audit_log.ip_truncated IS 'IP anonimizado no servidor: IPv4 /24 ou IPv6 /64; nunca armazenar IP completo.';
+
+-- Anexos múltiplos de denúncias: uma linha por foto.
+alter table public.denuncias add column if not exists attachment_urls jsonb not null default '[]'::jsonb;
+create table if not exists public.denuncia_anexos (
+  id uuid primary key default gen_random_uuid(),
+  denuncia_id uuid not null references public.denuncias(id) on delete cascade,
+  storage_path text not null,
+  public_url text not null,
+  mime_type text not null check (mime_type in ('image/jpeg','image/png','image/webp','image/gif')),
+  size_bytes integer not null check (size_bytes > 0 and size_bytes <= 5242880),
+  display_order integer not null default 0 check (display_order between 0 and 7),
+  created_at timestamptz not null default now()
+);
+create index if not exists denuncia_anexos_denuncia_idx on public.denuncia_anexos (denuncia_id, display_order);
+alter table public.denuncia_anexos enable row level security;
+revoke all on public.denuncia_anexos from anon;
+revoke all on public.denuncia_anexos from authenticated;
+grant select on public.denuncia_anexos to authenticated;
+drop policy if exists "active admins can read report attachments metadata" on public.denuncia_anexos;
+create policy "active admins can read report attachments metadata" on public.denuncia_anexos for select to authenticated
+  using (exists (select 1 from public.admin_profiles p where p.user_id = auth.uid() and p.active = true));
+grant insert on public.denuncia_anexos to service_role;
+comment on column public.denuncias.attachment_urls is 'Array JSON de URLs públicas das fotos; até 8 itens. Mantido junto de attachment_url por compatibilidade.';
+
+
+
+-- Redes sociais públicas opcionais dos membros.
+alter table public.members add column if not exists discord_handle text;
+alter table public.members add column if not exists instagram_handle text;

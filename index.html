@@ -248,7 +248,7 @@
 </style><style>.member-banner{position:relative;z-index:6;display:flex;align-items:center;gap:9px;min-height:46px;padding:8px 12px;box-sizing:border-box;background:linear-gradient(100deg,var(--rc)40%,#15151b 88%);border-bottom:1px solid var(--rcb);overflow:hidden}.member-banner:before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#fff4,transparent);transform:translateX(-110%);animation:stableBannerShine 5s ease-in-out infinite}.member-banner span,.member-banner strong,.member-banner b{position:relative;z-index:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.member-banner span{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.8;text-transform:uppercase}.member-banner strong{font:700 12px "Unbounded",sans-serif;color:#fff;margin-right:auto}.member-banner b{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.78}.member .mono-panel{border-top:0}@keyframes stableBannerShine{0%,35%{transform:translateX(-110%)}65%,100%{transform:translateX(110%)}}@media(max-width:700px){.member-banner{min-height:42px;padding:7px 10px;gap:6px}.member-banner span{font-size:7px}.member-banner strong{font-size:10px}.member-banner b{font-size:7px}}@media(prefers-reduced-motion:reduce){.member-banner:before{animation:none}}</style>
 <style>/* Eternity performance layer */
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}
-</style></head>
+</style><style>.member-socials{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.member-social{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid #e5091466;border-radius:999px;background:#090909cc;color:#fff;text-decoration:none;font:10px monospace;transition:.25s;animation:socialIn .55s both}.member-social:hover{transform:translateY(-3px) scale(1.03);border-color:#ff1f2d;box-shadow:0 0 18px #e5091455;background:#e5091422}.member-social.discord{color:#a5b4fc}.member-social.instagram{color:#f9a8d4}@keyframes socialIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.member-social{animation:none;transition:none}}</style></head>
 <body>
 <div class="noise"></div>
 
@@ -380,8 +380,8 @@
           <label>Fotos ou evidências (opcional)</label>
           <input id="f_anexo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple />
           <button type="button" id="clearAnexo" style="display:none;margin-top:8px;background:#27272a;border-color:#52525b">Remover fotos selecionadas</button>
-          <small id="anexoStatus" style="display:block;color:var(--txt2);margin-top:6px"></small>
-          <small style="display:block;color:var(--txt2);margin-top:6px">Enviar 4 fotos, 5 MB cada. Não envie dados pessoais desnecessários.</small>
+          <small id="anexoStatus" style="display:block;color:var(--txt2);margin-top:6px"></small><div id="anexoPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+          <small style="display:block;color:var(--txt2);margin-top:6px">Enviar até 8 fotos, 5 MB cada. Não envie dados pessoais desnecessários.</small>
         </div>
         <div class="field">
           <label>Descreva os fatos</label>
@@ -560,6 +560,7 @@
           <h3 class="display">${m.name} ${m.role==='DRC'?ICONS.Scale.replace('11','16'):''}</h3>
           <p class="motto">&ldquo;${m.motto}&rdquo;</p>
           <p class="desc">${m.desc||m.description||''}</p>
+          <div class="member-socials">${m.discord_handle?`<a class="member-social discord" href="https://discord.com/users/${encodeURIComponent(String(m.discord_handle).replace(/^@/,''))}" target="_blank" rel="noopener noreferrer">◈ @${String(m.discord_handle).replace(/^@/,'')}</a>`:''}${m.instagram_handle?`<a class="member-social instagram" href="https://www.instagram.com/${encodeURIComponent(String(m.instagram_handle).replace(/^@/,''))}/" target="_blank" rel="noopener noreferrer">◎ @${String(m.instagram_handle).replace(/^@/,'')}</a>`:''}</div>
           <div class="member-meta"><span class="member-status">online</span><span class="member-signal"></span><span class="member-index">AGENTE ${(i+1).toString().padStart(2,'0')}</span></div>
         </div>
       </article>`;
@@ -629,31 +630,37 @@
     if(SUPABASE_FUNCTION_URL.includes('SEU-PROJETO')){ showToast('O banco ainda precisa ser configurado pelo administrador.'); return false; }
     const button=e.target.querySelector('button[type="submit"]');
     button.disabled=true; button.dataset.original=button.textContent; button.firstChild.textContent='Enviando...';
+    let uploadedPaths=[];
     try{
-      let attachment_url=null;
+      let attachment_urls=[];
       if(attachments.length){
         const uploaded=[];
-        for(const attachment of attachments){
-          const path=crypto.randomUUID()+'/'+attachment.name.replace(/[^a-z0-9._-]/gi,'_');
-          const safePath=path.split('/').map(encodeURIComponent).join('/');
-          const upload=await fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+safePath,{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY,'Content-Type':attachment.type,'x-upsert':'false'},body:attachment});
-          if(!upload.ok) throw new Error('upload_failed');
-          uploaded.push(SUPABASE_URL+'/storage/v1/object/public/report-attachments/'+safePath);
+        try{
+          for(const attachment of attachments){
+            const path=crypto.randomUUID()+'/'+attachment.name.replace(/[^a-z0-9._-]/gi,'_');
+            const safePath=path.split('/').map(encodeURIComponent).join('/');
+            const upload=await fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+safePath,{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY,'Content-Type':attachment.type,'x-upsert':'false'},body:attachment});
+            if(!upload.ok) throw new Error('upload_failed');
+            uploaded.push({url:SUPABASE_URL+'/storage/v1/object/public/report-attachments/'+safePath,path,mime_type:attachment.type,size_bytes:attachment.size});
+          }
+        }catch(uploadError){
+          await Promise.allSettled(uploaded.map(item=>fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+item.path,{method:'DELETE',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY}})));
+          throw uploadError;
         }
-        attachment_url=uploaded[0]||null;
+        attachment_urls=uploaded; uploadedPaths=uploaded.map(item=>item.path);
       }
-      const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),attachment_url,consent_at:new Date().toISOString()};
+      const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),attachment_urls,attachment_url:JSON.stringify(attachment_urls.map(x=>x.url)),consent_at:new Date().toISOString()};
       const controller=new AbortController(); const requestTimer=setTimeout(()=>controller.abort(),20000); let response; try{response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY},body:JSON.stringify(payload),signal:controller.signal});}finally{clearTimeout(requestTimer);}
       if(!response.ok){
         let detail='request_failed'; try{detail=(await response.json()).error||detail}catch(_){}
-        const direct=await fetch(SUPABASE_URL+'/rest/v1/denuncias',{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(payload)});
-        if(!direct.ok) throw new Error(detail);
+        await Promise.allSettled(attachment_urls.map(item=>fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+item.path,{method:'DELETE',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY}})));
+        throw new Error(detail);
       }
       showToast('Denúncia registrada com segurança. Obrigado.');
       document.getElementById('reportForm').reset();
       document.getElementById('clearAnexo').style.display='none';
       document.getElementById('anexoStatus').textContent='';
-    }catch(error){ console.error('Falha ao registrar denúncia:',error); showToast(error.name==='AbortError'?'A conexão demorou. Verifique a internet e tente novamente.':error.message==='upload_failed'?'Não foi possível enviar a foto. Tente outra imagem.':'Não foi possível registrar agora. Tente novamente mais tarde.'); }
+    }catch(error){ if(uploadedPaths.length) await Promise.allSettled(uploadedPaths.map(path=>fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+path,{method:'DELETE',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY}}))); console.error('Falha ao registrar denúncia:',error); showToast(error.name==='AbortError'?'A conexão demorou. Verifique a internet e tente novamente.':error.message==='upload_failed'?'Não foi possível enviar a foto. Tente outra imagem.':'Não foi possível registrar agora. Tente novamente mais tarde.'); }
     finally{ button.disabled=false; button.firstChild.textContent='Enviar denúncia'; }
     return false;
   }
@@ -663,11 +670,12 @@
   }
 
   document.getElementById('f_anexo').addEventListener('change',e=>{
-    const files=Array.from(e.target.files), clear=document.getElementById('clearAnexo'), status=document.getElementById('anexoStatus');
-    clear.style.display=files.length?'inline-block':'none'; status.textContent=files.length?`${files.length} foto(s) selecionada(s).`:'';
+    const files=Array.from(e.target.files), clear=document.getElementById('clearAnexo'), status=document.getElementById('anexoStatus'), preview=document.getElementById('anexoPreview');
+    clear.style.display=files.length?'inline-block':'none'; status.textContent=files.length?`${files.length} foto(s) selecionada(s) de até 8.`:''; preview.innerHTML='';
+    files.forEach((file,i)=>{const img=document.createElement('img'); img.src=URL.createObjectURL(file); img.alt=`Prévia ${i+1}`; img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #522;'; img.onload=()=>URL.revokeObjectURL(img.src); preview.appendChild(img);});
   });
   document.getElementById('clearAnexo').addEventListener('click',()=>{
-    const input=document.getElementById('f_anexo'); input.value=''; document.getElementById('clearAnexo').style.display='none'; document.getElementById('anexoStatus').textContent='Foto removida.';
+    const input=document.getElementById('f_anexo'); input.value=''; document.getElementById('clearAnexo').style.display='none'; document.getElementById('anexoStatus').textContent='Fotos removidas.'; document.getElementById('anexoPreview').innerHTML='';
   });
 
   function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); document.getElementById('mobile').style.display='none'; }
