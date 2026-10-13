@@ -246,6 +246,13 @@
     .foot-cols{gap:40px}
   }
   @media(prefers-reduced-motion:reduce){.track{animation:none}.ring{animation:none}.grid::before,.mono-panel::after,.mono-glow,.member.in{animation:none}}
+  @media (max-width:700px){
+    /* iOS Safari: reduzir composição GPU e animações contínuas para evitar travamento. */
+    .noise{display:none!important}
+    .card,.member-banner,.mono-panel{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+    .mono-grid,.mono-glow,.ring,.spot,.member-line{animation:none!important}
+    .card{transform:none!important}
+  }
 </style><style>.member-banner{position:relative;z-index:6;display:flex;align-items:center;gap:9px;min-height:46px;padding:8px 12px;box-sizing:border-box;background:linear-gradient(100deg,var(--rc)40%,#15151b 88%);border-bottom:1px solid var(--rcb);overflow:hidden}.member-banner:before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#fff4,transparent);transform:translateX(-110%);animation:stableBannerShine 5s ease-in-out infinite}.member-banner span,.member-banner strong,.member-banner b{position:relative;z-index:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.member-banner span{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.8;text-transform:uppercase}.member-banner strong{font:700 12px "Unbounded",sans-serif;color:#fff;margin-right:auto}.member-banner b{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.78}.member .mono-panel{border-top:0}@keyframes stableBannerShine{0%,35%{transform:translateX(-110%)}65%,100%{transform:translateX(110%)}}@media(max-width:700px){.member-banner{min-height:42px;padding:7px 10px;gap:6px}.member-banner span{font-size:7px}.member-banner strong{font-size:10px}.member-banner b{font-size:7px}}@media(prefers-reduced-motion:reduce){.member-banner:before{animation:none}}</style>
 <style>/* Eternity performance layer */
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}
@@ -542,7 +549,7 @@
   // Configure a URL pública da Edge Function do seu projeto Supabase antes do deploy.
   const SUPABASE_URL = "https://zyreuptfiqzyqulpeisz.supabase.co";
   const SUPABASE_FUNCTION_URL = SUPABASE_URL + "/functions/v1/hyper-api";
-  const MEMBERS_API_URL = "https://zyreuptfiqzyqulpeisz.supabase.co/rest/v1/members?select=*&active=eq.true&order=display_order.asc,created_at.asc";
+  const MEMBERS_API_URL = "https://zyreuptfiqzyqulpeisz.supabase.co/rest/v1/members?select=id,name,role,code,motto,description,desc,photo_url,color,display_order,active&active=eq.true&order=display_order.asc,created_at.asc&limit=24";
   const SUPABASE_PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5cmV1cHRmaXF6eXF1bHBlaXN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwNTgxOTMsImV4cCI6MjEwMzYzNDE5M30.dmTNeVYZh_vsxE6AHXIv5khvhyzDeUqO2oPGQKYF3Mo";
 
   const heroTitle = document.getElementById('heroTitle');
@@ -575,7 +582,7 @@
         const remote=await res.json();
         const byName=new Map(remote.map(m=>[m.name.toLowerCase(),m]));
         list=MEMBERS.map(m=>byName.get(m.name.toLowerCase())||m);
-        remote.forEach(m=>{if(!MEMBERS.some(base=>base.name.toLowerCase()===m.name.toLowerCase())) list.push(m);});
+        remote.slice(0,24).forEach(m=>{if(m&&m.name&&!MEMBERS.some(base=>base.name.toLowerCase()===m.name.toLowerCase())&&list.length<24) list.push(m);});
       }
     }catch(e){}
     grid.innerHTML='';
