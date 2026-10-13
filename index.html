@@ -563,6 +563,9 @@
   });
 
   const grid=document.getElementById('grid');
+  const memberEsc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const memberUrl=v=>{try{const u=new URL(String(v||''),location.href);return u.protocol==='https:'?u.href:''}catch(_){return ''}};
+  const memberColor=v=>/^#[0-9a-f]{3,8}$/i.test(String(v||''))?String(v):'#7f1d1d';
   async function renderMembers(){
     let list=MEMBERS;
     try{
@@ -576,11 +579,11 @@
     }catch(e){}
     grid.innerHTML='';
     list.forEach((m,i)=>{
-    const r=ROLE[m.role]||{c:'#7f1d1d',label:'MEMBRO',rank:'04',icon:'Finger'}; const initial=m.name.charAt(0).toUpperCase();
+    const r=ROLE[m.role]||{c:'#7f1d1d',label:'MEMBRO',rank:'04',icon:'Finger'}; const safeName=memberEsc(m.name||'Sem nome'); const safeRole=memberEsc(m.role||'Membro'); const safeCode=memberEsc(m.code||'//eternity'); const safeMotto=memberEsc(m.motto||''); const safeDesc=memberEsc(m.desc||m.description||''); const photo=memberUrl(m.photo_url); const color=memberColor(m.color||r.c); const initial=memberEsc((m.name||'?').charAt(0).toUpperCase());
     const wrap=document.createElement('div'); wrap.className='member reveal'; wrap.style.transitionDelay=((i%4)*0.08)+'s'; wrap.style.setProperty('--member-delay',(i*70)+'ms'); wrap.style.setProperty('--ring-time',(2.2+(i%5)*0.22)+'s');
     wrap.innerHTML=`
-        <article class="card ${m.role==='DRC'?'featured':''}" style="--rc:${m.color||r.c};--rcb:${(m.color||r.c)}55">
-        <div class="member-banner"><span>${r.label}</span><strong>${m.name}</strong><b>${m.code||'//eternity'}</b></div>
+        <article class="card ${m.role==='DRC'?'featured':''}" style="--rc:${color};--rcb:${color}55">
+        <div class="member-banner"><span>${memberEsc(r.label)}</span><strong>${safeName}</strong><b>${safeCode}</b></div>
         <div class="spot"></div><span class="member-line"></span><span class="member-stamp">VERIFICADO</span>
         <div class="badges">
           <span class="rank">${r.rank}</span>
@@ -591,15 +594,15 @@
           <div class="mono-glow"></div>
           <div class="watermark">${BIG[r.icon]}</div>
           <span class="ring"></span>
-          ${m.photo_url?`<img class="member-photo" src="${m.photo_url}" alt="Foto de ${m.name}" loading="lazy">`:`<span class="letter display">${initial}</span>`}
+          ${photo?`<img class="member-photo" src="${memberEsc(photo)}" alt="Foto de ${safeName}" loading="lazy">`:`<span class="letter display">${initial}</span>`}
           <span class="bar"></span>
         </div>
         <div class="body">
-          <p class="code">${m.code}</p>
-          <h3 class="display">${m.name} ${m.role==='DRC'?ICONS.Scale.replace('11','16'):''}</h3>
-          <p class="motto">&ldquo;${m.motto}&rdquo;</p>
-          <p class="desc">${m.desc||m.description||''}</p>
-          <div class="member-focus"><span class="focus-dot"></span><span>${r.label}</span><span class="focus-sep">/</span><span>${m.code||'//eternity'}</span><span class="member-card-index">#${String(i+1).padStart(2,'0')}</span></div>
+          <p class="code">${safeCode}</p>
+          <h3 class="display">${safeName} ${m.role==='DRC'?ICONS.Scale.replace('11','16'):''}</h3>
+          <p class="motto">&ldquo;${safeMotto}&rdquo;</p>
+          <p class="desc">${safeDesc}</p>
+          <div class="member-focus"><span class="focus-dot"></span><span>${memberEsc(r.label)}</span><span class="focus-sep">/</span><span>${safeCode}</span><span class="member-card-index">#${String(i+1).padStart(2,'0')}</span></div>
           <div class="member-meta"><span class="member-status">online</span><span class="member-signal"></span><span class="member-index">AGENTE ${(i+1).toString().padStart(2,'0')}</span></div>
         </div>
       </article>`;
