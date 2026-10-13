@@ -717,6 +717,7 @@
         throw new Error(detail);
       }
       showToast('Denúncia registrada com segurança. Obrigado.');
+      try{sessionStorage.removeItem(REPORT_DRAFT_KEY)}catch(_){}
       document.getElementById('reportForm').reset();
       document.getElementById('clearAnexo').style.display='none';
       document.getElementById('anexoStatus').textContent='';
@@ -738,6 +739,14 @@
     const input=document.getElementById('f_anexo'); input.value=''; document.getElementById('clearAnexo').style.display='none'; document.getElementById('anexoStatus').textContent='Fotos removidas.'; document.getElementById('anexoPreview').innerHTML='';
   });
 
+  // Preserva o texto se o navegador móvel recarregar ou voltar ao topo.
+  // Por segurança, arquivos de foto não são persistidos e devem ser selecionados novamente.
+  const REPORT_DRAFT_KEY='eternity_report_draft_v2';
+  const reportDraftFields=['f_nome','f_contato','f_cidade','f_tipo','f_msg','f_consent'];
+  function saveReportDraft(){try{const draft={};reportDraftFields.forEach(id=>{const el=document.getElementById(id);if(el)draft[id]=el.type==='checkbox'?el.checked:el.value});sessionStorage.setItem(REPORT_DRAFT_KEY,JSON.stringify(draft))}catch(_){} }
+  function restoreReportDraft(){try{const draft=JSON.parse(sessionStorage.getItem(REPORT_DRAFT_KEY)||'null');if(!draft)return;reportDraftFields.forEach(id=>{const el=document.getElementById(id);if(!el||draft[id]===undefined)return;if(el.type==='checkbox')el.checked=Boolean(draft[id]);else el.value=String(draft[id])})}catch(_){} }
+  reportDraftFields.forEach(id=>{const el=document.getElementById(id);el?.addEventListener('input',saveReportDraft);el?.addEventListener('change',saveReportDraft)});
+  restoreReportDraft();
   function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); document.getElementById('mobile').style.display='none'; }
   function toggleMenu(){ const m=document.getElementById('mobile'); m.style.display=(m.style.display==='flex')?'none':'flex'; }
   window.addEventListener('scroll',()=>{ document.getElementById('header').classList.toggle('scrolled',window.scrollY>40); });
