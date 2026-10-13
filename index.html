@@ -339,7 +339,7 @@
 <!-- HERO -->
 <section id="hero" class="hero">
   <div class="hero-bg">
-    <img src="https://images.unsplash.com/photo-1615012553971-f7251c225e01" alt="" fetchpriority="high" decoding="async" />
+    <img src="https://images.unsplash.com/photo-1615012553971-f7251c225e01" alt="" loading="lazy" fetchpriority="low" decoding="async" />
     <div class="dark"></div><div class="glow"></div>
   </div>
   <div class="wrap">
@@ -576,7 +576,11 @@
   const memberColor=v=>/^#[0-9a-f]{3,8}$/i.test(String(v||''))?String(v):'#7f1d1d';
   async function renderMembers(){
     let list=MEMBERS;
-    try{
+    // No celular, use a lista estática para evitar payloads grandes e travamentos do WebKit.
+    const isSmallScreen=window.matchMedia&&window.matchMedia('(max-width:700px)').matches;
+    if(isSmallScreen){
+      list=MEMBERS.slice(0,12);
+    } else try{
       const res=await fetch(MEMBERS_API_URL,{headers:{apikey:SUPABASE_PUBLIC_KEY}});
       if(res.ok){
         const remote=await res.json();
