@@ -609,6 +609,15 @@
       </article>`;
     grid.appendChild(wrap);
     const card=wrap.querySelector('.card');
+    const memberPhoto=wrap.querySelector('.member-photo');
+    if(memberPhoto){
+      memberPhoto.addEventListener('error',()=>{
+        const fallback=document.createElement('span');
+        fallback.className='letter display';
+        fallback.textContent=(m.name||'?').charAt(0).toUpperCase();
+        memberPhoto.replaceWith(fallback);
+      },{once:true});
+    }
     card.addEventListener('mousemove',e=>{
       const b=card.getBoundingClientRect();
       const px=(e.clientX-b.left)/b.width, py=(e.clientY-b.top)/b.height;
