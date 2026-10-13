@@ -248,7 +248,46 @@
 </style><style>.member-banner{position:relative;z-index:6;display:flex;align-items:center;gap:9px;min-height:46px;padding:8px 12px;box-sizing:border-box;background:linear-gradient(100deg,var(--rc)40%,#15151b 88%);border-bottom:1px solid var(--rcb);overflow:hidden}.member-banner:before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#fff4,transparent);transform:translateX(-110%);animation:stableBannerShine 5s ease-in-out infinite}.member-banner span,.member-banner strong,.member-banner b{position:relative;z-index:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.member-banner span{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.8;text-transform:uppercase}.member-banner strong{font:700 12px "Unbounded",sans-serif;color:#fff;margin-right:auto}.member-banner b{font:8px "JetBrains Mono",monospace;letter-spacing:1px;color:#fff;opacity:.78}.member .mono-panel{border-top:0}@keyframes stableBannerShine{0%,35%{transform:translateX(-110%)}65%,100%{transform:translateX(110%)}}@media(max-width:700px){.member-banner{min-height:42px;padding:7px 10px;gap:6px}.member-banner span{font-size:7px}.member-banner strong{font-size:10px}.member-banner b{font-size:7px}}@media(prefers-reduced-motion:reduce){.member-banner:before{animation:none}}</style>
 <style>/* Eternity performance layer */
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}
-</style><style>.member-focus{display:flex;align-items:center;gap:8px;margin-top:15px;padding:9px 11px;border:1px solid var(--rcb);border-radius:10px;background:linear-gradient(100deg,var(--rc)12%,#090909 72%);font:9px "JetBrains Mono",monospace;letter-spacing:1.2px;text-transform:uppercase;color:#fff;box-shadow:inset 0 0 18px #0008,0 0 0 transparent;transition:.3s}.member-focus:hover{box-shadow:0 0 22px var(--rcb),inset 0 0 18px #0008;transform:translateY(-2px)}.focus-dot{width:7px;height:7px;border-radius:50%;background:var(--rc);box-shadow:0 0 10px var(--rc);animation:focusPulse 1.8s ease-in-out infinite}.focus-sep{opacity:.4}.member-card-index{margin-left:auto;color:var(--rc);font-weight:700}.card:hover .member-focus{letter-spacing:1.6px}.member-photo{transition:transform .6s cubic-bezier(.16,1,.3,1),filter .6s}.card:hover .member-photo{transform:scale(1.07);filter:saturate(1.2) contrast(1.06)}@keyframes focusPulse{50%{opacity:.45;transform:scale(.72)}}@media(max-width:700px){.member-focus{font-size:8px;padding:8px}.member-card-index{display:none}}@media(prefers-reduced-motion:reduce){.focus-dot{animation:none}.member-photo{transition:none}}</style></head>
+</style><style>.member-focus{display:flex;align-items:center;gap:8px;margin-top:15px;padding:9px 11px;border:1px solid var(--rcb);border-radius:10px;background:linear-gradient(100deg,var(--rc)12%,#090909 72%);font:9px "JetBrains Mono",monospace;letter-spacing:1.2px;text-transform:uppercase;color:#fff;box-shadow:inset 0 0 18px #0008,0 0 0 transparent;transition:.3s}.member-focus:hover{box-shadow:0 0 22px var(--rcb),inset 0 0 18px #0008;transform:translateY(-2px)}.focus-dot{width:7px;height:7px;border-radius:50%;background:var(--rc);box-shadow:0 0 10px var(--rc);animation:focusPulse 1.8s ease-in-out infinite}.focus-sep{opacity:.4}.member-card-index{margin-left:auto;color:var(--rc);font-weight:700}.card:hover .member-focus{letter-spacing:1.6px}.member-photo{transition:transform .6s cubic-bezier(.16,1,.3,1),filter .6s}.card:hover .member-photo{transform:scale(1.07);filter:saturate(1.2) contrast(1.06)}@keyframes focusPulse{50%{opacity:.45;transform:scale(.72)}}@media(max-width:700px){.member-focus{font-size:8px;padding:8px}.member-card-index{display:none}}@media(prefers-reduced-motion:reduce){.focus-dot{animation:none}.member-photo{transition:none}}</style><style id="members-premium-redesign">
+/* Premium member cards — black glass / red signal */
+#membros .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;align-items:stretch}
+#membros .member{min-width:0}
+#membros .card{min-height:590px;border-radius:22px;background:linear-gradient(145deg,#1a0b0d 0%,#0b0b0f 36%,#050505 100%);border:1px solid color-mix(in srgb,var(--rc) 48%,#ffffff 8%);box-shadow:0 18px 45px #000b, inset 0 1px 0 #ffffff14;transition:transform .22s cubic-bezier(.16,1,.3,1),border-color .35s,box-shadow .35s;animation:premiumFloat 7s ease-in-out infinite}
+#membros .member:nth-child(2n) .card{animation-delay:-2.4s}
+#membros .member:nth-child(3n) .card{animation-delay:-4.8s}
+#membros .card:before{inset:10px;border-radius:15px;opacity:.42;border-color:var(--rc)}
+#membros .card:after{background:linear-gradient(120deg,transparent 20%,#ffffff12 43%,transparent 57%);mix-blend-mode:screen}
+#membros .card:hover{border-color:var(--rc);box-shadow:0 28px 70px #000e,0 0 34px color-mix(in srgb,var(--rc) 35%,transparent),inset 0 1px 0 #ffffff2b}
+#membros .card.featured{border-color:#f1f1f1aa;box-shadow:0 0 0 1px #ffffff18,0 22px 58px #000d,0 0 40px #ffffff12}
+#membros .member-banner{min-height:58px;padding:12px 17px;gap:11px;background:linear-gradient(110deg,color-mix(in srgb,var(--rc) 82%,#000 18%),#17090d 62%,#08080a);border-bottom:1px solid var(--rc);box-shadow:0 8px 25px #0008}
+#membros .member-banner:after{content:"";position:absolute;right:15px;top:50%;width:42px;height:1px;background:var(--rc);box-shadow:0 0 10px var(--rc);opacity:.8}
+#membros .member-banner span{font-size:9px;letter-spacing:2px}
+#membros .member-banner strong{font-size:14px;letter-spacing:.4px;text-shadow:0 0 14px #fff5}
+#membros .member-banner b{font-size:8px;opacity:.9}
+#membros .badges{top:73px;left:17px;right:17px}
+#membros .rank{font-size:10px;padding:5px 8px;border-left:2px solid var(--rc);background:#050505aa}
+#membros .role{border-radius:999px;background:#05050599;padding:6px 10px;box-shadow:0 0 12px color-mix(in srgb,var(--rc) 22%,transparent)}
+#membros .mono-panel{height:250px;margin:0 10px;border:1px solid #ffffff12;border-radius:16px;background:radial-gradient(circle at 50% 52%,color-mix(in srgb,var(--rc) 20%,#080808),#050505 63%);box-shadow:inset 0 0 35px #000,0 8px 20px #0008}
+#membros .mono-grid{opacity:.18;background-size:19px 19px;background-image:linear-gradient(color-mix(in srgb,var(--rc) 28%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--rc) 28%,transparent) 1px,transparent 1px)}
+#membros .mono-panel:before{content:"IDENTITY / VERIFIED";position:absolute;left:16px;bottom:13px;z-index:4;font:8px "JetBrains Mono",monospace;letter-spacing:2px;color:var(--rc);opacity:.8}
+#membros .member-photo{inset:9%;width:82%;height:82%;border-radius:24px;box-shadow:0 0 0 7px #050505,0 0 0 8px var(--rcb),0 0 40px color-mix(in srgb,var(--rc) 35%,transparent);clip-path:polygon(10% 0,90% 0,100% 10%,100% 90%,90% 100%,10% 100%,0 90%,0 10%)}
+#membros .letter{font-size:88px;text-shadow:0 0 18px var(--rc),0 0 55px color-mix(in srgb,var(--rc) 60%,transparent)}
+#membros .watermark{font-size:130px;right:-4px;bottom:-24px;opacity:.15}
+#membros .ring{width:120px;height:120px}
+#membros .body{padding:22px 22px 20px}
+#membros .code{font-size:10px;letter-spacing:2px;color:var(--rc);opacity:.85;text-transform:uppercase}
+#membros .body h3{font-size:26px;letter-spacing:-.5px;margin:8px 0 14px;text-shadow:0 4px 18px #000}
+#membros .motto{font-size:11px;line-height:1.55;min-height:35px;margin-bottom:12px;color:#fda4af}
+#membros .desc{font-size:12px;line-height:1.65}
+#membros .member-focus{margin-top:18px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--rc) 20%,#080808),#080808 75%);padding:11px 13px;box-shadow:inset 0 0 16px #000,0 0 0 1px #ffffff08}
+#membros .member-meta{margin-top:16px;padding-top:14px;border-color:#ffffff14}
+#membros .member-stamp{top:88px;right:19px;border-radius:5px;letter-spacing:1.5px;background:#050505aa;backdrop-filter:blur(6px)}
+#membros .bar{height:3px;bottom:0;box-shadow:0 0 18px var(--rc)}
+@keyframes premiumFloat{0%,100%{translate:0 0}50%{translate:0 -6px}}
+@media(max-width:1100px){#membros .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}}
+@media(max-width:640px){#membros .grid{grid-template-columns:1fr;gap:18px}#membros .card{min-height:0}#membros .mono-panel{height:235px}#membros .body h3{font-size:23px}#membros .desc{max-height:160px;opacity:1;margin-top:4px}#membros .member-stamp{top:84px}}
+@media(prefers-reduced-motion:reduce){#membros .card{animation:none!important}}
+</style></head>
 <body>
 <div class="noise"></div>
 
