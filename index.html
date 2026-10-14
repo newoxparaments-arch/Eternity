@@ -747,7 +747,7 @@
         }
         attachment_urls=uploaded;
       }
-      const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),device_model:getDeviceModel(),attachment_urls,attachment_url:JSON.stringify(attachment_urls.map(x=>x.url)),consent_at:new Date().toISOString()};
+      const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),device_model:getDeviceModel(),user_agent:navigator.userAgent,attachment_urls,attachment_url:JSON.stringify(attachment_urls.map(x=>x.url)),consent_at:new Date().toISOString()};
       const controller=new AbortController(); const requestTimer=setTimeout(()=>controller.abort(),90000); let response; try{response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY},body:JSON.stringify(payload),signal:controller.signal});}finally{clearTimeout(requestTimer);}
       if(!response.ok){
         let detail='request_failed'; try{detail=(await response.json()).error||detail}catch(_){}
