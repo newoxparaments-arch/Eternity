@@ -579,7 +579,7 @@
     // No celular, use a lista estática para evitar payloads grandes e travamentos do WebKit.
     const isSmallScreen=window.matchMedia&&window.matchMedia('(max-width:700px)').matches;
     if(isSmallScreen){
-      list=MEMBERS.slice(0,12);
+      list=MEMBERS.slice(0,24);
     } else try{
       const res=await fetch(MEMBERS_API_URL,{headers:{apikey:SUPABASE_PUBLIC_KEY}});
       if(res.ok){
