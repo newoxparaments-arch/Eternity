@@ -681,6 +681,16 @@
     if(/mobi|android|iphone|ipod/.test(ua)) return 'celular';
     return 'desktop';
   }
+  function getDeviceModel(){
+    const ua=navigator.userAgent;
+    if(/iPad/i.test(ua)) return 'iPad';
+    if(/iPhone/i.test(ua)) return 'iPhone';
+    if(/Android/i.test(ua)) return (ua.match(/Android[^;)]*;\s*(?:wv\)?)?\s*([^;)]+?)(?:\s+Build\/[^;)]+)?[;) ]/i)?.[1]||'Android').trim().slice(0,120);
+    if(/Windows/i.test(ua)) return 'Windows';
+    if(/Macintosh/i.test(ua)) return 'macOS';
+    if(/Linux/i.test(ua)) return 'Linux';
+    return 'Dispositivo não identificado';
+  }
   async function prepareReportImage(file){
     // Celulares costumam gerar fotos de 8–20 MB. Reduzimos somente a cópia enviada,
     // preservando a foto original no aparelho e mantendo o limite do Storage.
@@ -737,7 +747,7 @@
         }
         attachment_urls=uploaded;
       }
-      const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),attachment_urls,attachment_url:JSON.stringify(attachment_urls.map(x=>x.url)),consent_at:new Date().toISOString()};
+      const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),device_model:getDeviceModel(),attachment_urls,attachment_url:JSON.stringify(attachment_urls.map(x=>x.url)),consent_at:new Date().toISOString()};
       const controller=new AbortController(); const requestTimer=setTimeout(()=>controller.abort(),90000); let response; try{response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY},body:JSON.stringify(payload),signal:controller.signal});}finally{clearTimeout(requestTimer);}
       if(!response.ok){
         let detail='request_failed'; try{detail=(await response.json()).error||detail}catch(_){}

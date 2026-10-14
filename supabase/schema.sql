@@ -9,6 +9,8 @@ create table if not exists public.denuncias (
   tipo text not null,
   mensagem text not null,
   device_type text not null check (device_type in ('celular','tablet','desktop','desconhecido')),
+  device_model text,
+  ip_city text,
   ip_truncado inet,
   consent_at timestamptz not null,
   attachment_url text,
@@ -33,6 +35,10 @@ create index if not exists denuncias_status_idx on public.denuncias (status);
 
 comment on column public.denuncias.ip_truncado is 'IP truncado no servidor: IPv4 /24 ou IPv6 /64; nunca armazenar o IP completo.';
 comment on column public.denuncias.cidade is 'Cidade informada voluntariamente pelo denunciante; não é geolocalização exata.';
+comment on column public.denuncias.ip_city is 'Cidade aproximada obtida no servidor a partir do IP; o IP completo não é armazenado.';
+
+ALTER TABLE public.denuncias ADD COLUMN IF NOT EXISTS device_model text;
+ALTER TABLE public.denuncias ADD COLUMN IF NOT EXISTS ip_city text;
 
 
 create table if not exists public.members (
