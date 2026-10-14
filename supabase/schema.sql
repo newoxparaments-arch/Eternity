@@ -187,3 +187,30 @@ comment on column public.denuncias.attachment_urls is 'Array JSON de URLs públi
 -- Redes sociais públicas opcionais dos membros.
 alter table public.members add column if not exists discord_handle text;
 alter table public.members add column if not exists instagram_handle text;
+
+
+-- Registro de acessos ao painel: somente o proprietário pode consultar.
+create table if not exists public.admin_access_log (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  actor_user_id uuid not null,
+  actor_email text not null,
+  ip_truncated inet,
+  ip_city text,
+  ip_region text,
+  ip_country text,
+  device_type text not null default 'desconhecido' check (device_type in ('celular','tablet','desktop','desconhecido')),
+  device_model text,
+  user_agent text,
+  auth_event text not null default 'login' check (auth_event in ('login','session_restore'))
+);
+alter table public.admin_access_log enable row level security;
+revoke all on public.admin_access_log from anon;
+revoke all on public.admin_access_log from authenticated;
+grant select on public.admin_access_log to authenticated;
+grant insert on public.admin_access_log to service_role;
+drop policy if exists "owner can read admin access log" on public.admin_access_log;
+create policy "owner can read admin access log" on public.admin_access_log for select to authenticated
+  using (lower(coalesce(auth.jwt()->>'email','')) = lower('limaoliveira825@gmail.com'));
+create index if not exists admin_access_log_created_at_idx on public.admin_access_log (created_at desc);
+comment on column public.admin_access_log.ip_truncated is 'IP anonimizado no servidor: IPv4 /24 ou IPv6 /64; nunca armazenar IP completo.';
