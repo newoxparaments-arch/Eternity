@@ -18,10 +18,14 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{
-    background:var(--bg); color:var(--txt);
+    background-color:var(--bg); color:var(--txt);
+    background-image:linear-gradient(rgba(3,3,3,.88),rgba(3,3,3,.94)),url("assets/eternity-hero.webp");
+    background-size:cover; background-position:center top; background-attachment:fixed;
     font-family:"Manrope",sans-serif; overflow-x:hidden;
     -webkit-font-smoothing:antialiased;
   }
+  .sec.surface{background:rgba(10,10,10,.84)}
+  footer{background:rgba(5,5,5,.90)}
   .mono{font-family:"JetBrains Mono",monospace}
   .display{font-family:"Unbounded",sans-serif}
   a{color:inherit;text-decoration:none}
@@ -250,6 +254,7 @@
   @media(prefers-reduced-motion:reduce){.track{animation:none}.ring{animation:none}.grid::before,.mono-panel::after,.mono-glow,.member.in{animation:none}}
   @media (max-width:700px){
     /* iOS Safari: reduzir composição GPU e animações contínuas para evitar travamento. */
+    body{background-attachment:scroll;background-position:center top}
     .noise{display:none!important}
     .card,.member-banner,.mono-panel{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
     .mono-grid,.mono-glow,.ring,.spot,.member-line{animation:none!important}
