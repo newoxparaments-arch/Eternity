@@ -83,8 +83,8 @@ create policy "public can read member photos" on storage.objects for select to p
 -- Anexos opcionais das denúncias (imagens públicas apenas por URL aleatória)
 alter table public.denuncias add column if not exists attachment_url text;
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('report-attachments','report-attachments',true,5242880,array['image/jpeg','image/png','image/webp','image/gif'])
-on conflict (id) do update set public=true, file_size_limit=5242880, allowed_mime_types=array['image/jpeg','image/png','image/webp','image/gif'];
+values ('report-attachments','report-attachments',true,20971520,array['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm','video/quicktime','application/pdf','text/plain','text/csv','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.oasis.opendocument.text'])
+on conflict (id) do update set public=true, file_size_limit=20971520, allowed_mime_types=excluded.allowed_mime_types;
 drop policy if exists "public can upload report attachments" on storage.objects;
 create policy "public can upload report attachments" on storage.objects for insert to anon, authenticated with check (bucket_id = 'report-attachments');
 drop policy if exists "public can read report attachments" on storage.objects;
@@ -172,6 +172,16 @@ create table if not exists public.denuncia_anexos (
   display_order integer not null default 0 check (display_order between 0 and 3),
   created_at timestamptz not null default now()
 );
+
+-- Validação de metadados das evidências multimídia.
+DO $$ BEGIN
+  ALTER TABLE public.denuncia_anexos DROP CONSTRAINT IF EXISTS denuncia_anexos_mime_type_check;
+  ALTER TABLE public.denuncia_anexos DROP CONSTRAINT IF EXISTS denuncia_anexos_size_bytes_check;
+  ALTER TABLE public.denuncia_anexos DROP CONSTRAINT IF EXISTS denuncia_anexos_display_order_check;
+  ALTER TABLE public.denuncia_anexos ADD CONSTRAINT denuncia_anexos_mime_type_check CHECK (mime_type in ('image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm','video/quicktime','application/pdf','text/plain','text/csv','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.oasis.opendocument.text'));
+  ALTER TABLE public.denuncia_anexos ADD CONSTRAINT denuncia_anexos_size_bytes_check CHECK (size_bytes > 0 and size_bytes <= 20971520);
+  ALTER TABLE public.denuncia_anexos ADD CONSTRAINT denuncia_anexos_display_order_check CHECK (display_order between 0 and 7);
+END $$;
 create index if not exists denuncia_anexos_denuncia_idx on public.denuncia_anexos (denuncia_id, display_order);
 alter table public.denuncia_anexos enable row level security;
 revoke all on public.denuncia_anexos from anon;
@@ -181,7 +191,12 @@ drop policy if exists "active admins can read report attachments metadata" on pu
 create policy "active admins can read report attachments metadata" on public.denuncia_anexos for select to authenticated
   using (exists (select 1 from public.admin_profiles p where p.user_id = auth.uid() and p.active = true));
 grant insert on public.denuncia_anexos to service_role;
-comment on column public.denuncias.attachment_urls is 'Array JSON de URLs públicas das fotos; até 4 itens. Mantido junto de attachment_url por compatibilidade.';
+comment on column public.denuncias.attachment_urls is 'Array JSON de evidências; até 8 itens, com MIME, tamanho, hash, descrição e ordem.';
+alter table public.denuncia_anexos add column if not exists file_name text;
+alter table public.denuncia_anexos add column if not exists description text;
+alter table public.denuncia_anexos add column if not exists sha256 char(64);
+alter table public.denuncia_anexos add column if not exists width integer;
+alter table public.denuncia_anexos add column if not exists height integer;
 
 
 

@@ -320,7 +320,7 @@
 @media(max-width:1100px){#membros .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}}
 @media(max-width:640px){#membros .grid{grid-template-columns:1fr;gap:18px}#membros .card{min-height:0}#membros .mono-panel{height:235px}#membros .body h3{font-size:23px}#membros .desc{max-height:160px;opacity:1;margin-top:4px}#membros .member-stamp{top:84px}}
 @media(prefers-reduced-motion:reduce){#membros .card{animation:none!important}}
-</style></head>
+</style><style>.evidence-item{display:grid;gap:4px;padding:10px;border:1px solid #3a171c;border-radius:8px;background:#0b0b0b}.evidence-item b{color:#fca5a5;font-size:12px;word-break:break-word}.evidence-item small{color:#999}.evidence-item textarea{min-height:42px;resize:vertical}.captcha-field{max-width:260px}</style></head>
 <body>
 <div class="noise"></div>
 
@@ -449,16 +449,17 @@
           </div>
         </div>
         <div class="field">
-          <label>Fotos ou evidências (opcional)</label>
-          <input id="f_anexo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple />
-          <button type="button" id="clearAnexo" style="display:none;margin-top:8px;background:#27272a;border-color:#52525b">Remover fotos selecionadas</button>
-          <small id="anexoStatus" style="display:block;color:var(--txt2);margin-top:6px"></small><div id="anexoPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
-          <small style="display:block;color:var(--txt2);margin-top:6px">Enviar até 4 fotos, 5 MB cada. Não envie dados pessoais desnecessários.</small>
+          <label>Fotos, vídeos e documentos (opcional)</label>
+          <input id="f_anexo" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,application/pdf,text/plain,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text" multiple />
+          <button type="button" id="clearAnexo" style="display:none;margin-top:8px;background:#27272a;border-color:#52525b">Remover evidências selecionadas</button>
+          <small id="anexoStatus" style="display:block;color:var(--txt2);margin-top:6px"></small><div id="anexoPreview" style="display:grid;gap:8px;margin-top:8px"></div>
+          <small style="display:block;color:var(--txt2);margin-top:6px">Até 8 evidências, 20 MB cada. Vídeos devem ser curtos. URLs públicas podem ser descritas no relato.</small>
         </div>
         <div class="field">
           <label>Descreva os fatos</label>
           <textarea id="f_msg" rows="5" placeholder="Conte tudo o que sabe. Cada detalhe importa..."></textarea>
         </div>
+        <div class="field captcha-field"><label id="captchaQuestion">Quanto é ...?</label><input id="f_captcha" inputmode="numeric" autocomplete="off" placeholder="Resposta" maxlength="2" required /></div>
         <label class="privacy-consent"><input id="f_consent" type="checkbox" /> <span>Concluir termos</span></label>
         <button type="submit" class="submit">Enviar denúncia
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -711,92 +712,37 @@
     if(/Linux/i.test(ua)) return 'Linux';
     return 'Dispositivo não identificado';
   }
-  async function prepareReportImage(file){
-    // Celulares costumam gerar fotos de 8–20 MB. Reduzimos somente a cópia enviada,
-    // preservando a foto original no aparelho e mantendo o limite do Storage.
-    if(file.size<=3.5*1024*1024) return {blob:file,type:file.type,size:file.size,name:file.name.replace(/[^a-z0-9._-]/gi,'_')};
-    try{
-      const bitmap=await createImageBitmap(file);
-      const max=2200, scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
-      const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(bitmap.width*scale)); canvas.height=Math.max(1,Math.round(bitmap.height*scale));
-      const ctx=canvas.getContext('2d',{alpha:false}); ctx.drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close?.();
-      const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.82));
-      if(!blob||blob.size>5*1024*1024) throw new Error('image_too_large');
-      return {blob,type:'image/jpeg',size:blob.size,name:file.name.replace(/\.[^.]+$/,'')+'.jpg'.replace(/[^a-z0-9._-]/gi,'_')};
-    }catch(_){
-      if(file.size>5*1024*1024) throw new Error('image_too_large');
-      return {blob:file,type:file.type,size:file.size,name:file.name.replace(/[^a-z0-9._-]/gi,'_')};
-    }
+  const EVIDENCE_TYPES=['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm','video/quicktime','application/pdf','text/plain','text/csv','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.oasis.opendocument.text'];
+  async function digestFile(blob){const hash=await crypto.subtle.digest('SHA-256',await blob.arrayBuffer());return Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('')}
+  async function prepareEvidence(file){
+    let blob=file,type=file.type,size=file.size,name=file.name.replace(/[^a-z0-9._-]/gi,'_'),width=null,height=null;
+    if(type.startsWith('image/')){try{const bitmap=await createImageBitmap(file);width=bitmap.width;height=bitmap.height;if(size>5*1024*1024){const max=2200,scale=Math.min(1,max/Math.max(width,height));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(width*scale));canvas.height=Math.max(1,Math.round(height*scale));canvas.getContext('2d',{alpha:false}).drawImage(bitmap,0,0,canvas.width,canvas.height);const out=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.82));bitmap.close?.();if(out&&out.size<=5*1024*1024){blob=out;type='image/jpeg';size=out.size;width=canvas.width;height=canvas.height;name=name.replace(/\.[^.]+$/,'')+'.jpg'}}else bitmap.close?.()}catch(_){} }
+    if(size>20*1024*1024)throw new Error('evidence_too_large');
+    return {blob,type,size,name,width,height,sha256:await digestFile(blob)};
   }
   async function sendReport(e){
     e.preventDefault();
-    const nome=document.getElementById('f_nome').value.trim()||null;
-    const contato=document.getElementById('f_contato').value.trim()||null;
-    const cidade=document.getElementById('f_cidade').value.trim()||null;
-    const tipo=document.getElementById('f_tipo').value;
-    const msg=document.getElementById('f_msg').value.trim();
-    const attachments=Array.from(document.getElementById('f_anexo').files);
-    const consent=document.getElementById('f_consent').checked;
-    if(msg.length<10){ showToast('Descreva a denúncia com mais detalhes (mín. 10 caracteres).'); return false; }
-    if(!consent){ showToast('Marque o consentimento para enviar a denúncia.'); return false; }
-    if(attachments.length>4){ showToast('Você pode anexar no máximo 4 fotos.'); return false; }
-    if(attachments.length){
-      const allowed=['image/jpeg','image/png','image/webp','image/gif'];
-      if(attachments.some(file=>!allowed.includes(file.type) || file.size>15*1024*1024)){ showToast('Cada foto precisa ser JPG, PNG, WEBP ou GIF de até 15 MB.'); return false; }
-    }
-    if(SUPABASE_FUNCTION_URL.includes('SEU-PROJETO')){ showToast('O banco ainda precisa ser configurado pelo administrador.'); return false; }
-    const button=e.target.querySelector('button[type="submit"]');
-    button.disabled=true; button.dataset.original=button.textContent; button.firstChild.textContent=attachments.length?'Preparando fotos...':'Enviando...';
-    let uploadedPaths=[];
-    try{
-      let attachment_urls=[];
-      if(attachments.length){
-        const uploaded=[];
-        try{
-          for(const attachment of attachments){
-            const prepared=await prepareReportImage(attachment);
-            const path=crypto.randomUUID()+'/'+prepared.name;
-            const safePath=path.split('/').map(encodeURIComponent).join('/');
-            const upload=await fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+safePath,{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY,'Content-Type':prepared.type,'x-upsert':'false'},body:prepared.blob});
-            if(!upload.ok) throw new Error('upload_failed');
-            const item={url:SUPABASE_URL+'/storage/v1/object/public/report-attachments/'+safePath,path,mime_type:prepared.type,size_bytes:prepared.size}; uploaded.push(item); uploadedPaths.push(item.path);
-          }
-        }catch(uploadError){
-          await Promise.allSettled(uploaded.map(item=>fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+item.path,{method:'DELETE',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY}})));
-          throw uploadError;
-        }
-        attachment_urls=uploaded;
-      }
-      const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),device_model:getDeviceModel(),user_agent:navigator.userAgent,attachment_urls,attachment_url:JSON.stringify(attachment_urls.map(x=>x.url)),consent_at:new Date().toISOString()};
-      const controller=new AbortController(); const requestTimer=setTimeout(()=>controller.abort(),90000); let response; try{response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY},body:JSON.stringify(payload),signal:controller.signal});}finally{clearTimeout(requestTimer);}
-      if(!response.ok){
-        let detail='request_failed'; try{detail=(await response.json()).error||detail}catch(_){}
-        await Promise.allSettled(attachment_urls.map(item=>fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+item.path,{method:'DELETE',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY}})));
-        throw new Error(detail);
-      }
-      showToast('Denúncia registrada com segurança. Obrigado.');
-      try{sessionStorage.removeItem(REPORT_DRAFT_KEY)}catch(_){}
-      document.getElementById('reportForm').reset();
-      document.getElementById('clearAnexo').style.display='none';
-      document.getElementById('anexoStatus').textContent='';
-    }catch(error){ if(uploadedPaths.length) await Promise.allSettled(uploadedPaths.map(path=>fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+path,{method:'DELETE',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY}}))); console.error('Falha ao registrar denúncia:',error); showToast(error.name==='AbortError'?'A conexão demorou. Verifique a internet e tente novamente.':error.message==='image_too_large'?'Uma foto continua muito grande. Escolha outra ou reduza a resolução.':error.message==='upload_failed'?'Não foi possível enviar a foto. Tente outra imagem.':'Não foi possível registrar agora. Tente novamente mais tarde.'); }
-    finally{ button.disabled=false; button.firstChild.textContent='Enviar denúncia'; }
-    return false;
+    const nome=document.getElementById('f_nome').value.trim()||null, contato=document.getElementById('f_contato').value.trim()||null, cidade=document.getElementById('f_cidade').value.trim()||null, tipo=document.getElementById('f_tipo').value, msg=document.getElementById('f_msg').value.trim();
+    const attachments=Array.from(document.getElementById('f_anexo').files), consent=document.getElementById('f_consent').checked, captcha=Number(document.getElementById('f_captcha').value), expected=window.__reportCaptcha;
+    if(msg.length<10){showToast('Descreva a denúncia com mais detalhes (mín. 10 caracteres).');return false} if(!consent){showToast('Marque o consentimento para enviar a denúncia.');return false} if(!Number.isInteger(captcha)||captcha!==expected){showToast('Resposta da pergunta incorreta.');setReportCaptcha();return false} if(attachments.length>8){showToast('Você pode anexar no máximo 8 evidências.');return false} if(attachments.some(file=>!EVIDENCE_TYPES.includes(file.type)||file.size>20*1024*1024)){showToast('Há um arquivo com formato não permitido ou maior que 20 MB.');return false}
+    if(SUPABASE_FUNCTION_URL.includes('SEU-PROJETO')){showToast('O banco ainda precisa ser configurado pelo administrador.');return false}
+    const button=e.target.querySelector('button[type="submit"]');button.disabled=true;button.dataset.original=button.textContent;button.firstChild.textContent=attachments.length?'Preparando evidências...':'Enviando...';let uploadedPaths=[];
+    try{let attachment_urls=[];if(attachments.length){const uploaded=[];try{for(let i=0;i<attachments.length;i++){const prepared=await prepareEvidence(attachments[i]),desc=document.querySelector(`#evidenceList [data-evidence-index="${i}"] textarea`)?.value.trim().slice(0,500)||'';const path=crypto.randomUUID()+'/'+prepared.name,safePath=path.split('/').map(encodeURIComponent).join('/');const upload=await fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+safePath,{method:'POST',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY,'Content-Type':prepared.type,'x-upsert':'false'},body:prepared.blob});if(!upload.ok)throw new Error('upload_failed');const item={url:SUPABASE_URL+'/storage/v1/object/public/report-attachments/'+safePath,path,mime_type:prepared.type,size_bytes:prepared.size,name:prepared.name,width:prepared.width,height:prepared.height,sha256:prepared.sha256,description:desc,display_order:i};uploaded.push(item);uploadedPaths.push(item.path)} }catch(err){await Promise.allSettled(uploaded.map(item=>fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+item.path,{method:'DELETE',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY}})));throw err}attachment_urls=uploaded}
+      const payload={nome,contato,cidade,tipo,mensagem:msg,device_type:getDeviceType(),device_model:getDeviceModel(),user_agent:navigator.userAgent,attachment_urls,attachment_url:JSON.stringify(attachment_urls.map(x=>x.url)),consent_at:new Date().toISOString(),captcha_answer:captcha,captcha_question:document.getElementById('captchaQuestion').textContent};const controller=new AbortController(),requestTimer=setTimeout(()=>controller.abort(),90000);let response;try{response=await fetch(SUPABASE_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY},body:JSON.stringify(payload),signal:controller.signal})}finally{clearTimeout(requestTimer)}if(!response.ok){let detail='request_failed';try{detail=(await response.json()).error||detail}catch(_){}await Promise.allSettled(attachment_urls.map(item=>fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+item.path,{method:'DELETE',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY}})));throw new Error(detail)}showToast('Denúncia registrada com segurança. Obrigado.');try{sessionStorage.removeItem(REPORT_DRAFT_KEY)}catch(_){}document.getElementById('reportForm').reset();document.getElementById('clearAnexo').style.display='none';document.getElementById('anexoStatus').textContent='';document.getElementById('anexoPreview').innerHTML='';setReportCaptcha()
+    }catch(error){if(uploadedPaths.length)await Promise.allSettled(uploadedPaths.map(path=>fetch(SUPABASE_URL+'/storage/v1/object/report-attachments/'+path,{method:'DELETE',headers:{'apikey':SUPABASE_PUBLIC_KEY,'Authorization':'Bearer '+SUPABASE_PUBLIC_KEY}})));console.error('Falha ao registrar denúncia:',error);showToast(error.name==='AbortError'?'A conexão demorou. Verifique a internet e tente novamente.':error.message==='evidence_too_large'?'Uma evidência excede 20 MB.':error.message==='upload_failed'?'Não foi possível enviar a evidência.':'Não foi possível registrar agora. Tente novamente mais tarde.')}
+    finally{button.disabled=false;button.firstChild.textContent='Enviar denúncia'} return false;
   }
   function showToast(t){
     const el=document.getElementById('toast'); el.textContent=t; el.classList.add('show');
     clearTimeout(window._tt); window._tt=setTimeout(()=>el.classList.remove('show'),3500);
   }
 
-  document.getElementById('f_anexo').addEventListener('change',e=>{
-    const files=Array.from(e.target.files), clear=document.getElementById('clearAnexo'), status=document.getElementById('anexoStatus'), preview=document.getElementById('anexoPreview');
-    clear.style.display=files.length?'inline-block':'none'; status.textContent=files.length?`${files.length} foto(s) selecionada(s) de até 4.`:''; preview.innerHTML='';
-    files.forEach((file,i)=>{const img=document.createElement('img'); img.src=URL.createObjectURL(file); img.alt=`Prévia ${i+1}`; img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #522;'; img.onload=()=>URL.revokeObjectURL(img.src); preview.appendChild(img);});
-  });
+  document.getElementById('f_anexo').addEventListener('change',e=>{const files=Array.from(e.target.files),clear=document.getElementById('clearAnexo'),status=document.getElementById('anexoStatus'),preview=document.getElementById('anexoPreview');clear.style.display=files.length?'inline-block':'none';status.textContent=files.length?`${files.length} evidência(s) selecionada(s) de até 8.`:'';preview.innerHTML='';files.slice(0,8).forEach((file,i)=>{const row=document.createElement('div');row.className='evidence-item';row.dataset.evidenceIndex=i;row.innerHTML='<b>'+String(i+1).padStart(2,'0')+' · '+memberEsc(file.name)+'</b><small>'+memberEsc(file.type||'formato desconhecido')+' · '+(file.size/1024/1024).toFixed(2)+' MB</small><textarea maxlength="500" placeholder="Descrição desta evidência (opcional)"></textarea>';preview.appendChild(row)})});
   document.getElementById('clearAnexo').addEventListener('click',()=>{
-    const input=document.getElementById('f_anexo'); input.value=''; document.getElementById('clearAnexo').style.display='none'; document.getElementById('anexoStatus').textContent='Fotos removidas.'; document.getElementById('anexoPreview').innerHTML='';
+    const input=document.getElementById('f_anexo'); input.value=''; document.getElementById('clearAnexo').style.display='none'; document.getElementById('anexoStatus').textContent='Evidências removidas.'; document.getElementById('anexoPreview').innerHTML='';
   });
 
+  function setReportCaptcha(){const a=1+Math.floor(Math.random()*8),b=1+Math.floor(Math.random()*8);window.__reportCaptcha=a+b;document.getElementById('captchaQuestion').textContent=`Quanto é ${a} + ${b}?`;const input=document.getElementById('f_captcha');if(input)input.value=''}setReportCaptcha();
   // Preserva o texto se o navegador móvel recarregar ou voltar ao topo.
   // Por segurança, arquivos de foto não são persistidos e devem ser selecionados novamente.
   const REPORT_DRAFT_KEY='eternity_report_draft_v2';
