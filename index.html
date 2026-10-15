@@ -601,19 +601,20 @@
   const memberColor=v=>/^#[0-9a-f]{3,8}$/i.test(String(v||''))?String(v):'#7f1d1d';
   async function renderMembers(){
     let list=MEMBERS;
-    // No celular, use a lista estática para evitar payloads grandes e travamentos do WebKit.
-    const isSmallScreen=window.matchMedia&&window.matchMedia('(max-width:700px)').matches;
-    if(isSmallScreen){
-      list=MEMBERS.slice(0,24);
-    } else try{
-      const res=await fetch(MEMBERS_API_URL,{headers:{apikey:SUPABASE_PUBLIC_KEY}});
+    // Busca somente os campos necessários em todos os dispositivos, para que
+    // fotos e alterações feitas pelo painel também apareçam no celular.
+    try{
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),5000);
+      const res=await fetch(MEMBERS_API_URL,{headers:{apikey:SUPABASE_PUBLIC_KEY},signal:controller.signal,cache:'no-store'});
+      clearTimeout(timer);
       if(res.ok){
         const remote=await res.json();
-        const byName=new Map(remote.map(m=>[m.name.toLowerCase(),m]));
+        const byName=new Map(remote.filter(m=>m&&m.name).map(m=>[String(m.name).toLowerCase(),m]));
         list=MEMBERS.map(m=>byName.get(m.name.toLowerCase())||m);
-        remote.slice(0,24).forEach(m=>{if(m&&m.name&&!MEMBERS.some(base=>base.name.toLowerCase()===m.name.toLowerCase())&&list.length<24) list.push(m);});
+        remote.slice(0,24).forEach(m=>{if(m&&m.name&&!MEMBERS.some(base=>base.name.toLowerCase()===String(m.name).toLowerCase())&&list.length<24) list.push(m);});
       }
-    }catch(e){}
+    }catch(e){/* mantém os cards locais se a rede estiver indisponível */}
     grid.innerHTML='';
     list.forEach((m,i)=>{
     const r=ROLE[m.role]||{c:'#7f1d1d',label:'MEMBRO',rank:'04',icon:'Finger'}; const safeName=memberEsc(m.name||'Sem nome'); const safeRole=memberEsc(m.role||'Membro'); const safeCode=memberEsc(m.code||'//eternity'); const safeMotto=memberEsc(m.motto||''); const safeDesc=memberEsc(m.desc||m.description||''); const photo=memberUrl(m.photo_url); const color=memberColor(m.color||r.c); const initial=memberEsc((m.name||'?').charAt(0).toUpperCase());
