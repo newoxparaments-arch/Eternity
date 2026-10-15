@@ -135,6 +135,7 @@ CREATE POLICY "active admins can upload member photos" ON storage.objects FOR IN
   WITH CHECK (bucket_id = 'member-photos' AND EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true));
 CREATE POLICY "active admins can update member photos" ON storage.objects FOR UPDATE TO authenticated
   USING (bucket_id = 'member-photos' AND EXISTS (SELECT 1 FROM public.admin_profiles p WHERE p.user_id = auth.uid() AND p.active = true));
+-- RLS: fotos só podem ser gravadas/atualizadas por administradores ativos; leitura pública é somente para exibição dos membros ativos.
 
 CREATE TABLE IF NOT EXISTS public.security_audit_log (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -610,9 +610,10 @@
       clearTimeout(timer);
       if(res.ok){
         const remote=await res.json();
-        const byName=new Map(remote.filter(m=>m&&m.name).map(m=>[String(m.name).toLowerCase(),m]));
-        list=MEMBERS.map(m=>byName.get(m.name.toLowerCase())||m);
-        remote.slice(0,24).forEach(m=>{if(m&&m.name&&!MEMBERS.some(base=>base.name.toLowerCase()===String(m.name).toLowerCase())&&list.length<24) list.push(m);});
+        const exact=new Map(),folded=new Map();
+        remote.filter(m=>m&&m.name).forEach(m=>{const name=String(m.name);if(!exact.has(name)) exact.set(name,m);const key=name.toLowerCase();if(!folded.has(key)) folded.set(key,m)});
+        list=MEMBERS.map(m=>exact.get(m.name)||folded.get(m.name.toLowerCase())||m);
+        remote.slice(0,24).forEach(m=>{if(m&&m.name&&!MEMBERS.some(base=>base.name===String(m.name))&&list.length<24) list.push(m);});
       }
     }catch(e){/* mantém os cards locais se a rede estiver indisponível */}
     grid.innerHTML='';
